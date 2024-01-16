@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Chron\Reporter;
 
 use App\Chron\Domain\Query\GetOneRandomCustomer;
@@ -7,6 +9,10 @@ use App\Chron\Domain\Query\GetOneRandomCustomerHandler;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
 use Storm\Contract\Reporter\Router;
+
+use function array_key_exists;
+use function array_map;
+use function is_string;
 
 final class QueryRouter implements Router
 {

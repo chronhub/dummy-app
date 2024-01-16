@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-
 use App\Chron\Reporter\CommandRouter;
 use App\Chron\Reporter\QueryRouter;
 use App\Chron\Reporter\Subscribers\SyncRouteMessage;
@@ -32,10 +31,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->register(MessageServiceProvider::class);
 
-
         $this->app->bind(MessageProducer::class, AsyncMessageProducer::class);
         $this->app->bind('message.producer.sync', SyncMessageProducer::class);
-
 
         $this->registerReporterCommand();
         $this->registerReporterQuery();

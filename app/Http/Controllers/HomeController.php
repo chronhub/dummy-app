@@ -31,7 +31,6 @@ final class HomeController
 
         return new Response('ok');
 
-
         $works = [
             //fn () => $this->registerCustomer($reporter),
             //fn () => $this->updateEmailCustomer($reporter),
