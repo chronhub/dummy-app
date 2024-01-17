@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Domain\Ag\Concerns;
+namespace App\Chron\Domain\Aggregate\Concerns;
 
-use App\Chron\Domain\Ag\DomainEvent;
+use App\Chron\Domain\Aggregate\DomainEvent;
 use Generator;
 use Symfony\Component\Uid\Uuid;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Domain\Ag;
+namespace App\Chron\Domain\Aggregate;
 
 use stdClass;
 

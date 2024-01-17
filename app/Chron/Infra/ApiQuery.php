@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Chron\Infra;
 
-use App\Chron\Domain\Ag\DomainEvent;
-use App\Chron\Domain\Ag\Order;
+use App\Chron\Domain\Aggregate\DomainEvent;
+use App\Chron\Domain\Aggregate\Order;
 use Generator;
 use Illuminate\Support\Facades\Http;
 use stdClass;

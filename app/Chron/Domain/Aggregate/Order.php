@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Domain\Ag;
+namespace App\Chron\Domain\Aggregate;
 
-use App\Chron\Domain\Ag\Concerns\HasAggregateBehaviour;
+use App\Chron\Domain\Aggregate\Concerns\HasAggregateBehaviour;
 use Symfony\Component\Uid\Uuid;
 
 class Order

@@ -4,16 +4,30 @@ declare(strict_types=1);
 
 namespace App\Chron\Domain\Command;
 
+use App\Chron\Attribute\AsMessageHandler;
+use App\Chron\Attribute\Reference;
+use App\Chron\Domain\Event\OrderMade;
 use App\Chron\Infra\OrderRepository;
+use Storm\Reporter\ReportEvent;
 
+#[AsMessageHandler(
+    fromTransport: 'async',
+    handles: MakeOrder::class,
+    method: 'command',
+    priority: 0,
+)]
 final readonly class MakeOrderHandler
 {
-    public function __construct(private OrderRepository $orderRepository)
-    {
+    public function __construct(
+        private OrderRepository $orderRepository,
+        #[Reference('reporter.event.default')] private ReportEvent $reportEvent,
+    ) {
     }
 
-    public function __invoke(MakeOrder $command): void
+    public function command(MakeOrder $command): void
     {
         $this->orderRepository->createOrder($command->headers());
+
+        $this->reportEvent->relay(OrderMade::fromContent([]));
     }
 }
