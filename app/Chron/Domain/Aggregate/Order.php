@@ -7,7 +7,7 @@ namespace App\Chron\Domain\Aggregate;
 use App\Chron\Domain\Aggregate\Concerns\HasAggregateBehaviour;
 use Symfony\Component\Uid\Uuid;
 
-class Order
+final class Order
 {
     use HasAggregateBehaviour;
 

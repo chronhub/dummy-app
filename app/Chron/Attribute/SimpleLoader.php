@@ -12,67 +12,74 @@ use function uksort;
 
 class SimpleLoader
 {
-    public Collection $attributes;
+    public Collection $messages;
 
     public function __construct(protected ClassMap $loader)
     {
-        $this->attributes = new Collection();
+        $this->messages = new Collection();
     }
 
     public function register(): void
     {
-        $classes = $this->loader->classes;
-
-        $this->findAttributeInClass($classes);
+        $this->findAttributesInClasses($this->loader->classes);
     }
 
-    protected function findAttributeInClass(array $classes): void
+    protected function findAttributesInClasses(array $classes): void
     {
         foreach ($classes as $class) {
             $reflectionClass = new ReflectionClass($class);
-            $attributes = $reflectionClass->getAttributes(AsMessageHandler::class, ReflectionAttribute::IS_INSTANCEOF);
 
-            foreach ($attributes as $attribute) {
-                $instance = $attribute->newInstance();
-
-                $messageHandler = [$reflectionClass, $instance->method];
-
-                $this->addAttribute($instance->handles, $messageHandler, $instance->priority);
-            }
-
-            $this->findAttributeInMethods($reflectionClass);
+            $this->findAttributesInClass($reflectionClass);
+            $this->findAttributesInMethods($reflectionClass);
         }
     }
 
-    protected function findAttributeInMethods(ReflectionClass $reflectionClass): void
+    protected function findAttributesInClass(ReflectionClass $reflectionClass): void
     {
-        $reflectionMethods = $reflectionClass->getMethods();
+        $this->processAttributes(
+            $reflectionClass->getAttributes(
+                AsMessageHandler::class,
+                ReflectionAttribute::IS_INSTANCEOF),
+            $reflectionClass
+        );
+    }
 
-        foreach ($reflectionMethods as $reflectionMethod) {
-            $attributes = $reflectionMethod->getAttributes(AsMessageHandler::class, ReflectionAttribute::IS_INSTANCEOF);
-
-            foreach ($attributes as $attribute) {
-                $instance = $attribute->newInstance();
-
-                $messageHandler = [$reflectionClass, $instance->method];
-
-                $this->addAttribute($instance->handles, $messageHandler, $instance->priority);
-            }
+    protected function findAttributesInMethods(ReflectionClass $reflectionClass): void
+    {
+        foreach ($reflectionClass->getMethods() as $reflectionMethod) {
+            $this->processAttributes(
+                $reflectionMethod->getAttributes(
+                    AsMessageHandler::class,
+                    ReflectionAttribute::IS_INSTANCEOF
+                ),
+                $reflectionClass
+            );
         }
     }
 
-    protected function addAttribute(string $messageName, array $messageHandler, ?int $priority = 0): void
+    protected function processAttributes(array $attributes, ReflectionClass $reflectionClass): void
     {
-        if (! $this->attributes->has($messageName)) {
-            $this->attributes->put($messageName, [$priority => $messageHandler]);
+        foreach ($attributes as $attribute) {
+            $instance = $attribute->newInstance();
+
+            $messageHandler = [$reflectionClass, $instance->method, $instance->reporter];
+
+            $this->addMessage($instance->handles, $messageHandler, $instance->priority);
+        }
+    }
+
+    protected function addMessage(string $messageName, array $messageHandler, ?int $priority = 0): void
+    {
+        if (! $this->messages->has($messageName)) {
+            $this->messages->put($messageName, [$priority => $messageHandler]);
         } else {
-            $values = $this->attributes->get($messageName);
+            $messageHandlers = $this->messages->get($messageName);
 
-            $values[$priority] = $messageHandler;
+            $messageHandlers[$priority] = $messageHandler;
 
-            uksort($values, fn ($a, $b) => $a <=> $b);
+            uksort($messageHandlers, fn (int $a, int $b): int => $a <=> $b);
 
-            $this->attributes->put($messageName, $values);
+            $this->messages->put($messageName, $messageHandlers);
         }
     }
 }

@@ -10,6 +10,7 @@ use App\Chron\Domain\Event\CustomerRegistered;
 final class WhenCustomerRegistered
 {
     #[AsMessageHandler(
+        reporter: 'reporter.event.default',
         fromTransport: 'sync',
         handles: CustomerRegistered::class,
         method: 'onEvent',
@@ -21,6 +22,7 @@ final class WhenCustomerRegistered
     }
 
     #[AsMessageHandler(
+        reporter: 'reporter.event.default',
         fromTransport: 'sync',
         handles: CustomerRegistered::class,
         method: 'mySecondHandler',

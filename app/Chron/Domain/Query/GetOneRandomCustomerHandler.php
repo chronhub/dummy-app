@@ -7,10 +7,9 @@ namespace App\Chron\Domain\Query;
 use App\Chron\Attribute\AsMessageHandler;
 use App\Chron\Infra\CustomerRepository;
 use React\Promise\Deferred;
-use Storm\Reporter\ReportQuery;
 
 #[AsMessageHandler(
-    reporter: ReportQuery::class,
+    reporter: 'reporter.query.default',
     fromTransport: 'sync',
     handles: GetOneRandomCustomer::class,
     method: '__invoke',

@@ -7,8 +7,9 @@ namespace App\Http\Controllers;
 use App\Chron\Domain\Command\MakeOrder;
 use App\Chron\Domain\Command\RegisterCustomer;
 use App\Chron\Domain\Command\UpdateCustomerEmail;
+use App\Chron\Reporter\Report;
 use Storm\Contract\Message\Header;
-use Storm\Reporter\ReportCommand;
+use Storm\Contract\Reporter\Reporter;
 use Storm\Support\QueryPromiseTrait;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Uid\Uuid;
@@ -21,14 +22,12 @@ final class HomeController
 
     public function __invoke(): Response
     {
-        $reporter = app('reporter.command.default');
-
-        $this->sendCommand($reporter);
+        $this->sendCommand(Report::command());
 
         return new Response('ok');
     }
 
-    private function sendCommand(ReportCommand $reporter): void
+    private function sendCommand(Reporter $reporter): void
     {
         $works = [
             fn () => $this->registerCustomer($reporter),
@@ -39,7 +38,7 @@ final class HomeController
         $works[array_rand($works)]();
     }
 
-    private function registerCustomer(ReportCommand $reporter): void
+    private function registerCustomer(Reporter $reporter): void
     {
         $command = RegisterCustomer::with(Uuid::v4()->jsonSerialize(), fake()->name, fake()->email);
         $command = $command->withHeaders([
@@ -49,7 +48,7 @@ final class HomeController
         $reporter->relay($command);
     }
 
-    private function updateEmailCustomer(ReportCommand $reporter): void
+    private function updateEmailCustomer(Reporter $reporter): void
     {
         $command = UpdateCustomerEmail::fromContent([]);
         $command = $command->withHeaders([
@@ -59,7 +58,7 @@ final class HomeController
         $reporter->relay($command);
     }
 
-    private function makeOrder(ReportCommand $reporter): void
+    private function makeOrder(Reporter $reporter): void
     {
         $command = MakeOrder::fromContent([]);
         $command = $command->withHeaders([

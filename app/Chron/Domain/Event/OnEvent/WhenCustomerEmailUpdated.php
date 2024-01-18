@@ -8,6 +8,7 @@ use App\Chron\Attribute\AsMessageHandler;
 use App\Chron\Domain\Event\CustomerEmailUpdated;
 
 #[AsMessageHandler(
+    reporter: 'reporter.event.default',
     fromTransport: 'sync',
     handles: CustomerEmailUpdated::class,
     method: 'onEvent',

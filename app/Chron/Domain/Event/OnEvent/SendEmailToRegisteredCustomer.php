@@ -8,6 +8,7 @@ use App\Chron\Attribute\AsMessageHandler;
 use App\Chron\Domain\Event\CustomerRegistered;
 
 #[AsMessageHandler(
+    reporter: 'reporter.event.default',
     fromTransport: 'sync',
     handles: CustomerRegistered::class,
     method: 'onEvent',

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Storm\Reporter\MessageNotHandled;
+use Storm\Reporter\Exception\MessageNotHandled;
 use Throwable;
 
 class Handler extends ExceptionHandler
