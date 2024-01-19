@@ -9,22 +9,28 @@ use App\Chron\Reporter\Router\MessageRouter;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
+use Storm\Contract\Message\MessageProducer;
 use Storm\Contract\Reporter\Router;
 use Storm\Reporter\Producer\AsyncMessageProducer;
-use Storm\Reporter\Producer\SyncMessageProducer;
 use Storm\Reporter\ReportCommand;
 use Storm\Reporter\ReportEvent;
 use Storm\Reporter\ReportQuery;
 
 class ReporterServiceProvider extends ServiceProvider implements DeferrableProvider
 {
+    protected string $configPath = __DIR__.'/../../Chron/Reporter/reporter.php';
+
     public function boot(): void
     {
-        $this->app[TagContainer::class]->autoTag();
+        if ($this->app->runningInConsole()) {
+            $this->publishes([$this->configPath => config_path('reporter.php')], 'config');
+        }
     }
 
     public function register(): void
     {
+        $this->mergeConfigFrom($this->configPath, 'reporter');
+
         $this->app->singleton(TagContainer::class);
 
         $this->app->bind(Router::class, MessageRouter::class);
@@ -36,6 +42,8 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
         $this->app->alias(Manager::class, Report::REPORTER_ID);
 
         $this->registerDefaultReporters();
+
+        $this->app[TagContainer::class]->autoTag();
     }
 
     protected function registerDefaultReporters(): void
@@ -58,9 +66,7 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
 
     protected function registerDefaultMessageProducer(): void
     {
-        $this->app->bind('message.producer.async', AsyncMessageProducer::class);
-
-        $this->app->bind('message.producer.sync', SyncMessageProducer::class);
+        $this->app->bind(MessageProducer::class, AsyncMessageProducer::class);
     }
 
     public function provides(): array
@@ -69,8 +75,7 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
             Manager::class,
             Report::REPORTER_ID,
             Router::class,
-            'message.producer.async',
-            'message.producer.sync',
+            MessageProducer::class,
         ];
     }
 }

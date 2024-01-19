@@ -7,6 +7,8 @@ namespace App\Chron\Attribute;
 use Illuminate\Support\Collection;
 use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionMethod;
+use RuntimeException;
 
 use function uksort;
 
@@ -19,7 +21,7 @@ class SimpleLoader
         $this->messages = new Collection();
     }
 
-    public function register(): void
+    public function load(): void
     {
         $this->findAttributesInClasses($this->loader->classes);
     }
@@ -40,7 +42,8 @@ class SimpleLoader
             $reflectionClass->getAttributes(
                 AsMessageHandler::class,
                 ReflectionAttribute::IS_INSTANCEOF),
-            $reflectionClass
+            $reflectionClass,
+            null
         );
     }
 
@@ -52,28 +55,35 @@ class SimpleLoader
                     AsMessageHandler::class,
                     ReflectionAttribute::IS_INSTANCEOF
                 ),
-                $reflectionClass
+                $reflectionClass,
+                $reflectionMethod
             );
         }
     }
 
-    protected function processAttributes(array $attributes, ReflectionClass $reflectionClass): void
+    protected function processAttributes(array $attributes, ReflectionClass $reflectionClass, ?ReflectionMethod $reflectionMethod): void
     {
         foreach ($attributes as $attribute) {
             $instance = $attribute->newInstance();
 
-            $messageHandler = [$reflectionClass, $instance->method, $instance->reporter];
+            $instanceMethod = $this->determineHandlerMethod($instance->method, $reflectionMethod);
+
+            $messageHandler = new MessageHandlerData($reflectionClass, $instanceMethod, $instance->reporter, $instance->fromQueue);
 
             $this->addMessage($instance->handles, $messageHandler, $instance->priority);
         }
     }
 
-    protected function addMessage(string $messageName, array $messageHandler, ?int $priority = 0): void
+    protected function addMessage(string $messageName, MessageHandlerData $messageHandler, ?int $priority = 0): void
     {
         if (! $this->messages->has($messageName)) {
             $this->messages->put($messageName, [$priority => $messageHandler]);
         } else {
             $messageHandlers = $this->messages->get($messageName);
+
+            if (isset($messageHandlers[$priority])) {
+                throw new RuntimeException("Duplicate priority $priority for $messageName");
+            }
 
             $messageHandlers[$priority] = $messageHandler;
 
@@ -81,5 +91,14 @@ class SimpleLoader
 
             $this->messages->put($messageName, $messageHandlers);
         }
+    }
+
+    protected function determineHandlerMethod(?string $handlerMethod, ?ReflectionMethod $reflectionMethod): string
+    {
+        return match (true) {
+            $handlerMethod !== null => $handlerMethod,
+            $reflectionMethod !== null => $reflectionMethod->getName(),
+            default => '__invoke',
+        };
     }
 }

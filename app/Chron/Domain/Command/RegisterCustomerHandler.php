@@ -12,8 +12,8 @@ use Storm\Reporter\ReportEvent;
 
 #[AsMessageHandler(
     reporter: 'reporter.command.default',
-    fromTransport: 'async',
     handles: RegisterCustomer::class,
+    fromQueue: ['connection' => 'rabbitmq', 'name' => 'default'],
     method: 'command',
     priority: 0,
 )]

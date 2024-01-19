@@ -9,8 +9,8 @@ use App\Chron\Domain\Event\CustomerRegistered;
 
 #[AsMessageHandler(
     reporter: 'reporter.event.default',
-    fromTransport: 'sync',
     handles: CustomerRegistered::class,
+    fromQueue: ['connection' => 'redis', 'name' => 'default'],
     method: 'onEvent',
     priority: 3,
 )]
@@ -18,6 +18,6 @@ final class SendEmailToRegisteredCustomer
 {
     public function onEvent(CustomerRegistered $event): void
     {
-        logger('Send email to registered customer: '.$event->email);
+        logger('Send email to registered customer: '.$event->content['customer_email']);
     }
 }

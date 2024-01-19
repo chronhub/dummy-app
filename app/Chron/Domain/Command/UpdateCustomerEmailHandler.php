@@ -12,7 +12,6 @@ use Storm\Reporter\ReportEvent;
 
 #[AsMessageHandler(
     reporter: 'reporter.command.default',
-    fromTransport: 'async',
     handles: UpdateCustomerEmail::class,
     method: 'command',
     priority: 0,

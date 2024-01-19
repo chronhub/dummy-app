@@ -9,7 +9,6 @@ use App\Chron\Domain\Event\OrderMade;
 
 #[AsMessageHandler(
     reporter: 'reporter.event.default',
-    fromTransport: 'sync',
     handles: OrderMade::class,
     method: 'onEvent',
     priority: 0,

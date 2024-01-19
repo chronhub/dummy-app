@@ -19,7 +19,7 @@ final class CustomerRegistered extends AbstractDomainEvent
         string $name,
         string $email,
     ): self {
-        $self = new self([]);
+        $self = new self(['customer_id' => $customerId, 'customer_name' => $name, 'customer_email' => $email]);
         $self->customerId = $customerId;
         $self->name = $name;
         $self->email = $email;

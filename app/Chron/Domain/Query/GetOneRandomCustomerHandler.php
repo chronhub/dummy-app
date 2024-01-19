@@ -10,7 +10,6 @@ use React\Promise\Deferred;
 
 #[AsMessageHandler(
     reporter: 'reporter.query.default',
-    fromTransport: 'sync',
     handles: GetOneRandomCustomer::class,
     method: '__invoke',
     priority: 0,

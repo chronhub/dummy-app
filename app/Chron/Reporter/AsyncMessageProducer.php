@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Producer;
+namespace App\Chron\Reporter;
 
 use RuntimeException;
 use Storm\Contract\Message\Header;
 use Storm\Contract\Message\MessageProducer;
 use Storm\Message\Message;
+use Storm\Reporter\Producer\IlluminateQueue;
 
-final readonly class AsyncDispatcher implements MessageProducer
+final readonly class AsyncMessageProducer implements MessageProducer
 {
     public function __construct(private IlluminateQueue $queue)
     {

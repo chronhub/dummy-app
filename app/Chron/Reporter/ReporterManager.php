@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace App\Chron\Reporter;
 
+use App\Chron\Reporter\Subscribers\MessageQueueSubscriber;
+use App\Chron\Reporter\Subscribers\RouteMessageSubscriber;
 use Illuminate\Contracts\Foundation\Application;
 use Storm\Contract\Reporter\Reporter;
 use Storm\Reporter\ReportCommand;
 use Storm\Reporter\ReportEvent;
 use Storm\Reporter\ReportQuery;
-use Storm\Reporter\Routing;
-use Storm\Reporter\Subscriber\AsyncRouteMessage;
 use Storm\Reporter\Subscriber\HandleCommand;
 use Storm\Reporter\Subscriber\HandleEvent;
 use Storm\Reporter\Subscriber\HandleQuery;
 use Storm\Reporter\Subscriber\MakeMessage;
 use Storm\Reporter\Subscriber\NameReporter;
-use Storm\Reporter\Subscriber\SyncRouteMessage;
 use Storm\Support\Message\MessageDecoratorSubscriber;
 use Storm\Tracker\GenericListener;
 use Storm\Tracker\TrackMessage;
@@ -95,45 +94,39 @@ class ReporterManager implements Manager
         $this->subscribeToCommonSubscriber($reporter, $name);
 
         match ($type) {
-            DomainType::COMMAND => $this->addSubscriberToCommand($reporter, $name),
-            DomainType::EVENT => $this->addSubscriberToEvent($reporter, $name),
-            DomainType::QUERY => $this->addSubscriberToQuery($reporter, $name),
+            DomainType::COMMAND => $this->addSubscriberToCommand($reporter),
+            DomainType::EVENT => $this->addSubscriberToEvent($reporter),
+            DomainType::QUERY => $this->addSubscriberToQuery($reporter),
         };
     }
 
-    protected function addSubscriberToCommand(Reporter $reporter, string $name): void
+    protected function addSubscriberToCommand(Reporter $reporter): void
     {
         $event = Reporter::DISPATCH_EVENT;
-        $routeSubscriber = new AsyncRouteMessage($this->app[Routing::class], $this->app['message.producer.async']);
 
         $listeners = [
-            new GenericListener($event, $routeSubscriber, 10000),
             new GenericListener($event, $this->app[HandleCommand::class], 0),
         ];
 
         $reporter->subscribe(...$listeners);
     }
 
-    protected function addSubscriberToEvent(Reporter $reporter, string $name): void
+    protected function addSubscriberToEvent(Reporter $reporter): void
     {
         $event = Reporter::DISPATCH_EVENT;
-        $routeSubscriber = new SyncRouteMessage($this->app[Routing::class], $this->app['message.producer.sync']);
 
         $listeners = [
-            new GenericListener($event, $routeSubscriber, 10000),
             new GenericListener($event, $this->app[HandleEvent::class], 0),
         ];
 
         $reporter->subscribe(...$listeners);
     }
 
-    protected function addSubscriberToQuery(Reporter $reporter, string $name): void
+    protected function addSubscriberToQuery(Reporter $reporter): void
     {
         $event = Reporter::DISPATCH_EVENT;
-        $routeSubscriber = new SyncRouteMessage($this->app[Routing::class], $this->app['message.producer.sync']);
 
         $listeners = [
-            new GenericListener($event, $routeSubscriber, 10000),
             new GenericListener($event, $this->app[HandleQuery::class], 0),
         ];
 
@@ -143,11 +136,12 @@ class ReporterManager implements Manager
     protected function subscribeToCommonSubscriber(Reporter $reporter, string $name): void
     {
         $event = Reporter::DISPATCH_EVENT;
-
         $listeners = [
             new GenericListener($event, $this->app[MakeMessage::class], 100000),
             new GenericListener($event, new NameReporter($name), 95000),
             new GenericListener($event, $this->app[MessageDecoratorSubscriber::class], 90000),
+            new GenericListener($event, $this->app[MessageQueueSubscriber::class], 20001),
+            new GenericListener($event, $this->app[RouteMessageSubscriber::class], 10000),
         ];
 
         $reporter->subscribe(...$listeners);
