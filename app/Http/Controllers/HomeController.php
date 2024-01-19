@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Chron\Domain\Command\MakeOrder;
 use App\Chron\Domain\Command\RegisterCustomer;
 use App\Chron\Domain\Command\UpdateCustomerEmail;
+use App\Chron\Reporter\Manager;
 use App\Chron\Reporter\Report;
 use Storm\Contract\Message\Header;
 use Storm\Contract\Reporter\Reporter;
@@ -20,7 +21,7 @@ final class HomeController
 {
     use QueryPromiseTrait;
 
-    public function __invoke(): Response
+    public function __invoke(Manager $manager): Response
     {
         $this->sendCommand(Report::command());
 
@@ -31,8 +32,8 @@ final class HomeController
     {
         $works = [
             fn () => $this->registerCustomer($reporter),
-            //fn () => $this->updateEmailCustomer($reporter),
-            //fn () => $this->makeOrder($reporter),
+            fn () => $this->updateEmailCustomer($reporter),
+            fn () => $this->makeOrder($reporter),
         ];
 
         $works[array_rand($works)]();

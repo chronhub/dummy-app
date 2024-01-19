@@ -21,18 +21,25 @@ class MessageMapCommand extends Command
 
     protected $signature = 'reporter-message:map
                             { --message= : Message name either full or short class name }
+                            { --ask=1    : Ask for complete message name }
                             { --short=1  : Short class base name output }';
 
     public function __invoke(TagContainer $tagContainer): int
     {
         $map = collect($tagContainer->map);
 
-        $message = $this->option('message');
+        if ($this->option('ask') === '1') {
+            $shortKeys = $map->keys()->map(fn (string $key): string => $this->shortClass($key))->toArray();
+
+            $message = $this->components->askWithCompletion('filter by short message name?', $shortKeys);
+        } else {
+            $message = $this->option('message');
+        }
 
         $messages = $this->findInMap($map, $message);
 
         if ($message && $messages->isEmpty()) {
-            $this->error('Message name not found in map for '.$message);
+            $this->components->error('Message name not found in map for '.$message);
 
             return self::FAILURE;
         }

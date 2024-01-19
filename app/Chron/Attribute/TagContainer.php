@@ -9,6 +9,7 @@ use App\Chron\Reporter\Subscribers\MessageQueueSubscriber;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Str;
 use ReflectionClass;
+use RuntimeException;
 use Storm\Contract\Reporter\Reporter;
 use Storm\Tracker\GenericListener;
 
@@ -68,11 +69,11 @@ class TagContainer
         foreach ($messageHandlers as $priority => $data) {
             $messageId = $this->tagConcrete($messageName, $priority);
 
-            $this->container->bind($messageId, fn (): callable => $this->newHandlerInstance($data->reflectionClass, $data->handlerMethod));
+            $this->container->bind($messageId, fn (): callable => $this->newHandlerInstance($data->reflectionClass, $priority, $data->handlerMethod));
 
             $queueOptions = $this->determineQueue($data->queue);
 
-            $this->addQueueSubscriber($data->reporterId, $messageName, $queueOptions);
+            $this->addQueueSubscriber($messageName, $priority, $queueOptions);
 
             $this->updateMessages($messageName, $messageId, $priority, $data->reporterId, $data->reflectionClass, $data->handlerMethod, $queueOptions);
         }
@@ -113,28 +114,42 @@ class TagContainer
         return $concreteTag;
     }
 
-    protected function newHandlerInstance(ReflectionClass $messageHandler, ?string $method): callable
+    protected function newHandlerInstance(ReflectionClass $messageHandler, int $priority, ?string $method): callable
     {
         $references = $this->referenceBuilder->fromConstructor($messageHandler);
 
         $instance = $this->container->make($messageHandler->getName(), ...$references);
 
-        return ($method === null || $method === '__invoke') ? $instance : $instance->{$method}(...);
+        $callback = ($method === null || $method === '__invoke') ? $instance : $instance->{$method}(...);
+
+        return new MessageHandler($callback, $priority);
     }
 
-    protected function addQueueSubscriber(string $reporterId, string $messageName, ?object $queue): void
+    protected function addQueueSubscriber(string $messageName, int $priority, ?object $queue): void
     {
-        if ($queue === null) {
-            return;
-        }
-
         if (isset($this->queueSubscribers[$messageName])) {
-            $this->queueSubscribers[$messageName][] = $queue;
+            if (! $queue) {
+                $this->queueSubscribers[$messageName] += [$priority => $queue];
+
+                return;
+            }
+
+            foreach ($this->queueSubscribers[$messageName] as $_queue) {
+                if ($_queue === null) {
+                    continue;
+                }
+
+                if ($_queue->jsonSerialize() !== $queue->jsonSerialize()) {
+                    throw new RuntimeException('Cannot add multiple queue subscribers for the same message');
+                }
+            }
+
+            $this->queueSubscribers[$messageName] += [$priority => $queue];
 
             return;
         }
 
-        $this->queueSubscribers[$messageName] = [$queue];
+        $this->queueSubscribers[$messageName] = [$priority => $queue];
     }
 
     protected function determineQueue(null|string|array $queue): ?object

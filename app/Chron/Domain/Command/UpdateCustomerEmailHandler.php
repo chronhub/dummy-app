@@ -13,6 +13,7 @@ use Storm\Reporter\ReportEvent;
 #[AsMessageHandler(
     reporter: 'reporter.command.default',
     handles: UpdateCustomerEmail::class,
+    fromQueue: ['connection' => 'rabbitmq-high', 'name' => 'high'],
     method: 'command',
     priority: 0,
 )]

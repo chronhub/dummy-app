@@ -16,5 +16,5 @@ interface Manager
 
     public function query(?string $name = null): Reporter;
 
-    public static function getDefaultId(string $type): string;
+    public function getDefaultId(string $type): string;
 }

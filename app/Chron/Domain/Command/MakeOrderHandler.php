@@ -13,6 +13,7 @@ use Storm\Reporter\ReportEvent;
 #[AsMessageHandler(
     reporter: 'reporter.command.default',
     handles: MakeOrder::class,
+    fromQueue: ['connection' => 'redis', 'name' => 'default'],
     method: 'command',
     priority: 0,
 )]

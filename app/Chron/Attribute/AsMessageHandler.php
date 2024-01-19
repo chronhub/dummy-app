@@ -32,7 +32,9 @@ class AsMessageHandler
 
     /**
      * The name of the queue from which the handler should listen for messages.
-     * Only event handler can define multiple queues.
+     * Only event handler can define one queue only,
+     * We do not support multiple transport, as this is not the purpose of the event bus.
+     * You can still relay on laravel dispatcher for application events.
      */
     public string|array|null $fromQueue = null;
 

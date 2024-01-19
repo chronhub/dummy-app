@@ -10,7 +10,6 @@ use App\Chron\Domain\Event\CustomerRegistered;
 #[AsMessageHandler(
     reporter: 'reporter.event.default',
     handles: CustomerRegistered::class,
-    fromQueue: ['connection' => 'redis', 'name' => 'default'],
     method: 'onEvent',
     priority: 3,
 )]

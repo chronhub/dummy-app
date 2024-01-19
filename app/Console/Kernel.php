@@ -22,7 +22,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load('app/Chron/Console');
+        //$this->load('app/Chron/Console');
 
         require base_path('routes/console.php');
     }

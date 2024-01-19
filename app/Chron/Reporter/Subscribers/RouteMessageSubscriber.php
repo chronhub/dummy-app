@@ -32,8 +32,6 @@ final readonly class RouteMessageSubscriber
                 return;
             }
 
-            logger('HANDLE SYNC MESSAGE '.$message->name());
-
             $messageHandlers = $this->routing->route($message->name());
 
             $story->withHandlers($messageHandlers);

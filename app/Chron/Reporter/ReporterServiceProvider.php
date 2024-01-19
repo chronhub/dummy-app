@@ -24,6 +24,8 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([$this->configPath => config_path('reporter.php')], 'config');
+
+            $this->commands(config('reporter.console.commands', []));
         }
     }
 
@@ -37,7 +39,19 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
 
         $this->registerDefaultMessageProducer();
 
-        $this->app->singleton(Manager::class, ReporterManager::class);
+        $this->app->singleton(Manager::class, function (): ReporterManager {
+            $manager = new ReporterManager($this->app);
+
+            foreach (['command', 'query', 'event'] as $type) {
+                $reporter = config('reporter.reporter.'.$type.'.default');
+
+                if (! blank($reporter)) {
+                    $manager->addDefaults($type, 'reporter.'.$type.'.default');
+                }
+            }
+
+            return $manager;
+        });
 
         $this->app->alias(Manager::class, Report::REPORTER_ID);
 
@@ -49,17 +63,17 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
     protected function registerDefaultReporters(): void
     {
         $this->app->singleton(
-            ReporterManager::REPORTERS_DEFAULT['command'],
+            $this->app[Manager::class]->getDefaultId('command'),
             fn (Application $app): ReportCommand => $app[Manager::class]->command()
         );
 
         $this->app->singleton(
-            ReporterManager::REPORTERS_DEFAULT['query'],
+            $this->app[Manager::class]->getDefaultId('query'),
             fn (Application $app): ReportQuery => $app[Manager::class]->query()
         );
 
         $this->app->singleton(
-            ReporterManager::REPORTERS_DEFAULT['event'],
+            $this->app[Manager::class]->getDefaultId('event'),
             fn (Application $app): ReportEvent => $app[Manager::class]->event()
         );
     }
