@@ -13,7 +13,7 @@ final class ReporterManager extends AbstractReporterManager
     /**
      * @var array<string,string>
      */
-    public array $defaults = [];
+    protected array $defaults = [];
 
     /**
      * @var array<string,Reporter>
