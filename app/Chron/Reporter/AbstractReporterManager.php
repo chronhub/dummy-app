@@ -16,7 +16,7 @@ use Storm\Reporter\Subscriber\NameReporter;
 use Storm\Tracker\GenericListener;
 use Storm\Tracker\TrackMessage;
 
-use function is_a;
+use function method_exists;
 use function sprintf;
 
 abstract class AbstractReporterManager implements Manager
@@ -30,7 +30,7 @@ abstract class AbstractReporterManager implements Manager
         $config = config('reporter.'.$name);
 
         if (blank($config)) {
-            throw new RuntimeException(sprintf('Reporter config not found for %s', $name));
+            throw new RuntimeException(sprintf('Reporter config not found for name %s', $name));
         }
 
         $reporter = $this->makeReporter($type, $config);
@@ -86,10 +86,13 @@ abstract class AbstractReporterManager implements Manager
     protected function makeReporter(DomainType $type, array $config): Reporter
     {
         $concrete = $this->determineReporterClass($type, $config);
-        $tracker = $this->determineTrackerClass($config);
+        $tracker = $this->makeTracker($config);
 
         $reporter = new $concrete($tracker);
-        $reporter->setContainer($this->app);
+
+        if (method_exists($reporter, 'setContainer')) {
+            $reporter->setContainer($this->app);
+        }
 
         return $reporter;
     }
@@ -106,14 +109,10 @@ abstract class AbstractReporterManager implements Manager
             };
         }
 
-        if (! is_a($concrete, Reporter::class, true)) {
-            throw new RuntimeException(sprintf('Reporter class %s must implement %s', $concrete, Reporter::class));
-        }
-
         return $concrete;
     }
 
-    protected function determineTrackerClass(array $config): MessageTracker
+    protected function makeTracker(array $config): MessageTracker
     {
         $tracker = $config['tracker'] ?? null;
 

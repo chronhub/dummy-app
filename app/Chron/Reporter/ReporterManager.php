@@ -24,10 +24,6 @@ final class ReporterManager extends AbstractReporterManager
     {
         $type = is_string($type) ? DomainType::from($type) : $type;
 
-        if (isset($this->reporters[$name])) {
-            return $this->reporters[$name];
-        }
-
         return $this->reporters[$name] ??= $this->resolve($name, $type);
     }
 
