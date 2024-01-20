@@ -1,3 +1,4 @@
+
 # Outbox Pattern in CQRS, DDD, and Event Sourcing
 
 In the context of CQRS (Command Query Responsibility Segregation), DDD (Domain-Driven Design), and Event Sourcing, the **Outbox Pattern** is a technique used to ensure reliable and consistent communication between different parts of a distributed system.
@@ -5,13 +6,13 @@ In the context of CQRS (Command Query Responsibility Segregation), DDD (Domain-D
 ## Concepts
 
 1. **CQRS (Command Query Responsibility Segregation):**
-    - Separates the responsibilities of handling commands (write operations) and queries (read operations) in a system.
+- Separates the responsibilities of handling commands (write operations) and queries (read operations) in a system.
 
 2. **DDD (Domain-Driven Design):**
-    - Focuses on understanding the business domain and modeling it in software.
+- Focuses on understanding the business domain and modeling it in software.
 
 3. **Event Sourcing:**
-    - State of an application is determined by a sequence of events instead of storing the current state.
+- The state of an application is determined by a sequence of events instead of storing the current state.
 
 ## Outbox Pattern
 
@@ -31,24 +32,23 @@ Consider an e-commerce system with the creation of a new order:
 - A `CreateOrderCommand` is received when a user places an order.
 - The command handler processes the command, updates the domain model, and generates an `OrderCreatedEvent`.
 
-```plaintext
 CreateOrderCommand -> Command Handler -> Order Aggregate -> OrderCreatedEvent
-
 
 ### Event Sourcing:
 
 - The OrderCreatedEvent is appended to the event stream for that specific order and stored in an event store.
 
-```plaintext
-Event Store:
+  Event Store:  
   - Order-123: [OrderPlacedEvent, ProductAddedEvent, OrderCreatedEvent]
 
-Outbox Table:
+  Outbox Table:  
   - EventId: 98765, EventType: OrderCreatedEvent, AggregateId: Order-123
 
+
 ### Event Publication (Separate Process):
-A background process polls the outbox table for new events.
-It reads the OrderCreatedEvent from the outbox and publishes it to an event bus or message broker.
+
+A background process polls the outbox table for new events.  
+It reads the OrderCreatedEvent from the outbox and publishes it to an event bus or message broker.  
 Other components or services subscribe to the event bus and receive notifications.
 
 Event Bus -> OrderCreatedEvent -> Subscribers (e.g., Notification Service, Analytics Service)

@@ -67,12 +67,12 @@ class TagContainer
         return $this->forwardCallTo($this->messageMap, $method, $parameters);
     }
 
-    protected function tagConcrete(string $concrete, ?int $key = null): string
+    protected function tagConcrete(string $concrete, ?int $priority = null): string
     {
         $concreteTag = sprintf(self::TAG, Str::remove('\\', Str::snake($concrete)));
 
-        if ($key !== null) {
-            return sprintf('%s%s', $concreteTag, self::HANDLER_TAG_PREFIX.$key);
+        if ($priority !== null) {
+            return sprintf('%s%s', $concreteTag, self::HANDLER_TAG_PREFIX.$priority);
         }
 
         return $concreteTag;
