@@ -4,22 +4,23 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute;
 
+use App\Chron\Attribute\MessageHandler\MessageHandlerEntry;
 use App\Chron\Reporter\QueueOption;
 use App\Chron\Reporter\Subscribers\MessageQueueSubscriber;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Str;
-use ReflectionClass;
 use RuntimeException;
 use Storm\Contract\Reporter\Reporter;
 use Storm\Tracker\GenericListener;
 
 use function array_merge;
+use function func_get_args;
 use function is_array;
 use function is_string;
 use function sprintf;
 
 /**
- * @template T of array{reporter_id: string, tag_id: string, handler_id: string, handler_class: string, handler_method: string, priority: int}
+ * @template T of MessageHandlerEntry
  */
 class TagContainer
 {
@@ -67,40 +68,29 @@ class TagContainer
     {
         /** @var MessageHandlerData $data */
         foreach ($messageHandlers as $priority => $data) {
-            $messageId = $this->tagConcrete($messageName, $priority);
+            $messageHandlerId = $this->tagConcrete($messageName, $priority);
 
-            $this->container->bind($messageId, fn (): callable => $this->newHandlerInstance($data->reflectionClass, $priority, $data->handlerMethod));
+            $this->container->bind($messageHandlerId, fn (): callable => $this->newHandlerInstance($data));
 
-            $queueOptions = $this->determineQueue($data->queue);
+            $queueOptions = $this->determineQueue($data->queue); // do not resolve queue here
 
             $this->addQueueSubscriber($messageName, $priority, $queueOptions);
 
-            $this->updateMessages($messageName, $messageId, $priority, $data->reporterId, $data->reflectionClass, $data->handlerMethod, $queueOptions);
+            $this->updateMessages($messageName, $messageHandlerId, $data, $queueOptions);
         }
     }
 
     protected function updateMessages(
         string $messageName,
-        string $messageId,
-        int $key,
-        string $reporterId,
-        ReflectionClass $reflectionClass,
-        string $handlerMethod,
+        string $messageHandlerId,
+        MessageHandlerData $data,
         ?object $queue
     ): void {
-        $this->messages[$messageName] = array_merge($this->messages[$messageName] ?? [], [$messageId]);
+        $this->messages[$messageName] = array_merge($this->messages[$messageName] ?? [], [$messageHandlerId]);
 
-        $mapEntry = [
-            'reporter_id' => $reporterId,
-            'message_id' => $this->tagConcrete($messageName),
-            'handler_id' => $messageId,
-            'handler_class' => $reflectionClass->getName(),
-            'handler_method' => $handlerMethod,
-            'priority' => $key,
-            'queue' => $queue,
-        ];
+        $entry = new MessageHandlerEntry($this->tagConcrete($messageName), ...func_get_args());
 
-        $this->map[$messageName] = array_merge($this->map[$messageName] ?? [], [$mapEntry]);
+        $this->map[$messageName] = array_merge($this->map[$messageName] ?? [], [$entry]);
     }
 
     protected function tagConcrete(string $concrete, ?int $key = null): string
@@ -114,15 +104,15 @@ class TagContainer
         return $concreteTag;
     }
 
-    protected function newHandlerInstance(ReflectionClass $messageHandler, int $priority, ?string $method): callable
+    protected function newHandlerInstance(MessageHandlerData $data): callable
     {
-        $references = $this->referenceBuilder->fromConstructor($messageHandler);
+        $references = $this->referenceBuilder->fromConstructor($data->reflectionClass);
 
-        $instance = $this->container->make($messageHandler->getName(), ...$references);
+        $instance = $this->container->make($data->reflectionClass->getName(), ...$references);
 
-        $callback = ($method === null || $method === '__invoke') ? $instance : $instance->{$method}(...);
+        $callback = ($data->handlerMethod === '__invoke') ? $instance : $instance->{$data->handlerMethod}(...);
 
-        return new MessageHandler($callback, $priority);
+        return new MessageHandler($callback, $data->priority);
     }
 
     protected function addQueueSubscriber(string $messageName, int $priority, ?object $queue): void
@@ -156,7 +146,7 @@ class TagContainer
     {
         return match (true) {
             is_string($queue) => $this->container[$queue],
-            is_array($queue) => new QueueOption(...$queue),
+            is_array($queue) => new QueueOption(...$queue), // todo queue option from config
             default => null,
         };
     }

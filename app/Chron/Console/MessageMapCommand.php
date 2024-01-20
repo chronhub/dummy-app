@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Console;
 
+use App\Chron\Attribute\MessageHandler\MessageHandlerEntry;
 use App\Chron\Attribute\TagContainer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -17,7 +18,9 @@ use function array_map;
 )]
 class MessageMapCommand extends Command
 {
-    const TABLE_HEADERS = ['Message', 'Reporter', 'Id', 'Class', 'Method', 'Priority', 'Queue'];
+    // todo filter headers / type
+    // todo add a vertical table when message is requested
+    const TABLE_HEADERS = ['Reporter', 'Type', 'Message', 'Message Tag id', 'Handler class', 'Handler method', 'Handler priority', 'Queue'];
 
     protected $signature = 'reporter-message:map
                             { --message= : Message name either full or short class name }
@@ -26,20 +29,21 @@ class MessageMapCommand extends Command
 
     public function __invoke(TagContainer $tagContainer): int
     {
+        /** @var Collection<string, MessageHandlerEntry> $map */
         $map = collect($tagContainer->map);
 
         if ($this->option('ask') === '1') {
             $shortKeys = $map->keys()->map(fn (string $key): string => $this->shortClass($key))->toArray();
 
-            $message = $this->components->askWithCompletion('filter by short message name?', $shortKeys);
+            $messageName = $this->components->askWithCompletion('filter by short message name?', $shortKeys);
         } else {
-            $message = $this->option('message');
+            $messageName = $this->option('message');
         }
 
-        $messages = $this->findInMap($map, $message);
+        $messages = $this->findInMap($map, $messageName);
 
-        if ($message && $messages->isEmpty()) {
-            $this->components->error('Message name not found in map for '.$message);
+        if ($messageName && $messages->isEmpty()) {
+            $this->components->error('Message name not found in map for '.$messageName);
 
             return self::FAILURE;
         }
@@ -57,7 +61,7 @@ class MessageMapCommand extends Command
 
         return $messages
             ->filter(fn (array $handlers, string $messageName): bool => $messageName === $message || class_basename($messageName) === $message)
-            ->map(fn (array $handlers, string $messageName): array => $handlers);
+            ->map(fn (array $handlers): array => $handlers);
     }
 
     protected function formatTableData(Collection $messages): array
@@ -70,14 +74,16 @@ class MessageMapCommand extends Command
 
     protected function formatHandler(array $handlers, string $messageName): array
     {
-        return array_map(fn (array $handler): array => [
+        return array_map(fn (MessageHandlerEntry $handler): array => [
+            $handler->data->reporterId,
+            $handler->data->type->value,
             $this->shortClass($messageName),
-            $handler['reporter_id'],
-            $handler['handler_id'],
-            $this->shortClass($handler['handler_class']),
-            $handler['handler_method'],
-            $handler['priority'],
-            $this->formatQueue($handler['queue']),
+            $handler->messageId,
+            //$handler->messageHandlerId,
+            $this->shortClass($handler->data->reflectionClass->getName()),
+            $handler->data->handlerMethod,
+            $handler->data->priority,
+            $this->formatQueue($handler->queue),
         ], $handlers);
     }
 
@@ -88,10 +94,6 @@ class MessageMapCommand extends Command
 
     protected function formatQueue(?object $queue): string
     {
-        if ($queue === null) {
-            return 'sync or unknown';
-        }
-
-        return $queue::class;
+        return $queue === null ? 'sync or unknown' : $queue::class;
     }
 }

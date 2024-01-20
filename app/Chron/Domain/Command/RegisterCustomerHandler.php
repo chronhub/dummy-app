@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace App\Chron\Domain\Command;
 
-use App\Chron\Attribute\MessageHandler\AsMessageHandler;
+use App\Chron\Attribute\MessageHandler\AsCommandHandler;
 use App\Chron\Attribute\Reference;
 use App\Chron\Domain\Event\CustomerRegistered;
 use App\Chron\Infra\CustomerRepository;
 use Storm\Reporter\ReportEvent;
 
-#[AsMessageHandler(
+#[AsCommandHandler(
     reporter: 'reporter.command.default',
     handles: RegisterCustomer::class,
     fromQueue: ['connection' => 'rabbitmq', 'name' => 'default'],
     method: 'command',
-    priority: 0,
 )]
 final readonly class RegisterCustomerHandler
 {

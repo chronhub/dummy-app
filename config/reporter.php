@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Chron\Console\ExportMessageCommand;
 use App\Chron\Console\ListenerMapCommand;
 use App\Chron\Console\MessageMapCommand;
 use App\Chron\Reporter\Subscribers\MessageQueueSubscriber;
@@ -93,6 +94,7 @@ return [
         'commands' => [
             MessageMapCommand::class,
             ListenerMapCommand::class,
+            ExportMessageCommand::class,
         ],
     ],
 ];

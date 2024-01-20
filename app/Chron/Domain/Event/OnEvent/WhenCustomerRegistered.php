@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Chron\Domain\Event\OnEvent;
 
-use App\Chron\Attribute\MessageHandler\AsMessageHandler;
+use App\Chron\Attribute\MessageHandler\AsEventHandler;
 use App\Chron\Domain\Event\CustomerRegistered;
 
 use function sprintf;
 
 final class WhenCustomerRegistered
 {
-    #[AsMessageHandler(
+    #[AsEventHandler(
         reporter: 'reporter.event.default',
         handles: CustomerRegistered::class,
         method: 'onEvent',
@@ -22,7 +22,7 @@ final class WhenCustomerRegistered
         logger(sprintf('Customer registered with email: %s', $event->content['customer_email']));
     }
 
-    #[AsMessageHandler(
+    #[AsEventHandler(
         reporter: 'reporter.event.default',
         handles: CustomerRegistered::class,
         priority: 2,

@@ -19,7 +19,7 @@ use function sprintf;
 )]
 class ListenerMapCommand extends Command
 {
-    const TABLE_HEADERS = ['Event', 'Origin', 'Priority', 'Listener type'];
+    const TABLE_HEADERS = ['Event', 'Origin', 'Priority', 'Listener'];
 
     protected $signature = 'reporter-listener:map
                             { name : reporter name }';
@@ -36,6 +36,7 @@ class ListenerMapCommand extends Command
 
         $listeners = $reporter->tracker()->listeners();
 
+        // todo prettier
         $this->components->twoColumnDetail(
             sprintf('ReporterClass: %s', $reporter::class),
             sprintf('Total: %d', $listeners->count())

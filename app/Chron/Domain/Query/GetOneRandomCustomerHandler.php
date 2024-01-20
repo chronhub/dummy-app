@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace App\Chron\Domain\Query;
 
-use App\Chron\Attribute\MessageHandler\AsMessageHandler;
+use App\Chron\Attribute\MessageHandler\AsQueryHandler;
 use App\Chron\Infra\CustomerRepository;
 use React\Promise\Deferred;
 
-#[AsMessageHandler(
+#[AsQueryHandler(
     reporter: 'reporter.query.default',
     handles: GetOneRandomCustomer::class,
-    method: '__invoke',
-    priority: 0,
 )]
 final readonly class GetOneRandomCustomerHandler
 {

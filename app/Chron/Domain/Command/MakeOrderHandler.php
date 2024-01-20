@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace App\Chron\Domain\Command;
 
-use App\Chron\Attribute\MessageHandler\AsMessageHandler;
+use App\Chron\Attribute\MessageHandler\AsCommandHandler;
 use App\Chron\Attribute\Reference;
 use App\Chron\Domain\Event\OrderMade;
 use App\Chron\Infra\OrderRepository;
 use Storm\Reporter\ReportEvent;
 
-#[AsMessageHandler(
+#[AsCommandHandler(
     reporter: 'reporter.command.default',
     handles: MakeOrder::class,
     fromQueue: ['connection' => 'redis', 'name' => 'default'],
     method: 'command',
-    priority: 0,
 )]
 final readonly class MakeOrderHandler
 {

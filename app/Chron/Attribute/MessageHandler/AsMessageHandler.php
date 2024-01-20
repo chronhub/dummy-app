@@ -51,7 +51,7 @@ class AsMessageHandler
      * @param string            $handles   Message name that the handler handles.
      * @param string|array|null $fromQueue The name of the queue from which the handler should listen for messages.
      * @param string|null       $method    The method to be invoked on the handler class. Defaults to "__invoke".
-     * @param int               $priority  Priority of the message handler when multiple handlers exist.
+     * @param int               $priority  Priority of the message handler when multiple handlers exist only for event handler.
      *
      * @throws InvalidArgumentException If the $reporter property is blank.
      * @throws InvalidArgumentException If the $handles property is blank.
