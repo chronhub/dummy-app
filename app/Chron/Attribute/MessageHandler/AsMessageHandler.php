@@ -2,31 +2,24 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Attribute;
+namespace App\Chron\Attribute\MessageHandler;
 
 use Attribute;
 use InvalidArgumentException;
 
-/**
- * Attribute class for marking a class or method as a message handler.
- *
- * This attribute is intended to be used with the #[AsMessageHandler] attribute declaration.
- * It allows specifying various properties for configuring the message handler behavior.
- */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
 class AsMessageHandler
 {
     /**
      * Reporter identifier for the message handler.
      *
-     * @required For documentation purposes.
+     * For documentation purposes only.
      */
     public string $reporter;
 
     /**
      * Message name that the handler handles.
-     *
-     * @required  Only one message per handler. This simplifies the implementation and avoids certain complexities.
+     * Only one message per handler is allowed.
      */
     public string $handles;
 
@@ -67,7 +60,6 @@ class AsMessageHandler
     public function __construct(
         string $reporter,
         string $handles,
-        // todo add DomainType
         string|array|null $fromQueue = null,
         ?string $method = null,
         int $priority = 0

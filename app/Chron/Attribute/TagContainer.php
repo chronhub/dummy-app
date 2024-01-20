@@ -25,11 +25,11 @@ class TagContainer
 {
     public const HANDLER_TAG_PREFIX = '#';
 
+    protected const TAG = 'message.handler.%s';
+
     public array $messages = [];
 
     public array $queueSubscribers = [];
-
-    protected const TAG = 'message.handler.%s';
 
     /**
      * @var array<T>|array

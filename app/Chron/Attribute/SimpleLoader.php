@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute;
 
+use App\Chron\Attribute\MessageHandler\AsMessageHandler;
 use Illuminate\Support\Collection;
 use ReflectionAttribute;
 use ReflectionClass;

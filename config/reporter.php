@@ -2,7 +2,16 @@
 
 declare(strict_types=1);
 
+use App\Chron\Console\ListenerMapCommand;
+use App\Chron\Console\MessageMapCommand;
+use App\Chron\Reporter\Subscribers\MessageQueueSubscriber;
+use App\Chron\Reporter\Subscribers\RouteMessageSubscriber;
 use Storm\Contract\Reporter\Reporter;
+use Storm\Reporter\Subscriber\HandleCommand;
+use Storm\Reporter\Subscriber\HandleEvent;
+use Storm\Reporter\Subscriber\HandleQuery;
+use Storm\Reporter\Subscriber\MakeMessage;
+use Storm\Support\Message\MessageDecoratorSubscriber;
 
 return [
 
@@ -14,7 +23,7 @@ return [
                 //'tracker' => \Storm\Tracker\TrackMessage::class, // optional, class or id
                 'subscribers' => [
                     Reporter::DISPATCH_EVENT => [
-                        [\Storm\Reporter\Subscriber\HandleCommand::class, 0],
+                        [HandleCommand::class, 0],
                     ],
                     Reporter::FINALIZE_EVENT => [
 
@@ -32,7 +41,7 @@ return [
                 //'tracker' => \Storm\Tracker\TrackMessage::class, // optional, class or id
                 'subscribers' => [
                     Reporter::DISPATCH_EVENT => [
-                        [\Storm\Reporter\Subscriber\HandleEvent::class, 0],
+                        [HandleEvent::class, 0],
                     ],
                     Reporter::FINALIZE_EVENT => [
 
@@ -50,7 +59,7 @@ return [
                 //'tracker' => \Storm\Tracker\TrackMessage::class, // optional, class or id
                 'subscribers' => [
                     Reporter::DISPATCH_EVENT => [
-                        [\Storm\Reporter\Subscriber\HandleQuery::class, 0],
+                        [HandleQuery::class, 0],
                     ],
                     Reporter::FINALIZE_EVENT => [
 
@@ -65,10 +74,10 @@ return [
 
     'subscribers' => [
         Reporter::DISPATCH_EVENT => [
-            [\Storm\Reporter\Subscriber\MakeMessage::class, 100000],
-            [\Storm\Support\Message\MessageDecoratorSubscriber::class, 90000],
-            [\App\Chron\Reporter\Subscribers\MessageQueueSubscriber::class, 40000],
-            [\App\Chron\Reporter\Subscribers\RouteMessageSubscriber::class, 10000],
+            [MakeMessage::class, 100000],
+            [MessageDecoratorSubscriber::class, 90000], // a stub message decorator
+            [MessageQueueSubscriber::class, 40000],
+            [RouteMessageSubscriber::class, 10000],
         ],
 
         Reporter::FINALIZE_EVENT => [
@@ -81,6 +90,9 @@ return [
     ],
 
     'console' => [
-        'commands' => \App\Chron\Console\MessageMapCommand::class,
+        'commands' => [
+            MessageMapCommand::class,
+            ListenerMapCommand::class,
+        ],
     ],
 ];
