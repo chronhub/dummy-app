@@ -47,6 +47,8 @@ class TagContainer
     {
         $tagName = $this->tagConcrete($messageName);
 
+        // todo dispatch event when tag is found
+
         return $this->container->tagged($tagName);
     }
 

@@ -57,7 +57,7 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
 
         $this->registerDefaultReporters();
 
-        $this->app[TagContainer::class]->autoTag();
+        $this->registerTag($this->app[TagContainer::class]);
     }
 
     protected function registerDefaultReporters(): void
@@ -81,6 +81,11 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
     protected function registerDefaultMessageProducer(): void
     {
         $this->app->bind(MessageProducer::class, AsyncMessageProducer::class);
+    }
+
+    protected function registerTag(TagContainer $tagContainer): void
+    {
+        $tagContainer->autoTag();
     }
 
     public function provides(): array
