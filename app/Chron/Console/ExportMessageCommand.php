@@ -54,7 +54,7 @@ class ExportMessageCommand extends Command
 
     protected function buildMessageMap(): array
     {
-        $map = $this->laravel[TagContainer::class]->map;
+        $map = $this->laravel[TagContainer::class]->getEntries();
 
         $data = [];
         foreach ($map as $messageName => $messageHandlers) {

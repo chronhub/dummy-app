@@ -7,8 +7,11 @@ namespace App\Chron\Attribute;
 use Illuminate\Contracts\Container\Container;
 use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionException;
+use ReflectionMethod;
 use RuntimeException;
 
+use function is_string;
 use function sprintf;
 
 /**
@@ -24,9 +27,15 @@ class ReferenceBuilder
      * Find references in reflection class constructor
      *
      * @return array<Ref>|array
+     *
+     * @throws ReflectionException
      */
-    public function fromConstructor(ReflectionClass $reflectionClass): array
+    public function fromConstructor(string|ReflectionClass $reflectionClass): array
     {
+        if (is_string($reflectionClass)) {
+            $reflectionClass = new ReflectionClass($reflectionClass);
+        }
+
         $constructor = $reflectionClass->getConstructor();
 
         if ($constructor === null) {
@@ -43,6 +52,30 @@ class ReferenceBuilder
                     $attribute->newInstance()->name,
                     $parameter->getName(),
                     $reflectionClass->getName()
+                );
+            }
+        }
+
+        return $references;
+    }
+
+    /**
+     * Find references in reflection method
+     *
+     * @return array<Ref>|array
+     */
+    public function fromMethod(ReflectionMethod $reflectionMethod): array
+    {
+        $references = [];
+
+        foreach ($reflectionMethod->getParameters() as $parameter) {
+            $attributes = $parameter->getAttributes(Reference::class, ReflectionAttribute::IS_INSTANCEOF);
+
+            foreach ($attributes as $attribute) {
+                $references[] = $this->makeReference(
+                    $attribute->newInstance()->name,
+                    $parameter->getName(),
+                    $reflectionMethod->getDeclaringClass()->getName()
                 );
             }
         }

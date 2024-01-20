@@ -6,6 +6,7 @@ namespace App\Chron\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
+use InvalidArgumentException;
 use Storm\Contract\Reporter\Reporter;
 use Storm\Contract\Tracker\Listener;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -22,12 +23,15 @@ class MapListenerCommand extends Command
     const TABLE_HEADERS = ['Event', 'Origin', 'Priority', 'Listener'];
 
     protected $signature = 'reporter-listener:map
-                            { name : reporter name }';
+                            { name?   : reporter name }
+                            { --ask=0 : request for choice }';
 
     public function __invoke(): int
     {
         try {
-            $reporter = $this->getReporter();
+            $reporterId = $this->handleCompletionName();
+
+            $reporter = $this->getReporter($reporterId);
         } catch (Throwable $e) {
             $this->components->error($e->getMessage());
 
@@ -47,11 +51,9 @@ class MapListenerCommand extends Command
         return self::SUCCESS;
     }
 
-    protected function getReporter(): Reporter
+    protected function getReporter(string $reporterId): Reporter
     {
-        $name = $this->argument('name');
-
-        return $this->laravel[$name];
+        return $this->laravel[$reporterId];
     }
 
     protected function formatTableData(Collection $listeners): array
@@ -64,5 +66,37 @@ class MapListenerCommand extends Command
                 $listener->priority(),
                 $listener::class,
             ])->toArray();
+    }
+
+    protected function handleCompletionName(): string
+    {
+        $argumentName = $this->argument('name');
+
+        if ($argumentName) {
+            return $argumentName;
+        }
+
+        if ($this->option('ask') === '1') {
+            $name = $this->components->choice('Find reporter by id',
+                $this->flattenArray(config('reporter.reporter', []))
+            );
+        }
+
+        return $name ?? throw new InvalidArgumentException('Reporter name not found or not provided');
+    }
+
+    protected function flattenArray(array $reporters): array
+    {
+        $result = [];
+
+        foreach ($reporters as $reporter) {
+            foreach ($reporter as $config) {
+                if (isset($config['reporter'])) {
+                    $result[] = $config['reporter'];
+                }
+            }
+        }
+
+        return $result;
     }
 }

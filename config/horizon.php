@@ -182,12 +182,12 @@ return [
     */
 
     'defaults' => [
-        'supervisor-1' => [
+        'supervisor-rb_default' => [
             'connection' => 'rabbitmq',
             'queue' => ['default'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 2,
+            'maxProcesses' => 10,
             'maxTime' => 0,
             'maxJobs' => 500,
             'memory' => 512,
@@ -196,12 +196,12 @@ return [
             'nice' => 0,
         ],
 
-        'supervisor-2' => [
+        'supervisor-rb_high' => [
             'connection' => 'rabbitmq-high',
             'queue' => ['high'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 2,
+            'maxProcesses' => 10,
             'maxTime' => 0,
             'maxJobs' => 500,
             'memory' => 512,
@@ -210,12 +210,12 @@ return [
             'nice' => 0,
         ],
 
-        'supervisor-3' => [
+        'supervisor-redis_default' => [
             'connection' => 'redis',
             'queue' => ['default'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 2,
+            'maxProcesses' => 10,
             'maxTime' => 0,
             'maxJobs' => 500,
             'memory' => 512,
@@ -227,17 +227,17 @@ return [
 
     'environments' => [
         'production' => [
-            'supervisor-1' => [
-                'maxProcesses' => 10,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
-            ],
+            //            'supervisor-1' => [
+            //                'maxProcesses' => 10,
+            //                'balanceMaxShift' => 1,
+            //                'balanceCooldown' => 3,
+            //            ],
         ],
 
         'local' => [
-            'supervisor-1' => [],
-            'supervisor-2' => [],
-            'supervisor-3' => [],
+            'supervisor-rb_default' => [],
+            'supervisor-rb_high' => [],
+            'supervisor-redis_default' => [],
         ],
     ],
 ];

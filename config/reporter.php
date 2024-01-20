@@ -18,6 +18,7 @@ return [
 
     'reporter' => [
         'command' => [
+            'foo' => ['bar' => []],
             'default' => [
                 'reporter' => 'reporter.command.default',
                 //'class' => \Storm\Reporter\ReportCommand::class, // optional (default)

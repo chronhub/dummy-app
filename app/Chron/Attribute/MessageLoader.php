@@ -16,7 +16,7 @@ use ReflectionMethod;
 class MessageLoader
 {
     /**
-     * @var Collection<array<ReflectionClass, ?ReflectionMethod, AsCommandHandler|AsEventHandler|AsQueryHandler>
+     * @var Collection<array<ReflectionClass, ?ReflectionMethod, AsCommandHandler|AsEventHandler|AsQueryHandler>>
      */
     protected Collection $messages;
 
@@ -51,7 +51,7 @@ class MessageLoader
             return;
         }
 
-        $this->processAttributes($attributes, $reflectionClass, null);
+        $this->processAttributes($reflectionClass, $attributes, null);
     }
 
     protected function findAttributesInMethods(ReflectionClass $reflectionClass): void
@@ -63,11 +63,11 @@ class MessageLoader
                 return;
             }
 
-            $this->processAttributes($attributes[1], $reflectionClass, $attributes[0]);
+            $this->processAttributes($reflectionClass, $attributes[1], $attributes[0]);
         });
     }
 
-    protected function processAttributes(Collection $attributes, ReflectionClass $reflectionClass, ?ReflectionMethod $reflectionMethod): void
+    protected function processAttributes(ReflectionClass $reflectionClass, Collection $attributes, ?ReflectionMethod $reflectionMethod): void
     {
         $attributes
             ->map(fn (ReflectionAttribute $attribute): object => $attribute->newInstance())

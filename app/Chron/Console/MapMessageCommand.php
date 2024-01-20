@@ -29,8 +29,7 @@ class MapMessageCommand extends Command
 
     public function __invoke(TagContainer $tagContainer): int
     {
-        /** @var Collection<string, MessageHandlerEntry> $map */
-        $map = collect($tagContainer->map);
+        $map = $tagContainer->getEntries();
 
         if ($this->option('ask') === '1') {
             $shortKeys = $map->keys()->map(fn (string $key): string => $this->shortClass($key))->toArray();

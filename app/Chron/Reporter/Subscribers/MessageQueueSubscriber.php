@@ -20,7 +20,7 @@ final readonly class MessageQueueSubscriber
 
     public function __construct(TagContainer $tagContainer)
     {
-        $this->queues = $tagContainer->queueSubscribers;
+        $this->queues = $tagContainer->getQueues();
     }
 
     public function __invoke(): Closure

@@ -5,32 +5,29 @@ declare(strict_types=1);
 namespace App\Chron\Attribute;
 
 use App\Chron\Attribute\MessageHandler\MessageHandlerEntry;
-use App\Chron\Reporter\QueueOption;
-use App\Chron\Reporter\Subscribers\MessageQueueSubscriber;
+use BadMethodCallException;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use RuntimeException;
-use Storm\Contract\Reporter\Reporter;
-use Storm\Tracker\GenericListener;
+use Illuminate\Support\Traits\ForwardsCalls;
 
-use function array_merge;
-use function func_get_args;
-use function is_array;
-use function is_string;
 use function sprintf;
 
 /**
  * @template T of MessageHandlerEntry
+ *
+ * @method Collection getBindings()
+ * @method Collection getData()
+ * @method Collection getEntries()
+ * @method array      getQueues()
  */
 class TagContainer
 {
+    use ForwardsCalls;
+
     public const HANDLER_TAG_PREFIX = '#';
 
     protected const TAG = 'message.handler.%s';
-
-    public array $messages = [];
-
-    public array $queueSubscribers = [];
 
     /**
      * @var array<T>|array
@@ -39,9 +36,11 @@ class TagContainer
 
     public function __construct(
         protected MessageMap $messageMap,
-        protected ReferenceBuilder $referenceBuilder,
         protected Container $container
     ) {
+        $this->messageMap->setPrefixResolver(
+            fn (string $messageName, ?int $priority) => $this->tagConcrete($messageName, $priority)
+        );
     }
 
     public function find(string $messageName): iterable
@@ -53,42 +52,19 @@ class TagContainer
 
     public function autoTag(): void
     {
-        $this->messageMap->load()->each(function (array $data, $messageName): void {
-            $this->processMessageHandlers($messageName, $data);
-        });
+        $this->messageMap->load();
 
-        foreach ($this->messages as $messageName => $messageHandlers) {
+        foreach ($this->messageMap->getBindings() as $messageName => $messageHandlers) {
             $this->container->tag($messageHandlers, $this->tagConcrete($messageName));
         }
     }
 
-    protected function processMessageHandlers(string $messageName, array $messageHandlers): void
+    /**
+     * @throws BadMethodCallException
+     */
+    public function __call(string $method, array $parameters): mixed
     {
-        /** @var MessageHandlerData $data */
-        foreach ($messageHandlers as $priority => $data) {
-            $messageHandlerId = $this->tagConcrete($messageName, $priority);
-
-            $this->container->bind($messageHandlerId, fn (): callable => $this->newHandlerInstance($data));
-
-            $queueOptions = $this->determineQueue($data->queue); // do not resolve queue here
-
-            $this->addQueueSubscriber($messageName, $priority, $queueOptions);
-
-            $this->updateMessages($messageName, $messageHandlerId, $data, $queueOptions);
-        }
-    }
-
-    protected function updateMessages(
-        string $messageName,
-        string $messageHandlerId,
-        MessageHandlerData $data,
-        ?object $queue
-    ): void {
-        $this->messages[$messageName] = array_merge($this->messages[$messageName] ?? [], [$messageHandlerId]);
-
-        $entry = new MessageHandlerEntry($this->tagConcrete($messageName), ...func_get_args());
-
-        $this->map[$messageName] = array_merge($this->map[$messageName] ?? [], [$entry]);
+        return $this->forwardCallTo($this->messageMap, $method, $parameters);
     }
 
     protected function tagConcrete(string $concrete, ?int $key = null): string
@@ -100,69 +76,5 @@ class TagContainer
         }
 
         return $concreteTag;
-    }
-
-    protected function newHandlerInstance(MessageHandlerData $data): callable
-    {
-        $references = $this->referenceBuilder->fromConstructor($data->reflectionClass);
-
-        $instance = $this->container->make($data->reflectionClass->getName(), ...$references);
-
-        $callback = ($data->handlerMethod === '__invoke') ? $instance : $instance->{$data->handlerMethod}(...);
-
-        return new MessageHandler($callback, $data->priority);
-    }
-
-    protected function addQueueSubscriber(string $messageName, int $priority, ?object $queue): void
-    {
-        if (isset($this->queueSubscribers[$messageName])) {
-            if (! $queue) {
-                $this->queueSubscribers[$messageName] += [$priority => $queue];
-
-                return;
-            }
-
-            foreach ($this->queueSubscribers[$messageName] as $_queue) {
-                if ($_queue === null) {
-                    continue;
-                }
-
-                if ($_queue->jsonSerialize() !== $queue->jsonSerialize()) {
-                    throw new RuntimeException('Cannot add multiple queue subscribers for the same message');
-                }
-            }
-
-            $this->queueSubscribers[$messageName] += [$priority => $queue];
-
-            return;
-        }
-
-        $this->queueSubscribers[$messageName] = [$priority => $queue];
-    }
-
-    protected function determineQueue(null|string|array $queue): ?object
-    {
-        return match (true) {
-            is_string($queue) => $this->container[$queue],
-            is_array($queue) => new QueueOption(...$queue), // todo queue option from config
-            default => null,
-        };
-    }
-
-    protected function resolveQueueSubscriber(): void
-    {
-        foreach ($this->queueSubscribers as $reporterId => $queue) {
-            $this->container->resolving($reporterId, function (Reporter $reporter) use ($queue) {
-                $subscriber = new GenericListener(
-                    Reporter::DISPATCH_EVENT,
-                    new MessageQueueSubscriber($queue),
-                    20001 // todo before route
-                );
-
-                $reporter->subscribe($subscriber);
-
-                return $reporter;
-            });
-        }
     }
 }
