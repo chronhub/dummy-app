@@ -16,11 +16,11 @@ use function array_map;
     name: 'reporter-message:map',
     description: 'Get the messages map by message name',
 )]
-class MessageMapCommand extends Command
+class MapMessageCommand extends Command
 {
     // todo filter headers / type
     // todo add a vertical table when message is requested
-    const TABLE_HEADERS = ['Reporter', 'Type', 'Message', 'Message Tag id', 'Handler class', 'Handler method', 'Handler priority', 'Queue'];
+    const TABLE_HEADERS = ['Reporter', 'Type', 'Message', 'Tag', 'Handler class', 'Handler method', 'Handler priority', 'Queue'];
 
     protected $signature = 'reporter-message:map
                             { --message= : Message name either full or short class name }

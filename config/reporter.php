@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use App\Chron\Console\ExportMessageCommand;
-use App\Chron\Console\ListenerMapCommand;
-use App\Chron\Console\MessageMapCommand;
+use App\Chron\Console\MapListenerCommand;
+use App\Chron\Console\MapMessageCommand;
 use App\Chron\Reporter\Subscribers\MessageQueueSubscriber;
 use App\Chron\Reporter\Subscribers\RouteMessageSubscriber;
 use Storm\Contract\Reporter\Reporter;
@@ -76,7 +76,7 @@ return [
     'subscribers' => [
         Reporter::DISPATCH_EVENT => [
             [MakeMessage::class, 100000],
-            [MessageDecoratorSubscriber::class, 90000], // a stub message decorator
+            [MessageDecoratorSubscriber::class, 90000], // replace the stub message decorator
             [MessageQueueSubscriber::class, 40000],
             [RouteMessageSubscriber::class, 10000],
         ],
@@ -92,8 +92,8 @@ return [
 
     'console' => [
         'commands' => [
-            MessageMapCommand::class,
-            ListenerMapCommand::class,
+            MapMessageCommand::class,
+            MapListenerCommand::class,
             ExportMessageCommand::class,
         ],
     ],

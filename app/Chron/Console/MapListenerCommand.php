@@ -17,7 +17,7 @@ use function sprintf;
     name: 'reporter-listener:map',
     description: 'Get the listeners map by reporter name',
 )]
-class ListenerMapCommand extends Command
+class MapListenerCommand extends Command
 {
     const TABLE_HEADERS = ['Event', 'Origin', 'Priority', 'Listener'];
 

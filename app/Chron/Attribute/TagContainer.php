@@ -38,7 +38,7 @@ class TagContainer
     public array $map = [];
 
     public function __construct(
-        protected SimpleLoader $simpleLoader,
+        protected MessageMap $messageMap,
         protected ReferenceBuilder $referenceBuilder,
         protected Container $container
     ) {
@@ -53,11 +53,9 @@ class TagContainer
 
     public function autoTag(): void
     {
-        $this->simpleLoader->load();
-
-        foreach ($this->simpleLoader->messages as $messageName => $messageHandler) {
-            $this->processMessageHandlers($messageName, $messageHandler);
-        }
+        $this->messageMap->load()->each(function (array $data, $messageName): void {
+            $this->processMessageHandlers($messageName, $data);
+        });
 
         foreach ($this->messages as $messageName => $messageHandlers) {
             $this->container->tag($messageHandlers, $this->tagConcrete($messageName));
