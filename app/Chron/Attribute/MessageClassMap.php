@@ -13,7 +13,7 @@ use App\Chron\Domain\Event\OnEvent\WhenCustomerRegistered;
 use App\Chron\Domain\Event\OnEvent\WhenOrderMade;
 use App\Chron\Domain\Query\GetOneRandomCustomerHandler;
 
-class MessageHandlerClassMap
+class MessageClassMap
 {
     public array $classes = [
         // command handlers

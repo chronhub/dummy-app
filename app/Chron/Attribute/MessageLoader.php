@@ -22,7 +22,7 @@ class MessageLoader
     protected Collection $attributes;
 
     public function __construct(
-        protected MessageHandlerClassMap $loader,
+        protected MessageClassMap  $loader,
         protected ReferenceBuilder $referenceBuilder,
     ) {
         $this->attributes = new Collection();
