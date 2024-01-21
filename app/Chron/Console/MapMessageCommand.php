@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Console;
 
-use App\Chron\Attribute\MessageHandler\MessageHandlerEntry;
+use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
 use App\Chron\Attribute\TagContainer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -14,7 +14,7 @@ use function array_map;
 
 #[AsCommand(
     name: 'reporter-message:map',
-    description: 'Get the messages map by message name',
+    description: 'Get the message map',
 )]
 class MapMessageCommand extends Command
 {
@@ -31,13 +31,7 @@ class MapMessageCommand extends Command
     {
         $map = $tagContainer->getEntries();
 
-        if ($this->option('ask') === '1') {
-            $shortKeys = $map->keys()->map(fn (string $key): string => $this->shortClass($key))->toArray();
-
-            $messageName = $this->components->askWithCompletion('filter by short message name?', $shortKeys);
-        } else {
-            $messageName = $this->option('message');
-        }
+        $messageName = $this->requestMessageName($map);
 
         $messages = $this->findInMap($map, $messageName);
 
@@ -54,13 +48,16 @@ class MapMessageCommand extends Command
 
     protected function findInMap(Collection $messages, ?string $message): Collection
     {
-        if ($message === null) {
-            return $messages;
-        }
-
         return $messages
-            ->filter(fn (array $handlers, string $messageName): bool => $messageName === $message || class_basename($messageName) === $message)
+            ->when($message !== null, fn (Collection $messages): Collection => $this->filterByMessage($messages, $message))
             ->map(fn (array $handlers): array => $handlers);
+    }
+
+    protected function filterByMessage(Collection $messages, string $message): Collection
+    {
+        return $messages->filter(
+            fn (array $handlers, string $messageName): bool => $messageName === $message || class_basename($messageName) === $message
+        );
     }
 
     protected function formatTableData(Collection $messages): array
@@ -73,15 +70,15 @@ class MapMessageCommand extends Command
 
     protected function formatHandler(array $handlers, string $messageName): array
     {
-        return array_map(fn (MessageHandlerEntry $handler): array => [
-            $handler->data->reporterId,
-            $handler->data->type->value,
+        return array_map(fn (MessageHandlerAttribute $handler): array => [
+            $handler->reporterId,
+            $handler->type,
             $this->shortClass($messageName),
             $handler->messageId,
-            //$handler->messageHandlerId,
-            $this->shortClass($handler->data->reflectionClass->getName()),
-            $handler->data->handlerMethod,
-            $handler->data->priority,
+            //$handler->handlerId,
+            $this->shortClass($handler->handlerClass),
+            $handler->handlerMethod,
+            $handler->priority,
             $this->formatQueue($handler->queue),
         ], $handlers);
     }
@@ -91,8 +88,29 @@ class MapMessageCommand extends Command
         return ($this->option('short') === '0') ? $class : class_basename($class);
     }
 
-    protected function formatQueue(?object $queue): string
+    protected function formatQueue(?array $queue): string
     {
-        return $queue === null ? 'sync or unknown' : $queue::class;
+        if ($queue === null) {
+            return 'sync or unknown'; // todo tmp until we can resolve queue
+        }
+
+        return $queue['name'].' ('.$queue['connection'].')';
+    }
+
+    protected function requestMessageName(Collection $entries): ?string
+    {
+        $messageName = null;
+
+        if ($this->option('ask') === '1') {
+            $shortClasses = $entries->keys()->map(fn (string $class): string => $this->shortClass($class))->toArray();
+
+            $messageName = $this->components->askWithCompletion('filter by short message name?', $shortClasses);
+        }
+
+        if ($messageName === null) {
+            return $this->option('message');
+        }
+
+        return $messageName;
     }
 }

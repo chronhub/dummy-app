@@ -4,21 +4,15 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute;
 
-use App\Chron\Attribute\MessageHandler\AsCommandHandler;
-use App\Chron\Attribute\MessageHandler\AsEventHandler;
-use App\Chron\Attribute\MessageHandler\AsQueryHandler;
-use App\Chron\Attribute\MessageHandler\MessageHandlerEntry;
+use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
 use App\Chron\Reporter\DomainType;
 use App\Chron\Reporter\QueueOption;
 use Closure;
-use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
-use ReflectionClass;
-use ReflectionMethod;
 use RuntimeException;
 
 use function array_merge;
-use function func_get_args;
 use function is_array;
 use function is_string;
 use function uksort;
@@ -26,50 +20,37 @@ use function uksort;
 class MessageMap
 {
     /**
-     * @var Collection<string, array<MessageHandlerData>>
+     * @var Collection<string, array<MessageHandlerAttribute>>
      */
     protected Collection $map;
 
-    /**
-     * @var array array<string, array<string>>
-     */
     protected array $bindings;
 
-    /**
-     * @var array array<string, array<MessageHandlerEntry>>
-     */
     protected array $entries;
 
-    /**
-     * @var array array<string, array<int, object|null>>
-     */
     protected array $queues = [];
 
     protected Closure $prefixResolver;
 
     public function __construct(
         protected MessageLoader $messageLoader,
-        protected ReferenceBuilder $referenceBuilder,
-        protected Container $container
+        protected Application $app
     ) {
         $this->map = new Collection();
     }
 
     public function load(): void
     {
-        $this->messageLoader->getMessages()->each(fn (array $data) => $this->updateMap(...$data));
+        $this->messageLoader->getAttributes()->each(fn (array $data) => $this->build(...$data));
 
-        $this->map->each(fn (array $messageHandlers, string $messageName) => $this->bind($messageName, $messageHandlers));
+        $this->map->each(
+            fn (array $messageHandlers, string $messageName) => $this->bind($messageName, $messageHandlers)
+        );
     }
 
     public function getBindings(): Collection
     {
         return collect($this->bindings);
-    }
-
-    public function getData(): Collection
-    {
-        return $this->map;
     }
 
     public function getEntries(): Collection
@@ -87,57 +68,49 @@ class MessageMap
         $this->prefixResolver = $prefixResolver;
     }
 
-    protected function updateMap(
-        ReflectionClass $reflectionClass,
-        ?ReflectionMethod $reflectionMethod,
-        AsCommandHandler|AsEventHandler|AsQueryHandler $attribute
-    ): void {
-        $handlerMethod = $this->determineHandlerMethod($attribute->method, $reflectionMethod);
-
-        // todo remove reflection in data and entry
-        $data = new MessageHandlerData($reflectionClass, $attribute, $handlerMethod);
-
-        if (! $this->map->has($data->handles)) {
-            $this->map->put($data->handles, [$data->priority => $data]);
+    protected function build(MessageHandlerAttribute $attribute): void
+    {
+        if (! $this->map->has($attribute->handles)) {
+            $this->map->put($attribute->handles, [$attribute->priority => $attribute]);
         } else {
-            $this->assertCountHandlerPerType($data);
+            $this->assertCountHandlerPerType($attribute);
 
-            $messageHandlers = $this->map->get($data->handles);
+            $messageHandlers = $this->map->get($attribute->handles);
 
-            if (isset($messageHandlers[$data->priority])) {
-                throw new RuntimeException("Duplicate priority $data->priority for $data->handles");
+            if (isset($messageHandlers[$attribute->priority])) {
+                throw new RuntimeException("Duplicate priority $attribute->priority for $attribute->handles");
             }
 
-            $messageHandlers[$data->priority] = $data;
+            $messageHandlers[$attribute->priority] = $attribute;
 
             uksort($messageHandlers, fn (int $a, int $b): int => $a <=> $b);
 
-            $this->map->put($data->handles, $messageHandlers);
+            $this->map->put($attribute->handles, $messageHandlers);
         }
     }
 
     protected function bind(string $messageName, array $messageHandlers): void
     {
-        foreach ($messageHandlers as $priority => $data) {
+        foreach ($messageHandlers as $priority => $attribute) {
             $messageHandlerId = $this->tagConcrete($messageName, $priority);
 
-            $this->container->bind($messageHandlerId, fn (): callable => $this->newHandlerInstance($data));
+            $this->app->bind($messageHandlerId, fn (): callable => $this->newHandlerInstance($attribute));
 
-            $queueOptions = $this->determineQueue($data->queue); // do not resolve queue here
+            $queue = $this->determineQueue($attribute->queue); //  todo do not resolve queue here
 
-            $this->addQueueSubscriber($messageName, $priority, $queueOptions);
+            $this->addQueueSubscriber($messageName, $priority, $queue);
 
-            $this->updateBinding($messageName, $messageHandlerId, $data, $queueOptions);
+            $this->updateBinding($messageName, $messageHandlerId, $attribute, $queue);
         }
     }
 
-    protected function updateBinding(string $messageName, string $messageHandlerId, MessageHandlerData $data, ?object $queue): void
+    protected function updateBinding(string $messageName, string $messageHandlerId, MessageHandlerAttribute $attribute, ?object $queue): void
     {
         $this->bindings[$messageName] = array_merge($this->bindings[$messageName] ?? [], [$messageHandlerId]);
 
-        $entry = new MessageHandlerEntry($this->tagConcrete($messageName), ...func_get_args());
+        $attribute = $attribute->newInstance($messageHandlerId, $this->tagConcrete($messageName), $queue?->jsonSerialize());
 
-        $this->entries[$messageName] = array_merge($this->entries[$messageName] ?? [], [$entry]);
+        $this->entries[$messageName] = array_merge($this->entries[$messageName] ?? [], [$attribute]);
     }
 
     protected function tagConcrete(string $concrete, ?int $key = null): string
@@ -145,16 +118,22 @@ class MessageMap
         return ($this->prefixResolver)($concrete, $key);
     }
 
-    protected function newHandlerInstance(MessageHandlerData $data): callable
+    protected function newHandlerInstance(MessageHandlerAttribute $attribute): callable
     {
-        // todo references must be done in messageLoader
-        $references = $this->referenceBuilder->fromConstructor($data->reflectionClass);
+        $references = [];
 
-        $instance = $this->container->make($data->reflectionClass->getName(), ...$references);
+        // assume constructor references, till we do not support other methods
+        if ($attribute->references !== []) {
+            foreach ($attribute->references as [$parameterName, $serviceId]) {
+                $references[] = [$parameterName => $this->app[$serviceId]];
+            }
+        }
 
-        $callback = ($data->handlerMethod === '__invoke') ? $instance : $instance->{$data->handlerMethod}(...);
+        $instance = $this->app->make($attribute->handlerClass, ...$references);
 
-        return new MessageHandler($callback, $data->priority);
+        $callback = ($attribute->handlerMethod === '__invoke') ? $instance : $instance->{$attribute->handlerMethod}(...);
+
+        return new MessageHandler($callback, $attribute->priority);
     }
 
     protected function addQueueSubscriber(string $messageName, int $priority, ?object $queue): void
@@ -189,24 +168,15 @@ class MessageMap
     protected function determineQueue(null|string|array $queue): ?object
     {
         return match (true) {
-            is_string($queue) => $this->container[$queue],
+            is_string($queue) => $this->app[$queue],
             is_array($queue) => new QueueOption(...$queue), // todo queue option from config
             default => null,
         };
     }
 
-    protected function determineHandlerMethod(?string $handlerMethod, ?ReflectionMethod $reflectionMethod): string
+    private function assertCountHandlerPerType(MessageHandlerAttribute $data): void
     {
-        return match (true) {
-            $handlerMethod !== null => $handlerMethod,
-            $reflectionMethod !== null => $reflectionMethod->getName(),
-            default => '__invoke',
-        };
-    }
-
-    private function assertCountHandlerPerType(MessageHandlerData $data): void
-    {
-        if ($data->type === DomainType::EVENT) {
+        if ($data->type === DomainType::EVENT->value) {
             return;
         }
 

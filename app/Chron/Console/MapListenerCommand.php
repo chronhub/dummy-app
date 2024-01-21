@@ -24,7 +24,7 @@ class MapListenerCommand extends Command
 
     protected $signature = 'reporter-listener:map
                             { name?   : reporter name }
-                            { --ask=0 : request for choice }';
+                            { --choice=0 : request for choice }';
 
     public function __invoke(): int
     {
@@ -76,7 +76,7 @@ class MapListenerCommand extends Command
             return $argumentName;
         }
 
-        if ($this->option('ask') === '1') {
+        if ($this->option('choice') === '1') {
             $name = $this->components->choice('Find reporter by id',
                 $this->flattenArray(config('reporter.reporter', []))
             );

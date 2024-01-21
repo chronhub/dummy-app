@@ -8,14 +8,13 @@ use Illuminate\Contracts\Container\Container;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
-use ReflectionMethod;
 use RuntimeException;
 
 use function is_string;
 use function sprintf;
 
 /**
- * @template Ref of array<string,object>
+ * @template Ref of array<string, string>
  */
 class ReferenceBuilder
 {
@@ -48,11 +47,11 @@ class ReferenceBuilder
             $attributes = $parameter->getAttributes(Reference::class, ReflectionAttribute::IS_INSTANCEOF);
 
             foreach ($attributes as $attribute) {
-                $references[] = $this->makeReference(
-                    $attribute->newInstance()->name,
-                    $parameter->getName(),
-                    $reflectionClass->getName()
-                );
+                $instance = $attribute->newInstance();
+
+                $this->assertReferenceExists($instance->name, $reflectionClass->getName());
+
+                $references[] = [$parameter->getName(), $instance->name];
             }
         }
 
@@ -60,42 +59,14 @@ class ReferenceBuilder
     }
 
     /**
-     * Find references in reflection method
-     *
-     * @return array<Ref>|array
-     */
-    public function fromMethod(ReflectionMethod $reflectionMethod): array
-    {
-        $references = [];
-
-        foreach ($reflectionMethod->getParameters() as $parameter) {
-            $attributes = $parameter->getAttributes(Reference::class, ReflectionAttribute::IS_INSTANCEOF);
-
-            foreach ($attributes as $attribute) {
-                $references[] = $this->makeReference(
-                    $attribute->newInstance()->name,
-                    $parameter->getName(),
-                    $reflectionMethod->getDeclaringClass()->getName()
-                );
-            }
-        }
-
-        return $references;
-    }
-
-    /**
-     * Build reference
-     *
-     * @return array<Ref>
+     * Assert that reference exists in container
      *
      * @throws RuntimeException When reference id is not found in container
      */
-    protected function makeReference(string $referenceId, string $parameterName, string $handlerClass): array
+    protected function assertReferenceExists(string $referenceId, string $handlerClass): void
     {
         if (! $this->container->bound($referenceId)) {
             throw new RuntimeException(sprintf('Reference %s not found in message handler class %s', $referenceId, $handlerClass));
         }
-
-        return [$parameterName => $this->container[$referenceId]];
     }
 }

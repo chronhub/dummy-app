@@ -8,6 +8,7 @@ use App\Chron\Attribute\MessageHandler\AsCommandHandler;
 use App\Chron\Attribute\MessageHandler\AsEventHandler;
 use App\Chron\Attribute\MessageHandler\AsMessageHandler;
 use App\Chron\Attribute\MessageHandler\AsQueryHandler;
+use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
 use Illuminate\Support\Collection;
 use ReflectionAttribute;
 use ReflectionClass;
@@ -16,20 +17,22 @@ use ReflectionMethod;
 class MessageLoader
 {
     /**
-     * @var Collection<array<ReflectionClass, ?ReflectionMethod, AsCommandHandler|AsEventHandler|AsQueryHandler>>
+     * @var Collection<array<MessageHandlerAttribute>>
      */
-    protected Collection $messages;
+    protected Collection $attributes;
 
-    public function __construct(protected ClassMap $loader)
-    {
-        $this->messages = new Collection();
+    public function __construct(
+        protected MessageHandlerClassMap $loader,
+        protected ReferenceBuilder $referenceBuilder,
+    ) {
+        $this->attributes = new Collection();
     }
 
-    public function getMessages(): Collection
+    public function getAttributes(): Collection
     {
         $this->loadAttributes(collect($this->loader->classes));
 
-        return $this->messages;
+        return $this->attributes;
     }
 
     protected function loadAttributes(Collection $classes): void
@@ -72,7 +75,27 @@ class MessageLoader
         $attributes
             ->map(fn (ReflectionAttribute $attribute): object => $attribute->newInstance())
             ->each(function (AsCommandHandler|AsEventHandler|AsQueryHandler $attribute) use ($reflectionClass, $reflectionMethod): void {
-                $this->messages->push([$reflectionClass, $reflectionMethod, $attribute]);
+                $this->attributes->push([
+                    new MessageHandlerAttribute(
+                        $attribute->reporter,
+                        $reflectionClass->getName(),
+                        $this->determineHandlerMethod($attribute->method, $reflectionMethod),
+                        $attribute->handles,
+                        $attribute->fromQueue,
+                        $attribute->priority,
+                        $attribute->type()->value,
+                        $this->referenceBuilder->fromConstructor($reflectionClass)
+                    ),
+                ]);
             });
+    }
+
+    protected function determineHandlerMethod(?string $handlerMethod, ?ReflectionMethod $reflectionMethod): string
+    {
+        return match (true) {
+            $handlerMethod !== null => $handlerMethod,
+            $reflectionMethod !== null => $reflectionMethod->getName(),
+            default => '__invoke',
+        };
     }
 }

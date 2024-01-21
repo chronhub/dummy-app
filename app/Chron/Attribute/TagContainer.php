@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute;
 
-use App\Chron\Attribute\MessageHandler\MessageHandlerEntry;
+use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
 use BadMethodCallException;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Collection;
@@ -14,10 +14,9 @@ use Illuminate\Support\Traits\ForwardsCalls;
 use function sprintf;
 
 /**
- * @template T of MessageHandlerEntry
+ * @template T of MessageHandlerAttribute
  *
  * @method Collection getBindings()
- * @method Collection getData()
  * @method Collection getEntries()
  * @method array      getQueues()
  */
@@ -27,7 +26,7 @@ class TagContainer
 
     public const HANDLER_TAG_PREFIX = '#';
 
-    protected const TAG = 'message.handler.%s';
+    public const TAG = 'message.handler.%s';
 
     /**
      * @var array<T>|array
@@ -47,8 +46,6 @@ class TagContainer
     {
         $tagName = $this->tagConcrete($messageName);
 
-        // todo dispatch event when tag is found
-
         return $this->container->tagged($tagName);
     }
 
@@ -56,9 +53,9 @@ class TagContainer
     {
         $this->messageMap->load();
 
-        foreach ($this->messageMap->getBindings() as $messageName => $messageHandlers) {
-            $this->container->tag($messageHandlers, $this->tagConcrete($messageName));
-        }
+        $this->messageMap->getBindings()->each(
+            fn (array $messageHandlers, string $messageName) => $this->container->tag($messageHandlers, $this->tagConcrete($messageName))
+        );
     }
 
     /**

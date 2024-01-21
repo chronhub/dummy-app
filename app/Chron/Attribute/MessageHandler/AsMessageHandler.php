@@ -6,9 +6,13 @@ namespace App\Chron\Attribute\MessageHandler;
 
 use Attribute;
 use InvalidArgumentException;
+use JsonSerializable;
+use RuntimeException;
+
+use function method_exists;
 
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
-class AsMessageHandler
+class AsMessageHandler implements JsonSerializable
 {
     /**
      * Reporter identifier for the message handler.
@@ -81,5 +85,19 @@ class AsMessageHandler
         $this->fromQueue = $fromQueue;
         $this->method = $method;
         $this->priority = $priority;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'reporter_id' => $this->reporter,
+            'message_name' => $this->handles,
+            'message_handler' => [
+                'method' => $this->method,
+                'type' => method_exists($this, 'type') ? $this->type()->value() : throw new RuntimeException('Missing type method'),
+                'priority' => $this->priority,
+                'queue' => $this->fromQueue,
+            ],
+        ];
     }
 }

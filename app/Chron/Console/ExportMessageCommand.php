@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Console;
 
-use App\Chron\Attribute\MessageHandler\MessageHandlerEntry;
+use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
 use App\Chron\Attribute\TagContainer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -58,7 +58,7 @@ class ExportMessageCommand extends Command
 
         $data = [];
         foreach ($map as $messageName => $messageHandlers) {
-            $data[$messageName] = array_map(fn (MessageHandlerEntry $handler): array => $handler->jsonSerialize(), $messageHandlers);
+            $data[$messageName] = array_map(fn (MessageHandlerAttribute $handler): array => $handler->jsonSerialize(), $messageHandlers);
         }
 
         if ($data === []) {
