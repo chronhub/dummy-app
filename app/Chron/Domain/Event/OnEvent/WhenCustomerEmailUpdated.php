@@ -10,12 +10,13 @@ use App\Chron\Domain\Event\CustomerEmailUpdated;
 #[AsEventHandler(
     reporter: 'reporter.event.default',
     handles: CustomerEmailUpdated::class,
+    fromQueue: ['connection' => 'rabbitmq-high', 'name' => 'high'],
     method: 'onEvent',
 )]
 final class WhenCustomerEmailUpdated
 {
     public function onEvent(CustomerEmailUpdated $event): void
     {
-        logger('Customer email updated');
+        logger('Customer email updated async');
     }
 }

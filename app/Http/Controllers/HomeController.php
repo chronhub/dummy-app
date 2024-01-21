@@ -31,8 +31,8 @@ final class HomeController
     private function sendCommand(Reporter $reporter): void
     {
         $works = [
-            // fn () => $this->registerCustomer($reporter),
-            // fn () => $this->updateEmailCustomer($reporter),
+            fn () => $this->registerCustomer($reporter),
+            fn () => $this->updateEmailCustomer($reporter),
             fn () => $this->makeOrder($reporter),
         ];
 

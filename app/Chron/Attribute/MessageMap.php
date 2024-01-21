@@ -19,6 +19,9 @@ use function uksort;
 
 class MessageMap
 {
+    // todo handler is dedicated to a specific reporter,
+    //  when find message handler we need to check if reporter is the same
+
     /**
      * @var Collection<string, array<MessageHandlerAttribute>>
      */
@@ -63,6 +66,11 @@ class MessageMap
         return $this->queues;
     }
 
+    public function getQueueForMessageName($messageName): ?array
+    {
+        return $this->queues[$messageName] ?? null;
+    }
+
     public function setPrefixResolver(Closure $prefixResolver): void
     {
         $this->prefixResolver = $prefixResolver;
@@ -94,21 +102,21 @@ class MessageMap
         foreach ($messageHandlers as $priority => $attribute) {
             $messageHandlerId = $this->tagConcrete($messageName, $priority);
 
-            $this->app->bind($messageHandlerId, fn (): callable => $this->newHandlerInstance($attribute));
+            $queue = $this->determineQueue($attribute->queue); // todo we do not check as is queue is valid across all handlers
 
-            $queue = $this->determineQueue($attribute->queue); //  todo do not resolve queue here
+            $this->app->bind($messageHandlerId, fn (): callable => $this->newHandlerInstance($attribute, $queue));
 
-            $this->addQueueSubscriber($messageName, $priority, $queue);
+            //$this->addQueueSubscriber($messageName, $priority, $queue);
 
-            $this->updateBinding($messageName, $messageHandlerId, $attribute, $queue);
+            $this->updateBinding($messageName, $messageHandlerId, $attribute, $priority, $queue);
         }
     }
 
-    protected function updateBinding(string $messageName, string $messageHandlerId, MessageHandlerAttribute $attribute, ?object $queue): void
+    protected function updateBinding(string $messageName, string $messageHandlerId, MessageHandlerAttribute $attribute, $priority, ?array $queue): void
     {
-        $this->bindings[$messageName] = array_merge($this->bindings[$messageName] ?? [], [$messageHandlerId]);
+        $this->bindings[$messageName] = array_merge($this->bindings[$messageName] ?? [], [$priority => $messageHandlerId]);
 
-        $attribute = $attribute->newInstance($messageHandlerId, $this->tagConcrete($messageName), $queue?->jsonSerialize());
+        $attribute = $attribute->newInstance($messageHandlerId, $this->tagConcrete($messageName), $queue);
 
         $this->entries[$messageName] = array_merge($this->entries[$messageName] ?? [], [$attribute]);
     }
@@ -118,7 +126,7 @@ class MessageMap
         return ($this->prefixResolver)($concrete, $key);
     }
 
-    protected function newHandlerInstance(MessageHandlerAttribute $attribute): callable
+    protected function newHandlerInstance(MessageHandlerAttribute $attribute, ?array $queue): callable
     {
         $references = [];
 
@@ -133,7 +141,7 @@ class MessageMap
 
         $callback = ($attribute->handlerMethod === '__invoke') ? $instance : $instance->{$attribute->handlerMethod}(...);
 
-        return new MessageHandler($callback, $attribute->priority);
+        return new MessageHandler($callback, $attribute->priority, $queue);
     }
 
     protected function addQueueSubscriber(string $messageName, int $priority, ?object $queue): void
@@ -165,11 +173,11 @@ class MessageMap
         $this->queues[$messageName] = [$priority => $queue];
     }
 
-    protected function determineQueue(null|string|array $queue): ?object
+    protected function determineQueue(null|string|array $queue): ?array
     {
         return match (true) {
-            is_string($queue) => $this->app[$queue],
-            is_array($queue) => new QueueOption(...$queue), // todo queue option from config
+            is_string($queue) => $this->app[$queue]->jsonSerialize(),
+            is_array($queue) => (new QueueOption(...$queue))->jsonSerialize(), // todo queue option from config
             default => null,
         };
     }

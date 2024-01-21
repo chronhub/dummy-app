@@ -14,7 +14,6 @@ final class WhenCustomerRegistered
     #[AsEventHandler(
         reporter: 'reporter.event.default',
         handles: CustomerRegistered::class,
-        method: 'onEvent',
         priority: 1,
     )]
     public function onEvent(CustomerRegistered $event): void

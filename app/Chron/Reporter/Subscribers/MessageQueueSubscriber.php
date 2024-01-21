@@ -26,6 +26,8 @@ final readonly class MessageQueueSubscriber
     public function __invoke(): Closure
     {
         return function (MessageStory $story): void {
+
+            return;
             $message = $story->message();
 
             $reporterQueue = $message->header(Header::QUEUE);
