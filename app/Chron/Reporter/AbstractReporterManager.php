@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Reporter;
 
+use App\Chron\Reporter\Subscribers\ReporterQueueSubscriber;
 use Illuminate\Contracts\Foundation\Application;
 use RuntimeException;
 use Storm\Contract\Reporter\Reporter;
@@ -37,8 +38,8 @@ abstract class AbstractReporterManager implements Manager
         $reporter = $this->makeReporter($type, $config);
 
         $this->addCommonSubscriber($reporter, $name);
-
         $this->addSubscribers($reporter, $config['subscribers'] ?? []);
+        $this->addQueueSubscriber($reporter, $type, $config['queue'] ?? []);
 
         return $reporter;
     }
@@ -46,10 +47,11 @@ abstract class AbstractReporterManager implements Manager
     protected function addSubscribers(Reporter $reporter, array $config): void
     {
         foreach ($config as $event => $subscribers) {
-            match ($event) {
-                'listeners' => $this->addListeners($subscribers, $reporter),
-                default => $this->addGenericListeners($event, $subscribers, $reporter),
-            };
+            if ($event === 'listeners') {
+                $this->addListeners($subscribers, $reporter);
+            } else {
+                $this->addGenericListeners($event, $subscribers, $reporter);
+            }
         }
     }
 
@@ -61,28 +63,6 @@ abstract class AbstractReporterManager implements Manager
 
         $nameReporter = new NameReporter($name);
         $reporter->subscribe(new GenericListener(Reporter::DISPATCH_EVENT, $nameReporter, 99000));
-    }
-
-    protected function addListeners(array $listeners, Reporter $reporter): void
-    {
-        foreach ($listeners as $subscriber) {
-            $listener = $this->app[$subscriber];
-
-            if (! $listener instanceof Listener) {
-                throw new RuntimeException(sprintf('Common subscriber %s must be an instance of %s', $subscriber, Listener::class));
-            }
-
-            $reporter->subscribe($listener);
-        }
-    }
-
-    protected function addGenericListeners(string $event, array $subscribers, Reporter $reporter): void
-    {
-        foreach ($subscribers as $subscriber) {
-            $listener = new GenericListener($event, $this->app[$subscriber[0]], $subscriber[1]);
-
-            $reporter->subscribe($listener);
-        }
     }
 
     protected function makeReporter(DomainType $type, array $config): Reporter
@@ -123,5 +103,44 @@ abstract class AbstractReporterManager implements Manager
         }
 
         return $this->app[$tracker];
+    }
+
+    protected function addListeners(array $listeners, Reporter $reporter): void
+    {
+        foreach ($listeners as $subscriber) {
+            $listener = $this->app[$subscriber];
+
+            if (! $listener instanceof Listener) {
+                throw new RuntimeException(sprintf('Common subscriber %s must be an instance of %s', $subscriber, Listener::class));
+            }
+
+            $reporter->subscribe($listener);
+        }
+    }
+
+    protected function addGenericListeners(string $event, array $subscribers, Reporter $reporter): void
+    {
+        foreach ($subscribers as [$listener, $priority]) {
+            $listener = new GenericListener($event, $this->app[$listener], $priority);
+
+            $reporter->subscribe($listener);
+        }
+    }
+
+    protected function addQueueSubscriber(Reporter $reporter, DomainType $type, array $queues): void
+    {
+        if ($type === DomainType::QUERY || $queues === []) {
+            return;
+        }
+
+        if (($queues['async'] ?? false) === false) {
+            return;
+        }
+
+        $queue = $this->app[$queues['default']]->jsonSerialize();
+
+        $listener = new GenericListener(Reporter::DISPATCH_EVENT, new ReporterQueueSubscriber($queue), 70000);
+
+        $reporter->subscribe($listener);
     }
 }

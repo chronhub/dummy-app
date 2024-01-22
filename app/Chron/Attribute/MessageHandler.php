@@ -6,6 +6,8 @@ namespace App\Chron\Attribute;
 
 class MessageHandler
 {
+    private string $name;
+
     /**
      * @var callable
      */
@@ -15,8 +17,9 @@ class MessageHandler
 
     private ?array $queue;
 
-    public function __construct(callable $handler, int $priority, ?array $queue)
+    public function __construct(string $name, callable $handler, int $priority, ?array $queue)
     {
+        $this->name = $name;
         $this->handler = $handler;
         $this->priority = $priority;
         $this->queue = $queue;
@@ -37,8 +40,8 @@ class MessageHandler
         return $this->queue;
     }
 
-    public function handlerClass(): string
+    public function name(): string
     {
-        return $this->handler::class;
+        return $this->name;
     }
 }

@@ -102,11 +102,9 @@ class MessageMap
         foreach ($messageHandlers as $priority => $attribute) {
             $messageHandlerId = $this->tagConcrete($messageName, $priority);
 
-            $queue = $this->determineQueue($attribute->queue); // todo we do not check as is queue is valid across all handlers
+            $queue = $this->determineQueue($attribute->queue);
 
             $this->app->bind($messageHandlerId, fn (): callable => $this->newHandlerInstance($attribute, $queue));
-
-            //$this->addQueueSubscriber($messageName, $priority, $queue);
 
             $this->updateBinding($messageName, $messageHandlerId, $attribute, $priority, $queue);
         }
@@ -141,36 +139,9 @@ class MessageMap
 
         $callback = ($attribute->handlerMethod === '__invoke') ? $instance : $instance->{$attribute->handlerMethod}(...);
 
-        return new MessageHandler($callback, $attribute->priority, $queue);
-    }
+        $messageHandlerName = $this->formatMessageHandlerName($attribute->handlerClass, $attribute->handlerMethod);
 
-    protected function addQueueSubscriber(string $messageName, int $priority, ?object $queue): void
-    {
-        // todo queue should not be resolved as is will be serialized anyway
-        //  but we still need to known default queue if is array to merge with queue option
-        if (isset($this->queues[$messageName])) {
-            if (! $queue) {
-                $this->queues[$messageName] += [$priority => $queue];
-
-                return;
-            }
-
-            foreach ($this->queues[$messageName] as $_queue) {
-                if ($_queue === null) {
-                    continue;
-                }
-
-                if ($_queue->jsonSerialize() !== $queue->jsonSerialize()) {
-                    throw new RuntimeException('Cannot add multiple queue subscribers for the same message');
-                }
-            }
-
-            $this->queues[$messageName] += [$priority => $queue];
-
-            return;
-        }
-
-        $this->queues[$messageName] = [$priority => $queue];
+        return new MessageHandler($messageHandlerName, $callback, $attribute->priority, $queue);
     }
 
     protected function determineQueue(null|string|array $queue): ?array
@@ -189,5 +160,10 @@ class MessageMap
         }
 
         throw new RuntimeException('Only one handler per command and query is allowed');
+    }
+
+    private function formatMessageHandlerName(string $class, string $method): string
+    {
+        return class_basename($class).'::'.$method;
     }
 }

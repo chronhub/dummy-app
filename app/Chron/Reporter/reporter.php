@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Chron\Console\ExportMessageCommand;
 use App\Chron\Console\MapListenerCommand;
 use App\Chron\Console\MapMessageCommand;
-use App\Chron\Reporter\Subscribers\MessageQueueSubscriber;
+use App\Chron\Reporter\QueueOption;
 use App\Chron\Reporter\Subscribers\RouteMessageSubscriber;
 use Storm\Contract\Reporter\Reporter;
 use Storm\Reporter\Subscriber\HandleCommand;
@@ -33,6 +33,9 @@ return [
                         // your listeners here ...
                     ],
                 ],
+
+                //'queue' ...
+
             ],
         ],
         'event' => [
@@ -50,6 +53,11 @@ return [
                     'listeners' => [
                         // your listeners here ...
                     ],
+                ],
+
+                'queue' => [
+                    'default' => QueueOption::class,
+                    'async' => true,
                 ],
             ],
         ],
@@ -69,15 +77,19 @@ return [
                         // your listeners here ...
                     ],
                 ],
+
+                // No queue for queries
             ],
         ],
     ],
 
+    /**
+     * Default subscribers for all reporters.
+     */
     'subscribers' => [
         Reporter::DISPATCH_EVENT => [
             [MakeMessage::class, 100000],
-            [MessageDecoratorSubscriber::class, 90000], // a stub message decorator
-            [MessageQueueSubscriber::class, 40000],
+            [MessageDecoratorSubscriber::class, 90000], // stub message decorator
             [RouteMessageSubscriber::class, 10000],
         ],
 
@@ -90,6 +102,21 @@ return [
         ],
     ],
 
+    /**
+     * Per default, command and event reporters are sync.
+     *
+     * Note that 'async' has effect only when set in reporter config.
+     *
+     * @see \App\Chron\Attribute\MessageHandler\AsMessageHandler
+     */
+    'queue' => [
+        'default' => QueueOption::class,
+        'async' => false,
+    ],
+
+    /**
+     * Console commands.
+     */
     'console' => [
         'commands' => [
             MapMessageCommand::class,

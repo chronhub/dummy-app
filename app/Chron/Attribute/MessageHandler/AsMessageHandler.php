@@ -23,15 +23,15 @@ class AsMessageHandler implements JsonSerializable
 
     /**
      * Message name that the handler handles.
+     *
      * Only one message per handler is allowed.
      */
     public string $handles;
 
     /**
      * The name of the queue from which the handler should listen for messages.
-     * Only event handler can define one queue only,
-     * We do not support multiple transport, as this is not the purpose of the event bus.
-     * You can still relay on laravel dispatcher for application events.
+     *
+     * Only event handler can define many transports.
      */
     public string|array|null $fromQueue = null;
 

@@ -24,7 +24,7 @@ class MapListenerCommand extends Command
 
     protected $signature = 'reporter-listener:map
                             { name?   : reporter name }
-                            { --choice=0 : request for choice }';
+                            { --choice=1 : request for choice }';
 
     public function __invoke(): int
     {
