@@ -11,6 +11,7 @@ use Illuminate\Support\Collection;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 use function array_map;
+use function is_array;
 
 #[AsCommand(
     name: 'reporter-message:map',
@@ -79,7 +80,7 @@ class MapMessageCommand extends Command
             $this->shortClass($handler->handlerClass),
             $handler->handlerMethod,
             $handler->priority,
-            $this->formatQueue($handler->queue),
+            $this->formatQueue($handler->reporterId, $handler->queue),
         ], $handlers);
     }
 
@@ -88,13 +89,23 @@ class MapMessageCommand extends Command
         return ($this->option('short') === '0') ? $class : class_basename($class);
     }
 
-    protected function formatQueue(?array $queue): string
+    protected function formatQueue(string $reporterId, ?array $queue): string
     {
         if ($queue === null) {
-            return 'sync or unknown'; // todo tmp until we can resolve queue
+            $fromConfig = config('reporter.'.$reporterId.'.queue');
+
+            if (! is_array($fromConfig) || $fromConfig['async'] === false) {
+                return 'sync';
+            }
+
+            $queue = $this->laravel[$fromConfig['default']]->jsonSerialize();
         }
 
-        return $queue['name'].' ('.$queue['connection'].')';
+        if ($queue['name'] === null || $queue['connection'] === null) {
+            return 'async:job';
+        }
+
+        return "async:{$queue['connection']}-{$queue['name']}";
     }
 
     protected function requestMessageName(Collection $entries): ?string

@@ -39,7 +39,7 @@ abstract class AbstractReporterManager implements Manager
 
         $this->addCommonSubscriber($reporter, $name);
         $this->addSubscribers($reporter, $config['subscribers'] ?? []);
-        $this->addQueueSubscriber($reporter, $type, $config['queue'] ?? []);
+        $this->makeReporterAsyncIfRequested($reporter, $type, $config['queue'] ?? []);
 
         return $reporter;
     }
@@ -127,7 +127,7 @@ abstract class AbstractReporterManager implements Manager
         }
     }
 
-    protected function addQueueSubscriber(Reporter $reporter, DomainType $type, array $queues): void
+    protected function makeReporterAsyncIfRequested(Reporter $reporter, DomainType $type, array $queues): void
     {
         if ($type === DomainType::QUERY || $queues === []) {
             return;
@@ -139,7 +139,7 @@ abstract class AbstractReporterManager implements Manager
 
         $queue = $this->app[$queues['default']]->jsonSerialize();
 
-        $listener = new GenericListener(Reporter::DISPATCH_EVENT, new ReporterQueueSubscriber($queue), 70000);
+        $listener = new GenericListener(Reporter::DISPATCH_EVENT, new ReporterQueueSubscriber($queue), 98000);
 
         $reporter->subscribe($listener);
     }

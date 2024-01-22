@@ -55,7 +55,10 @@ class TagContainer
         $this->messageMap->load();
 
         $this->messageMap->getBindings()->each(
-            fn (array $messageHandlers, string $messageName) => $this->container->tag($messageHandlers, $this->tagConcrete($messageName))
+            fn (array $messageHandlers, string $messageName) => $this->container->tag(
+                $messageHandlers,
+                $this->tagConcrete($messageName)
+            )
         );
     }
 

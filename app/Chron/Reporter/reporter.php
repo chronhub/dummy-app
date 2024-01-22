@@ -16,6 +16,12 @@ use Storm\Support\Message\MessageDecoratorSubscriber;
 
 return [
 
+    /*
+    |--------------------------------------------------------------------------
+    | Reporter aka MessageBus
+    |--------------------------------------------------------------------------
+    |
+    */
     'reporter' => [
         'command' => [
             'default' => [
@@ -55,10 +61,7 @@ return [
                     ],
                 ],
 
-                'queue' => [
-                    'default' => QueueOption::class,
-                    'async' => true,
-                ],
+                //'queue' ...
             ],
         ],
         'query' => [
@@ -83,13 +86,16 @@ return [
         ],
     ],
 
-    /**
-     * Default subscribers for all reporters.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Default subscribers for all reporters.
+    |--------------------------------------------------------------------------
+    |
+    */
     'subscribers' => [
         Reporter::DISPATCH_EVENT => [
             [MakeMessage::class, 100000],
-            [MessageDecoratorSubscriber::class, 90000], // stub message decorator
+            [MessageDecoratorSubscriber::class, 97000], // stub message decorator
             [RouteMessageSubscriber::class, 10000],
         ],
 
@@ -102,21 +108,26 @@ return [
         ],
     ],
 
-    /**
-     * Per default, command and event reporters are sync.
-     *
-     * Note that 'async' has effect only when set in reporter config.
-     *
-     * @see \App\Chron\Attribute\MessageHandler\AsMessageHandler
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Queue options
+    |--------------------------------------------------------------------------
+    |
+    | Per default, command and event reporters are sync.
+    | Note that 'async' has effect only when set in reporter config.
+    |
+    */
     'queue' => [
         'default' => QueueOption::class,
         'async' => false,
     ],
 
-    /**
-     * Console commands.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Console commands
+    |--------------------------------------------------------------------------
+    |
+    */
     'console' => [
         'commands' => [
             MapMessageCommand::class,

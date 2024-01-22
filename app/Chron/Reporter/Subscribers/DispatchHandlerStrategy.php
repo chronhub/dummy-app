@@ -196,7 +196,7 @@ class DispatchHandlerStrategy
     protected function setHandlerToDispatch(MessageHandler $messageHandler): void
     {
         if ($this->handlerToDispatch !== null) {
-            throw new RuntimeException(' Handler to dispatch already set');
+            throw new RuntimeException('Handler to dispatch already set');
         }
 
         $this->handlerToDispatch = $messageHandler;

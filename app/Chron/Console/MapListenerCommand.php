@@ -23,7 +23,7 @@ class MapListenerCommand extends Command
     const TABLE_HEADERS = ['Event', 'Origin', 'Priority', 'Listener'];
 
     protected $signature = 'reporter-listener:map
-                            { name?   : reporter name }
+                            { name?      : reporter name }
                             { --choice=1 : request for choice }';
 
     public function __invoke(): int

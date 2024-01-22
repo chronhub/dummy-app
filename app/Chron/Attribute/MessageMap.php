@@ -6,7 +6,6 @@ namespace App\Chron\Attribute;
 
 use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
 use App\Chron\Reporter\DomainType;
-use App\Chron\Reporter\QueueOption;
 use Closure;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
@@ -30,8 +29,6 @@ class MessageMap
     protected array $bindings;
 
     protected array $entries;
-
-    protected array $queues = [];
 
     protected Closure $prefixResolver;
 
@@ -59,16 +56,6 @@ class MessageMap
     public function getEntries(): Collection
     {
         return collect($this->entries);
-    }
-
-    public function getQueues(): array
-    {
-        return $this->queues;
-    }
-
-    public function getQueueForMessageName($messageName): ?array
-    {
-        return $this->queues[$messageName] ?? null;
     }
 
     public function setPrefixResolver(Closure $prefixResolver): void
@@ -102,7 +89,7 @@ class MessageMap
         foreach ($messageHandlers as $priority => $attribute) {
             $messageHandlerId = $this->tagConcrete($messageName, $priority);
 
-            $queue = $this->determineQueue($attribute->queue);
+            $queue = $this->determineQueue($attribute->reporterId, $attribute->queue);
 
             $this->app->bind($messageHandlerId, fn (): callable => $this->newHandlerInstance($attribute, $queue));
 
@@ -144,13 +131,27 @@ class MessageMap
         return new MessageHandler($messageHandlerName, $callback, $attribute->priority, $queue);
     }
 
-    protected function determineQueue(null|string|array $queue): ?array
+    protected function determineQueue(string $reporterId, null|string|array $queue): ?array
     {
-        return match (true) {
-            is_string($queue) => $this->app[$queue]->jsonSerialize(),
-            is_array($queue) => (new QueueOption(...$queue))->jsonSerialize(), // todo queue option from config
-            default => null,
-        };
+        if (is_string($queue)) {
+            return $this->app[$queue]->jsonSerialize();
+        }
+
+        if (is_array($queue)) {
+            // first check for reporter specific queue
+            $reporterQueue = $this->app['config']->get('reporter.'.$reporterId.'.queue.default');
+
+            if (is_string($reporterQueue)) {
+                return array_merge($this->app[$reporterQueue]->jsonSerialize(), $queue);
+            }
+
+            // then check for global queue
+            $defaultQueue = $this->app['config']->get('reporter.queue.default');
+
+            return array_merge($this->app[$defaultQueue]->jsonSerialize(), $queue);
+        }
+
+        return null;
     }
 
     private function assertCountHandlerPerType(MessageHandlerAttribute $data): void
