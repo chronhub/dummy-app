@@ -16,6 +16,7 @@ use Storm\Reporter\Subscriber\NameReporter;
 use Storm\Tracker\GenericListener;
 use Storm\Tracker\TrackMessage;
 
+use function is_string;
 use function method_exists;
 use function sprintf;
 
@@ -45,11 +46,10 @@ abstract class AbstractReporterManager implements Manager
     protected function addSubscribers(Reporter $reporter, array $config): void
     {
         foreach ($config as $event => $subscribers) {
-            if ($event === 'listeners') {
-                $this->addListeners($subscribers, $reporter);
-            } else {
-                $this->addGenericListeners($event, $subscribers, $reporter);
-            }
+            match ($event) {
+                'listeners' => $this->addListeners($subscribers, $reporter),
+                default => $this->addGenericListeners($event, $subscribers, $reporter),
+            };
         }
     }
 
@@ -79,7 +79,9 @@ abstract class AbstractReporterManager implements Manager
     protected function addGenericListeners(string $event, array $subscribers, Reporter $reporter): void
     {
         foreach ($subscribers as $subscriber) {
-            $reporter->subscribe(new GenericListener($event, $this->app[$subscriber[0]], $subscriber[1]));
+            $listener = new GenericListener($event, $this->app[$subscriber[0]], $subscriber[1]);
+
+            $reporter->subscribe($listener);
         }
     }
 
@@ -116,7 +118,7 @@ abstract class AbstractReporterManager implements Manager
     {
         $tracker = $config['tracker'] ?? null;
 
-        if ($tracker === null) {
+        if (! is_string($tracker)) {
             return new TrackMessage();
         }
 
