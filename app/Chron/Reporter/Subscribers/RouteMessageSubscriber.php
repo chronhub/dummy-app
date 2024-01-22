@@ -36,6 +36,11 @@ final readonly class RouteMessageSubscriber
             if ($message->header(Header::EVENT_DISPATCHED) === true) {
                 $currentQueue = $this->validateCurrentQueue($message->header(Header::QUEUE));
 
+                //summary
+                // - get the first which has been dispatched but not handled
+                // - chain sync message if exists
+                // - get the next async which has not been dispatched yet
+
                 // - get the first which has been dispatched but not handled
                 $messageHandler = $this->getFirstHandlerToHandle($currentQueue, $messageHandlers);
 
@@ -43,7 +48,8 @@ final readonly class RouteMessageSubscriber
 
                     $syncMessage = $this->handleSync($story, $message, $messageHandler, $currentQueue);
 
-                    // todo check if next handlers is sync
+                    // todo chain sync message
+                    // todo dispatch next async message
 
                 } else {
                     // -- find next which need to be dispatched
@@ -52,16 +58,10 @@ final readonly class RouteMessageSubscriber
                     if ($messageHandler !== false) {
                         // -- no queue, handle sync, and check if we need to dispatch the next handler
                         if ($messageHandler->queue() === null) {
-
                             $syncMessage = $this->handleSync($story, $message, $messageHandler, $currentQueue);
-
                             $currentQueue = $syncMessage->header(Header::QUEUE);
 
-                            $nextHandler = $this->hasNextAsyncQueueHandler($currentQueue, $messageHandlers);
-
-                            if ($nextHandler !== null) {
-                                $this->handleAsync($story, $syncMessage, $nextHandler, $currentQueue);
-                            }
+                            $this->handleAsync($story, $syncMessage, $messageHandlers, $currentQueue);
 
                             return;
                         }
@@ -70,7 +70,7 @@ final readonly class RouteMessageSubscriber
 
                         $message = $message->withHeader(Header::QUEUE, $markDispatched);
 
-                        $this->dispatchToQueue($message, $currentQueue[$messageHandler->priority()]['queue']);
+                        $this->dispatchToQueue($message, $messageHandler->queue());
                     } else {
                         // if another strategy dispatches all async handlers once and all sync handlers once,
                         // it should fall here.
@@ -83,32 +83,22 @@ final readonly class RouteMessageSubscriber
                     }
                 }
             } else {
-
                 // todo handle case when dev set queue
-                // - format queue
+
                 $currentQueue = $this->formatQueueHandler($messageHandlers);
 
                 $message = $message->withHeader(Header::QUEUE, $currentQueue);
                 $message = $message->withHeader(Header::EVENT_DISPATCHED, true);
 
-                $syncMessageHandlers = $this->filterSyncNewMessage($currentQueue, $messageHandlers);
+                // handle a sequence of sync message
+                $wasChained = $this->chainSyncMessage($story, $message, $messageHandlers, $currentQueue);
 
-                $wasSync = false;
-                if ($syncMessageHandlers !== []) {
-                    $this->handleManySync($story, $message, $syncMessageHandlers, $currentQueue);
-                    $wasSync = true;
-                }
-
-                // retrieve a message if it has been handled sync
-                $message = $wasSync ? $story->message() : $message;
+                $message = $wasChained ? $story->message() : $message;
 
                 $nextQueue = $message->header(Header::QUEUE) ?? $currentQueue;
 
-                $nextHandler = $this->hasNextAsyncQueueHandler($nextQueue, $messageHandlers);
-
-                if ($nextHandler !== null) {
-                    $this->handleAsync($story, $message, $nextHandler, $nextQueue);
-                }
+                // handle next async message if exists
+                $this->handleAsync($story, $message, $messageHandlers, $nextQueue);
             }
         };
     }
@@ -126,8 +116,8 @@ final readonly class RouteMessageSubscriber
         $queues = [];
         foreach ($handlers as $handler) {
             $queues[$handler->priority()] = [
-                'class' => $handler->handlerClass(),
-                'queue' => $handler->queue(),
+                'class' => $handler->handlerClass(), // remove
+                'queue' => $handler->queue(), // remove, take from message handler
                 'handled' => false,
                 'dispatched' => false,
             ];
@@ -152,7 +142,7 @@ final readonly class RouteMessageSubscriber
             }
 
             if ($queue['handled'] === true) {
-                continue; // raise exception?
+                break; // raise exception?
             }
 
             if ($queue['dispatched'] === false) {
@@ -192,7 +182,7 @@ final readonly class RouteMessageSubscriber
     /**
      * Get the next handler which has not been dispatched yet.
      *      - Sync or async
-     *      -Header::QUEUE['__dispatched'] === true
+     *      - Header::QUEUE['__dispatched'] === true
      */
     protected function getNextHandlerToDispatch(array $currentQueue, array $messageHandlers): false|MessageHandler
     {
@@ -209,7 +199,7 @@ final readonly class RouteMessageSubscriber
      * Get the next handler which has not been dispatched yet.
      * Header::QUEUE['__dispatched'] === true or false
      */
-    protected function hasNextAsyncQueueHandler(array $currentQueue, array $messageHandlers): ?MessageHandler
+    protected function findNextAsyncHandler(array $currentQueue, array $messageHandlers): ?MessageHandler
     {
         foreach ($currentQueue as $priority => $queue) {
             $messageHandler = $this->getMessageHandlerByQueuePriority($messageHandlers, $priority);
@@ -249,6 +239,8 @@ final readonly class RouteMessageSubscriber
 
     private function handleSync(MessageStory $story, Message $message, MessageHandler $messageHandler, array $currentQueue): Message
     {
+        logger()->debug('handle sync', ['message' => $message->name(), 'priority' => $messageHandler->priority()]);
+
         $markHandled = $this->markQueueHandled($messageHandler, $currentQueue);
 
         $story->withHandlers([$messageHandler]);
@@ -258,27 +250,41 @@ final readonly class RouteMessageSubscriber
         return $message;
     }
 
-    private function handleManySync(MessageStory $story, Message $message, array $messageHandlers, array $currentQueue): void
+    private function chainSyncMessage(MessageStory $story, Message $message, array $messageHandlers, array $currentQueue): bool
     {
+        $syncMessageHandlers = $this->filterSyncNewMessage($currentQueue, $messageHandlers);
+
+        if ($syncMessageHandlers === []) {
+            return false;
+        }
+
         foreach ($messageHandlers as $messageHandler) {
-            logger()->debug('handle sync', ['message' => $message->name(), 'priority' => $messageHandler->priority()]);
+            logger()->debug('handle chain sync', ['message' => $message->name(), 'priority' => $messageHandler->priority()]);
             $currentQueue = $this->markQueueHandled($messageHandler, $currentQueue);
         }
 
-        $story->withHandlers($messageHandlers);
+        $story->withHandlers($syncMessageHandlers);
 
         $message = $message->withHeader(Header::QUEUE, $currentQueue);
 
         $story->withMessage($message);
+
+        return true;
     }
 
-    private function handleAsync(MessageStory $story, Message $message, MessageHandler $messageHandler, array $currentQueue): void
+    private function handleAsync(MessageStory $story, Message $message, array $messageHandlers, array $currentQueue): void
     {
-        $markDispatched = $this->markQueueDispatched($currentQueue, $messageHandler);
+        $nextHandler = $this->findNextAsyncHandler($currentQueue, $messageHandlers);
+
+        if ($nextHandler === null) {
+            return;
+        }
+
+        $markDispatched = $this->markQueueDispatched($currentQueue, $nextHandler);
 
         $messageDispatched = $message->withHeader(Header::QUEUE, $markDispatched);
 
-        $this->dispatchToQueue($messageDispatched, $messageHandler->queue());
+        $this->dispatchToQueue($messageDispatched, $nextHandler->queue());
 
         $story->withMessage($messageDispatched);
     }
