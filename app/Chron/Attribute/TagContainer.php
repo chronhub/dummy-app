@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Attribute;
 
 use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
+use App\Chron\Attribute\MessageHandler\MessageHandlerMap;
 use BadMethodCallException;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Collection;
@@ -35,7 +36,7 @@ class TagContainer
     public array $map = [];
 
     public function __construct(
-        protected MessageMap $messageMap,
+        protected MessageHandlerMap $messageMap,
         protected Container $container
     ) {
         $this->messageMap->setPrefixResolver(

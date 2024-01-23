@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Attribute;
+namespace App\Chron\Attribute\MessageHandler;
 
-use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
 use App\Chron\Reporter\DomainType;
 use Closure;
 use Illuminate\Contracts\Foundation\Application;
@@ -12,11 +11,9 @@ use Illuminate\Support\Collection;
 use RuntimeException;
 
 use function array_merge;
-use function is_array;
-use function is_string;
 use function uksort;
 
-class MessageMap
+class MessageHandlerMap
 {
     // todo handler is dedicated to a specific reporter,
     //  when find message handler we need to check if reporter is the same
@@ -32,8 +29,11 @@ class MessageMap
 
     protected Closure $prefixResolver;
 
+    protected array $config = [];
+
     public function __construct(
-        protected MessageLoader $messageLoader,
+        protected MessageHandlerLoader $loader,
+        protected DetermineQueueHandler $determineQueueHandler,
         protected Application $app
     ) {
         $this->map = new Collection();
@@ -41,7 +41,7 @@ class MessageMap
 
     public function load(): void
     {
-        $this->messageLoader->getAttributes()->each(fn (array $data) => $this->build(...$data));
+        $this->loader->getAttributes()->each(fn (array $data) => $this->build(...$data));
 
         $this->map->each(
             fn (array $messageHandlers, string $messageName) => $this->bind($messageName, $messageHandlers)
@@ -68,7 +68,7 @@ class MessageMap
         if (! $this->map->has($attribute->handles)) {
             $this->map->put($attribute->handles, [$attribute->priority => $attribute]);
         } else {
-            $this->assertCountHandlerPerType($attribute);
+            $this->assertShouldHaveOneHandlerDependsOnType($attribute);
 
             $messageHandlers = $this->map->get($attribute->handles);
 
@@ -89,7 +89,7 @@ class MessageMap
         foreach ($messageHandlers as $priority => $attribute) {
             $messageHandlerId = $this->tagConcrete($messageName, $priority);
 
-            $queue = $this->determineQueue($attribute->reporterId, $attribute->queue);
+            $queue = $this->determineQueueHandler->make($attribute->reporterId, $attribute->queue);
 
             $this->app->bind($messageHandlerId, fn (): callable => $this->newHandlerInstance($attribute, $queue));
 
@@ -106,23 +106,11 @@ class MessageMap
         $this->entries[$messageName] = array_merge($this->entries[$messageName] ?? [], [$attribute]);
     }
 
-    protected function tagConcrete(string $concrete, ?int $key = null): string
-    {
-        return ($this->prefixResolver)($concrete, $key);
-    }
-
     protected function newHandlerInstance(MessageHandlerAttribute $attribute, ?array $queue): callable
     {
-        $references = [];
+        $parameters = $this->makeParametersFromConstructor($attribute->references);
 
-        // assume constructor references, till we do not support other methods
-        if ($attribute->references !== []) {
-            foreach ($attribute->references as [$parameterName, $serviceId]) {
-                $references[] = [$parameterName => $this->app[$serviceId]];
-            }
-        }
-
-        $instance = $this->app->make($attribute->handlerClass, ...$references);
+        $instance = $this->app->make($attribute->handlerClass, ...$parameters);
 
         $callback = ($attribute->handlerMethod === '__invoke') ? $instance : $instance->{$attribute->handlerMethod}(...);
 
@@ -131,40 +119,33 @@ class MessageMap
         return new MessageHandler($messageHandlerName, $callback, $attribute->priority, $queue);
     }
 
-    protected function determineQueue(string $reporterId, null|string|array $queue): ?array
+    protected function makeParametersFromConstructor(array $references): array
     {
-        if (is_string($queue)) {
-            return $this->app[$queue]->jsonSerialize();
+        $parameters = [];
+
+        foreach ($references as [$parameterName, $serviceId]) {
+            $parameters[] = [$parameterName => $this->app[$serviceId]];
         }
 
-        if (is_array($queue)) {
-            // first check for reporter specific queue
-            $reporterQueue = $this->app['config']->get('reporter.'.$reporterId.'.queue.default');
-
-            if (is_string($reporterQueue)) {
-                return array_merge($this->app[$reporterQueue]->jsonSerialize(), $queue);
-            }
-
-            // then check for global queue
-            $defaultQueue = $this->app['config']->get('reporter.queue.default');
-
-            return array_merge($this->app[$defaultQueue]->jsonSerialize(), $queue);
-        }
-
-        return null;
+        return $parameters;
     }
 
-    private function assertCountHandlerPerType(MessageHandlerAttribute $data): void
+    protected function tagConcrete(string $concrete, ?int $key = null): string
+    {
+        return ($this->prefixResolver)($concrete, $key);
+    }
+
+    protected function formatMessageHandlerName(string $class, string $method): string
+    {
+        return class_basename($class).'::'.$method;
+    }
+
+    protected function assertShouldHaveOneHandlerDependsOnType(MessageHandlerAttribute $data): void
     {
         if ($data->type === DomainType::EVENT->value) {
             return;
         }
 
-        throw new RuntimeException('Only one handler per command and query is allowed');
-    }
-
-    private function formatMessageHandlerName(string $class, string $method): string
-    {
-        return class_basename($class).'::'.$method;
+        throw new RuntimeException('Only one handler per command and query types is allowed');
     }
 }

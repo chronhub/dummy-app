@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Attribute;
+namespace App\Chron\Attribute\MessageHandler;
 
 use App\Chron\Domain\Command\MakeOrderHandler;
 use App\Chron\Domain\Command\RegisterCustomerHandler;
@@ -13,7 +13,7 @@ use App\Chron\Domain\Event\OnEvent\WhenCustomerRegistered;
 use App\Chron\Domain\Event\OnEvent\WhenOrderMade;
 use App\Chron\Domain\Query\GetOneRandomCustomerHandler;
 
-class MessageClassMap
+class MessageHandlerClassMap
 {
     public array $classes = [
         // command handlers

@@ -2,19 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Attribute;
+namespace App\Chron\Attribute\MessageHandler;
 
-use App\Chron\Attribute\MessageHandler\AsCommandHandler;
-use App\Chron\Attribute\MessageHandler\AsEventHandler;
-use App\Chron\Attribute\MessageHandler\AsMessageHandler;
-use App\Chron\Attribute\MessageHandler\AsQueryHandler;
-use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
+use App\Chron\Attribute\ReferenceBuilder;
+use App\Chron\Attribute\ReflectionUtil;
 use Illuminate\Support\Collection;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
 
-class MessageLoader
+class MessageHandlerLoader
 {
     /**
      * @var Collection<array<MessageHandlerAttribute>>
@@ -22,7 +19,7 @@ class MessageLoader
     protected Collection $attributes;
 
     public function __construct(
-        protected MessageClassMap $loader,
+        protected MessageHandlerClassMap $loader,
         protected ReferenceBuilder $referenceBuilder,
     ) {
         $this->attributes = new Collection();
@@ -62,11 +59,9 @@ class MessageLoader
         $methods = ReflectionUtil::attributesInMethods($reflectionClass, AsMessageHandler::class);
 
         $methods->each(function (array $attributes) use ($reflectionClass): void {
-            if ($attributes[0] instanceof ReflectionMethod === false || $attributes[1]->isEmpty()) {
-                return;
+            if ($attributes[0] instanceof ReflectionMethod && $attributes[1]->isNotEmpty()) {
+                $this->processAttributes($reflectionClass, $attributes[1], $attributes[0]);
             }
-
-            $this->processAttributes($reflectionClass, $attributes[1], $attributes[0]);
         });
     }
 

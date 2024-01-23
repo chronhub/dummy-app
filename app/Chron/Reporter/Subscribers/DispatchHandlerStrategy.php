@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Reporter\Subscribers;
 
-use App\Chron\Attribute\MessageHandler;
+use App\Chron\Attribute\MessageHandler\MessageHandler;
 use RuntimeException;
 
 use function array_keys;
