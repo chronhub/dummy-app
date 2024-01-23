@@ -7,32 +7,30 @@ namespace App\Chron\Attribute;
 use App\Chron\Attribute\Reporter\ReporterMap;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Traits\ForwardsCalls;
 
+/**
+ * @method Collection getBindings()
+ * @method Collection getEntries()
+ * @method array      getQueues()
+ */
 class BindReporterContainer
 {
+    use ForwardsCalls;
+
     public function __construct(
         protected ReporterMap $reporterMap,
         protected Application $app
     ) {
     }
 
-    public function autoBind(): void
+    public function bind(): void
     {
         $this->reporterMap->load();
     }
 
-    public function getBindings(): Collection
+    public function __call(string $method, array $parameters): mixed
     {
-        return $this->reporterMap->getBindings();
-    }
-
-    public function getEntries(): Collection
-    {
-        return $this->reporterMap->getEntries();
-    }
-
-    public function getQueues(): array
-    {
-        return $this->reporterMap->getQueues();
+        return $this->forwardCallTo($this->reporterMap, $method, $parameters);
     }
 }

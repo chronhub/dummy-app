@@ -77,8 +77,14 @@ class AsReporter
     ) {
         $this->type = $type instanceof DomainType ? $type : DomainType::from($type);
 
-        if ($this->type === DomainType::QUERY && $sync === false) {
-            throw new InvalidArgumentException('Query reporter cannot be async');
+        if ($this->type === DomainType::QUERY) {
+            if ($sync === false) {
+                throw new InvalidArgumentException('Query reporter cannot be async');
+            }
+
+            if ($defaultQueue !== null) {
+                throw new InvalidArgumentException('Query reporter cannot have a default queue');
+            }
         }
 
         $this->id = $id;

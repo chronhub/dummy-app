@@ -70,7 +70,7 @@ class MessageHandlerLoader
         $attributes
             ->map(fn (ReflectionAttribute $attribute): object => $attribute->newInstance())
             ->each(function (AsCommandHandler|AsEventHandler|AsQueryHandler $attribute) use ($reflectionClass, $reflectionMethod): void {
-                $this->attributes->push([
+                $this->attributes->push(
                     new MessageHandlerAttribute(
                         $attribute->reporter,
                         $reflectionClass->getName(),
@@ -81,7 +81,7 @@ class MessageHandlerLoader
                         $attribute->type()->value,
                         $this->referenceBuilder->fromConstructor($reflectionClass)
                     ),
-                ]);
+                );
             });
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Console;
 
+use App\Chron\Attribute\AttributeContainer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
@@ -103,5 +104,10 @@ abstract class AbstractExporterCommand extends Command
 
             exit(self::FAILURE);
         }
+    }
+
+    protected function getAttributeContainer(): AttributeContainer
+    {
+        return $this->laravel[AttributeContainer::class];
     }
 }

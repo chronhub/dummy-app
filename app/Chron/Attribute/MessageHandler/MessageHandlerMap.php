@@ -41,7 +41,7 @@ class MessageHandlerMap
 
     public function load(): void
     {
-        $this->loader->getAttributes()->each(fn (array $data) => $this->build(...$data));
+        $this->loader->getAttributes()->each(fn (MessageHandlerAttribute $attribute) => $this->build($attribute));
 
         $this->map->each(
             fn (array $messageHandlers, string $messageName) => $this->bind($messageName, $messageHandlers)

@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Reporter;
 
-use App\Chron\Attribute\BindReporterContainer;
-use App\Chron\Attribute\TagHandlerContainer;
+use App\Chron\Attribute\AttributeContainer;
 use App\Chron\Reporter\Manager\Manager;
 use App\Chron\Reporter\Manager\ReporterManager;
 use App\Chron\Reporter\Router\MessageRouter;
@@ -32,34 +31,20 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
     {
         $this->mergeConfigFrom($this->configPath, 'reporter');
 
-        $this->app->singleton(BindReporterContainer::class);
-        $this->app->singleton(TagHandlerContainer::class);
+        $this->app->singleton(AttributeContainer::class);
 
         $this->app->bind(Router::class, MessageRouter::class);
-
-        $this->registerDefaultMessageProducer();
+        $this->app->bind(MessageProducer::class, AsyncMessageProducer::class);
 
         $this->app->singleton(Manager::class, ReporterManager::class);
         $this->app->alias(Manager::class, Report::REPORTER_ID);
 
-        // todo need a container factory to do both
-        $this->bindReporters($this->app[BindReporterContainer::class]);
-        $this->registerTagHandler($this->app[TagHandlerContainer::class]);
+        $this->autoWireAttribute($this->app[AttributeContainer::class]);
     }
 
-    protected function registerDefaultMessageProducer(): void
+    protected function autoWireAttribute(AttributeContainer $container): void
     {
-        $this->app->bind(MessageProducer::class, AsyncMessageProducer::class);
-    }
-
-    protected function registerTagHandler(TagHandlerContainer $tagContainer): void
-    {
-        $tagContainer->autoTag();
-    }
-
-    private function bindReporters(BindReporterContainer $container): void
-    {
-        $container->autoBind();
+        $container->autoWire();
     }
 
     public function provides(): array
@@ -69,8 +54,7 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
             Report::REPORTER_ID,
             Router::class,
             MessageProducer::class,
-            BindReporterContainer::class,
-            TagHandlerContainer::class,
+            AttributeContainer::class,
         ];
     }
 }

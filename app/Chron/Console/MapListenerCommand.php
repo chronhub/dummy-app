@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Console;
 
-use App\Chron\Attribute\BindReporterContainer;
+use App\Chron\Attribute\AttributeContainer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
@@ -78,10 +78,7 @@ class MapListenerCommand extends Command
         }
 
         if ($this->option('choice') === '1') {
-            $name = $this->components->choice(
-                'Find reporter by id',
-                $this->findReporterIds()
-            );
+            $name = $this->components->choice('Find reporter by id', $this->findReporterIds());
         }
 
         return $name ?? throw new InvalidArgumentException('Reporter id not found or not provided');
@@ -89,8 +86,13 @@ class MapListenerCommand extends Command
 
     protected function findReporterIds(): array
     {
-        $bindings = $this->laravel[BindReporterContainer::class]->getBindings();
+        $bindings = $this->getAttributeContainer()->getBindings('reporter');
 
         return $bindings->keys()->toArray();
+    }
+
+    protected function getAttributeContainer(): AttributeContainer
+    {
+        return $this->laravel[AttributeContainer::class];
     }
 }

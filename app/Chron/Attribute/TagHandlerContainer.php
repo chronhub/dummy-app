@@ -49,7 +49,7 @@ class TagHandlerContainer
         return $this->container->tagged($tagName);
     }
 
-    public function autoTag(): void
+    public function tag(): void
     {
         $this->messageMap->load();
 

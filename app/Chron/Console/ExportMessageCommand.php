@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Chron\Console;
 
 use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
-use App\Chron\Attribute\TagHandlerContainer;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 use function array_map;
@@ -24,9 +23,10 @@ class ExportMessageCommand extends AbstractExporterCommand
 
     protected function buildMessageMap(): array
     {
-        $map = $this->laravel[TagHandlerContainer::class]->getEntries();
+        $map = $this->getAttributeContainer()->getEntries('message');
 
         $data = [];
+
         foreach ($map as $messageName => $messageHandlers) {
             $data[$messageName] = array_map(fn (MessageHandlerAttribute $handler): array => $handler->jsonSerialize(), $messageHandlers);
         }

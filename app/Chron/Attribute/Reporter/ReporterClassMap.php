@@ -10,6 +10,9 @@ use App\Chron\Reporter\ReportQuery;
 
 class ReporterClassMap
 {
+    /**
+     * @var array<class-string>
+     */
     public array $classes = [
         ReportCommand::class,
         ReportEvent::class,

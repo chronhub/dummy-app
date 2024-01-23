@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Chron\Console;
 
-use App\Chron\Attribute\BindReporterContainer;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(
@@ -21,7 +20,7 @@ class ExportReporterCommand extends AbstractExporterCommand
 
     protected function buildMessageMap(): array
     {
-        $map = $this->laravel[BindReporterContainer::class]->getEntries();
+        $map = $this->getAttributeContainer()->getEntries('reporter');
 
         $data = [];
         foreach ($map as $reporterId => $reporter) {
