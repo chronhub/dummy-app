@@ -27,7 +27,7 @@ class AttributeContainer
         return match ($key) {
             'reporter' => $this->bindReporterContainer->getBindings(),
             'handler' => $this->tagHandlerContainer->getBindings(),
-            default => throw new InvalidArgumentException("Invalid binding key: $key"),
+            default => throw new InvalidArgumentException("Invalid binding key: $key, available keys: reporter, handler"),
         };
     }
 
@@ -36,7 +36,7 @@ class AttributeContainer
         return match ($key) {
             'reporter' => $this->bindReporterContainer->getEntries(),
             'handler' => $this->tagHandlerContainer->getEntries(),
-            default => throw new InvalidArgumentException("Invalid entry key: $key"),
+            default => throw new InvalidArgumentException("Invalid entry key: $key, available keys: reporter, handler"),
         };
     }
 

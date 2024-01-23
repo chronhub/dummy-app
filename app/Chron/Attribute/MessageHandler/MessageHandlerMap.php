@@ -41,11 +41,10 @@ class MessageHandlerMap
 
     public function load(): void
     {
-        $this->loader->getAttributes()->each(fn (MessageHandlerAttribute $attribute) => $this->build($attribute));
+        $this->loader->getAttributes()
+            ->each(fn (MessageHandlerAttribute $attribute) => $this->build($attribute));
 
-        $this->map->each(
-            fn (array $messageHandlers, string $messageName) => $this->bind($messageName, $messageHandlers)
-        );
+        $this->map->each(fn (array $messageHandlers, string $messageName) => $this->bind($messageName, $messageHandlers));
     }
 
     public function getBindings(): Collection
@@ -67,43 +66,45 @@ class MessageHandlerMap
     {
         if (! $this->map->has($attribute->handles)) {
             $this->map->put($attribute->handles, [$attribute->priority => $attribute]);
-        } else {
-            $this->assertShouldHaveOneHandlerDependsOnType($attribute);
 
-            $messageHandlers = $this->map->get($attribute->handles);
-
-            if (isset($messageHandlers[$attribute->priority])) {
-                throw new RuntimeException("Duplicate priority $attribute->priority for $attribute->handles");
-            }
-
-            $messageHandlers[$attribute->priority] = $attribute;
-
-            uksort($messageHandlers, fn (int $a, int $b): int => $a <=> $b);
-
-            $this->map->put($attribute->handles, $messageHandlers);
+            return;
         }
+
+        $this->assertShouldHaveOneHandlerDependsOnType($attribute);
+
+        $handlers = $this->map->get($attribute->handles);
+
+        if (isset($handlers[$attribute->priority])) {
+            throw new RuntimeException("Duplicate priority $attribute->priority for $attribute->handles");
+        }
+
+        $handlers[$attribute->priority] = $attribute;
+
+        uksort($handlers, fn (int $a, int $b): int => $a <=> $b);
+
+        $this->map->put($attribute->handles, $handlers);
     }
 
-    protected function bind(string $messageName, array $messageHandlers): void
+    protected function bind(string $name, array $handlers): void
     {
-        foreach ($messageHandlers as $priority => $attribute) {
-            $messageHandlerId = $this->tagConcrete($messageName, $priority);
+        foreach ($handlers as $priority => $attribute) {
+            $handlerId = $this->tagConcrete($name, $priority);
 
             $queue = $this->determineQueueHandler->make($attribute->reporterId, $attribute->queue);
 
-            $this->app->bind($messageHandlerId, fn (): callable => $this->newHandlerInstance($attribute, $queue));
+            $this->app->bind($handlerId, fn (): callable => $this->newHandlerInstance($attribute, $queue));
 
-            $this->updateBinding($messageName, $messageHandlerId, $attribute, $priority, $queue);
+            $this->updateBinding($name, $handlerId, $attribute, $priority, $queue);
         }
     }
 
-    protected function updateBinding(string $messageName, string $messageHandlerId, MessageHandlerAttribute $attribute, $priority, ?array $queue): void
+    protected function updateBinding(string $name, string $handlerId, MessageHandlerAttribute $attribute, int $priority, ?array $queue): void
     {
-        $this->bindings[$messageName] = array_merge($this->bindings[$messageName] ?? [], [$priority => $messageHandlerId]);
+        $this->bindings[$name] = array_merge($this->bindings[$name] ?? [], [$priority => $handlerId]);
 
-        $attribute = $attribute->newInstance($messageHandlerId, $this->tagConcrete($messageName), $queue);
+        $attribute = $attribute->newInstance($handlerId, $this->tagConcrete($name), $queue);
 
-        $this->entries[$messageName] = array_merge($this->entries[$messageName] ?? [], [$attribute]);
+        $this->entries[$name] = array_merge($this->entries[$name] ?? [], [$attribute]);
     }
 
     protected function newHandlerInstance(MessageHandlerAttribute $attribute, ?array $queue): callable

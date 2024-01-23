@@ -11,6 +11,7 @@ use RuntimeException;
 use Storm\Contract\Tracker\Listener;
 use Storm\Tracker\GenericListener;
 
+use function array_map;
 use function is_string;
 use function sprintf;
 
@@ -20,22 +21,21 @@ class ReporterSubscriberResolver
     {
     }
 
-    public function make(ReporterAttribute $reporterAttribute): array
+    public function make(ReporterAttribute $attribute): array
     {
-        $subscribers = [];
-
-        $subscribers[] = $this->resolveListeners($reporterAttribute->listeners);
-
-        $factory = $reporterAttribute->subscribers;
-
-        if (is_string($factory)) {
-            $reporterSubscribers = $this->app[$factory]->get($reporterAttribute->id, DomainType::from($reporterAttribute->type));
-            $subscribers[] = $this->transformToListener($reporterSubscribers);
-        } else {
-            $subscribers[] = $this->transformToListener($factory);
-        }
+        $subscribers = array_map(
+            fn (callable $resolver): array => $resolver($attribute),
+            $this->resolveSubscribers()
+        );
 
         return Arr::flatten($subscribers);
+    }
+
+    protected function fromSubscriberFactory(string $factory, string $reporterId, string $type): array
+    {
+        $subscribers = $this->app[$factory]->get($reporterId, DomainType::from($type));
+
+        return $this->transformToListener($subscribers);
     }
 
     protected function transformToListener(array $subscribers): array
@@ -87,5 +87,17 @@ class ReporterSubscriberResolver
         }
 
         return $listeners;
+    }
+
+    protected function resolveSubscribers(): array
+    {
+        return [
+            fn (ReporterAttribute $attribute): array => $this->resolveListeners($attribute->listeners),
+            function (ReporterAttribute $attribute): array {
+                return is_string($attribute->subscribers)
+                    ? $this->fromSubscriberFactory($attribute->subscribers, $attribute->id, $attribute->type)
+                    : $this->transformToListener($attribute->subscribers);
+            },
+        ];
     }
 }
