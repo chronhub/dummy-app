@@ -42,8 +42,8 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
         $this->app->singleton(Manager::class, ReporterManager::class);
         $this->app->alias(Manager::class, Report::REPORTER_ID);
 
-        // attributes
-        $this->bindReporters($this->app[BindReporterContainer::class]); //need to be first
+        // todo need a container factory to do both
+        $this->bindReporters($this->app[BindReporterContainer::class]);
         $this->registerTagHandler($this->app[TagHandlerContainer::class]);
     }
 
