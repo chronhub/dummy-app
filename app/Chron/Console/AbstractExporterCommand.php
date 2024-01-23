@@ -89,7 +89,7 @@ abstract class AbstractExporterCommand extends Command
             $name = $this->defaultName();
         }
 
-        if (! str_ends_with('.', $name)) {
+        if (! str_ends_with($name, '.')) {
             $name .= '.';
         }
 

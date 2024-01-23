@@ -11,7 +11,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
     name: 'reporter:export',
     description: 'Export reporter map'
 )]
-class ExportExporterCommand extends AbstractExporterCommand
+class ExportReporterCommand extends AbstractExporterCommand
 {
     protected $signature = 'reporter:export
                             { --path=         : default to storage_app() }

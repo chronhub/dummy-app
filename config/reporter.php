@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Chron\Console\ExportExporterCommand;
 use App\Chron\Console\ExportMessageCommand;
+use App\Chron\Console\ExportReporterCommand;
 use App\Chron\Console\MapListenerCommand;
 use App\Chron\Console\MapMessageCommand;
 
@@ -18,7 +18,7 @@ return [
         'commands' => [
             MapMessageCommand::class,
             MapListenerCommand::class,
-            ExportExporterCommand::class,
+            ExportReporterCommand::class,
             ExportMessageCommand::class,
         ],
     ],
