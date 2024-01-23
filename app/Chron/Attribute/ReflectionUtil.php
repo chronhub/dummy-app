@@ -15,17 +15,6 @@ class ReflectionUtil
         return collect($reflectionClass->getAttributes($attribute, ReflectionAttribute::IS_INSTANCEOF));
     }
 
-    public static function attributeInClass(ReflectionClass $reflectionClass, string $attribute): ?ReflectionAttribute
-    {
-        $attributes = $reflectionClass->getAttributes($attribute, ReflectionAttribute::IS_INSTANCEOF);
-
-        if ($attributes === []) {
-            return null;
-        }
-
-        return $attributes[0];
-    }
-
     public static function attributesInMethods(ReflectionClass $reflectionClass, string $attribute): Collection
     {
         $methods = $reflectionClass->getMethods();

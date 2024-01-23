@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Chron\Console;
 
+use App\Chron\Attribute\BindReporterContainer;
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Storm\Contract\Reporter\Reporter;
@@ -78,7 +78,8 @@ class MapListenerCommand extends Command
         }
 
         if ($this->option('choice') === '1') {
-            $name = $this->components->choice('Find reporter by id',
+            $name = $this->components->choice(
+                'Find reporter by id',
                 $this->findReporterIds()
             );
         }
@@ -88,8 +89,8 @@ class MapListenerCommand extends Command
 
     protected function findReporterIds(): array
     {
-        $reporters = $this->laravel['config']->get('reporter.reporter', []);
+        $bindings = $this->laravel[BindReporterContainer::class]->getBindings();
 
-        return Arr::flatten(Arr::pluck($reporters, '*.id'));
+        return $bindings->keys()->toArray();
     }
 }

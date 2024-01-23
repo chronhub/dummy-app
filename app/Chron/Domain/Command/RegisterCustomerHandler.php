@@ -8,7 +8,7 @@ use App\Chron\Attribute\MessageHandler\AsCommandHandler;
 use App\Chron\Attribute\Reference;
 use App\Chron\Domain\Event\CustomerRegistered;
 use App\Chron\Infra\CustomerRepository;
-use Storm\Reporter\ReportEvent;
+use App\Chron\Reporter\ReportEvent;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',

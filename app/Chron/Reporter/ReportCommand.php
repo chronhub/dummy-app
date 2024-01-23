@@ -6,17 +6,19 @@ namespace App\Chron\Reporter;
 
 use App\Chron\Attribute\Reporter\AsReporter;
 use App\Chron\Reporter\Manager\ReporterSubscriberManager;
+use App\Chron\Reporter\Producer\QueueOption;
 use Storm\Contract\Reporter\Reporter;
 use Storm\Reporter\DelegateToQueue;
 use Storm\Reporter\HasConstructableReporter;
 
 #[AsReporter(
-    id: 'reporter.command.mine',
+    id: 'reporter.command.default',
     type: DomainType::COMMAND,
-    sync: true,
+    sync: false,
     subscribers: ReporterSubscriberManager::class,
+    defaultQueue: QueueOption::class
 )]
-class MyReportCommand implements Reporter
+final class ReportCommand implements Reporter
 {
     use DelegateToQueue;
     use HasConstructableReporter;

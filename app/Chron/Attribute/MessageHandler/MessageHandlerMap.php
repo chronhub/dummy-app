@@ -114,9 +114,9 @@ class MessageHandlerMap
 
         $callback = ($attribute->handlerMethod === '__invoke') ? $instance : $instance->{$attribute->handlerMethod}(...);
 
-        $messageHandlerName = $this->formatMessageHandlerName($attribute->handlerClass, $attribute->handlerMethod);
+        $name = $this->formatName($attribute->handlerClass, $attribute->handlerMethod);
 
-        return new MessageHandler($messageHandlerName, $callback, $attribute->priority, $queue);
+        return new MessageHandler($name, $callback, $attribute->priority, $queue);
     }
 
     protected function makeParametersFromConstructor(array $references): array
@@ -135,7 +135,7 @@ class MessageHandlerMap
         return ($this->prefixResolver)($concrete, $key);
     }
 
-    protected function formatMessageHandlerName(string $class, string $method): string
+    protected function formatName(string $class, string $method): string
     {
         return class_basename($class).'::'.$method;
     }

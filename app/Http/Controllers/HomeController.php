@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Chron\Domain\Command\MakeOrder;
 use App\Chron\Domain\Command\RegisterCustomer;
 use App\Chron\Domain\Command\UpdateCustomerEmail;
-use App\Chron\Reporter\Manager\Manager;
 use App\Chron\Reporter\Report;
 use Storm\Contract\Message\Header;
 use Storm\Contract\Reporter\Reporter;
@@ -21,11 +20,9 @@ final class HomeController
 {
     use QueryPromiseTrait;
 
-    public function __invoke(Manager $manager): Response
+    public function __invoke(): Response
     {
-        dd(app('reporter.command.mine'));
-
-        $this->sendCommand(Report::command());
+        $this->sendCommand(Report::get('reporter.command.default'));
 
         return new Response('ok');
     }

@@ -29,7 +29,7 @@ class AsMessageHandler implements JsonSerializable
     public string $handles;
 
     /**
-     * The name of the queue from which the handler should listen for messages.
+     * Handler queues.
      *
      * Only event handler can define many transports.
      */

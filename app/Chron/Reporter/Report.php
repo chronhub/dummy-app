@@ -8,12 +8,7 @@ use Illuminate\Support\Facades\Facade;
 use Storm\Contract\Reporter\Reporter;
 
 /**
- * @method static Reporter create(string $name, string|DomainType $type)
- * @method static Reporter command(?string $name = null)
- * @method static Reporter event(?string $name = null)
- * @method static Reporter query(?string $name = null)
- * @method static string   getDefaultId(string $type)
- * @method static bool     hasId(string $reporterId, bool $isLoaded = false)
+ * @method static Reporter get(string $name)
  */
 class Report extends Facade
 {

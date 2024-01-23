@@ -43,6 +43,13 @@ class AsReporter
     public string $subscribers;
 
     /**
+     * Listeners to be registered to the reporter.
+     *
+     * @var array<string>|array
+     */
+    public array $listeners;
+
+    /**
      * Default queue to be used when dispatching async.
      *
      * Merged with message handler queues when they are configured as an array.
@@ -55,16 +62,9 @@ class AsReporter
     /**
      * Tracker to be used when fire events.
      *
-     * @see MessageTracker ad default tracker
+     * @see MessageTracker as default tracker
      */
     public ?string $tracker;
-
-    /**
-     * Listeners to be registered to the reporter.
-     *
-     * @var array<string>|array
-     */
-    public array $listeners;
 
     public function __construct(
         string $id,

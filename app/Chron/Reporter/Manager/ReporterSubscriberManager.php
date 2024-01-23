@@ -16,7 +16,7 @@ use Storm\Support\Message\MessageDecoratorSubscriber;
 
 use function array_merge_recursive;
 
-final class ReporterSubscriberManager implements SusbcriberManager
+final class ReporterSubscriberManager implements SubscriberManager
 {
     /**
      * @return array{string, array<int, array<int, array<int, int>|string>>}

@@ -6,6 +6,7 @@ namespace App\Chron\Attribute;
 
 use App\Chron\Attribute\Reporter\ReporterMap;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Collection;
 
 class BindReporterContainer
 {
@@ -18,5 +19,20 @@ class BindReporterContainer
     public function autoBind(): void
     {
         $this->reporterMap->load();
+    }
+
+    public function getBindings(): Collection
+    {
+        return $this->reporterMap->getBindings();
+    }
+
+    public function getEntries(): Collection
+    {
+        return $this->reporterMap->getEntries();
+    }
+
+    public function getQueues(): array
+    {
+        return $this->reporterMap->getQueues();
     }
 }

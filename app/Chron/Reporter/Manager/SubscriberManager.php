@@ -6,7 +6,7 @@ namespace App\Chron\Reporter\Manager;
 
 use App\Chron\Reporter\DomainType;
 
-interface SusbcriberManager
+interface SubscriberManager
 {
     public function get(string $reporterId, DomainType $type): array;
 }
