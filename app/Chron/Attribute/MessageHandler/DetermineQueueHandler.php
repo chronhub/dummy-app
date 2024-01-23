@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Attribute\MessageHandler;
 
 use App\Chron\Attribute\BindReporterContainer;
+use RuntimeException;
 
 use function array_merge;
 use function is_array;
@@ -46,12 +47,12 @@ class DetermineQueueHandler
             return $queue;
         }
 
-        if ($config['queue'] === [] || $queue === null) {
-            return $queue;
+        if ($config['queue'] === []) {
+            throw new RuntimeException("Config queue cannot be empty for reporter $reporterId");
         }
 
         // if sync is false, merge the queue with the config queue
-        // do not define default queue if handler queue
-        return array_merge($config['queue'], $queue);
+        // do not define default queue if handlers queues must act as default
+        return $queue === null ? $config['queue'] : array_merge($config['queue'], $queue);
     }
 }
