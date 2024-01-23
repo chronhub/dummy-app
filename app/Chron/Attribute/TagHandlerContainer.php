@@ -19,10 +19,8 @@ use function sprintf;
  *
  * @method Collection getBindings()
  * @method Collection getEntries()
- * @method array      getQueues()
- * @method ?array     getQueueForMessageName(string $messageName)
  */
-class TagContainer
+class TagHandlerContainer
 {
     use ForwardsCalls;
 

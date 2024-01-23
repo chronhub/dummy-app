@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Reporter;
+namespace App\Chron\Reporter\Manager;
 
+use App\Chron\Reporter\DomainType;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Arr;
 use RuntimeException;

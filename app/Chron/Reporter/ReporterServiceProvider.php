@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Chron\Reporter;
 
-use App\Chron\Attribute\TagContainer;
+use App\Chron\Attribute\BindReporterContainer;
+use App\Chron\Attribute\TagHandlerContainer;
+use App\Chron\Reporter\Manager\Manager;
+use App\Chron\Reporter\Manager\ReporterManager;
 use App\Chron\Reporter\Router\MessageRouter;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Support\DeferrableProvider;
@@ -33,31 +36,20 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
     {
         $this->mergeConfigFrom($this->configPath, 'reporter');
 
-        $this->app->singleton(TagContainer::class);
+        $this->app->singleton(BindReporterContainer::class);
+        $this->app->singleton(TagHandlerContainer::class);
 
         $this->app->bind(Router::class, MessageRouter::class);
 
         $this->registerDefaultMessageProducer();
 
-        $this->app->singleton(Manager::class, function (): ReporterManager {
-            $manager = new ReporterManager($this->app);
-
-            foreach (['command', 'query', 'event'] as $type) {
-                $reporter = config('reporter.reporter.'.$type.'.default');
-
-                if (! blank($reporter)) {
-                    $manager->addDefaults($type, 'reporter.'.$type.'.default');
-                }
-            }
-
-            return $manager;
-        });
-
-        $this->app->alias(Manager::class, Report::REPORTER_ID);
+        $this->registerReporterManager();
 
         $this->registerDefaultReporters();
 
-        $this->registerTag($this->app[TagContainer::class]);
+        // attributes
+        $this->bindReporters($this->app[BindReporterContainer::class]);
+        $this->registerTagHandler($this->app[TagHandlerContainer::class]);
     }
 
     protected function registerDefaultReporters(): void
@@ -83,9 +75,14 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
         $this->app->bind(MessageProducer::class, AsyncMessageProducer::class);
     }
 
-    protected function registerTag(TagContainer $tagContainer): void
+    protected function registerTagHandler(TagHandlerContainer $tagContainer): void
     {
         $tagContainer->autoTag();
+    }
+
+    private function bindReporters(BindReporterContainer $container): void
+    {
+        $container->autoBind();
     }
 
     public function provides(): array
@@ -95,6 +92,27 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
             Report::REPORTER_ID,
             Router::class,
             MessageProducer::class,
+            BindReporterContainer::class,
+            TagHandlerContainer::class,
         ];
+    }
+
+    protected function registerReporterManager(): void
+    {
+        $this->app->singleton(Manager::class, function (): ReporterManager {
+            $manager = new ReporterManager($this->app);
+
+            foreach (['command', 'query', 'event'] as $type) {
+                $reporter = config('reporter.reporter.'.$type.'.default');
+
+                if (! blank($reporter)) {
+                    $manager->addDefaults($type, 'reporter.'.$type.'.default');
+                }
+            }
+
+            return $manager;
+        });
+
+        $this->app->alias(Manager::class, Report::REPORTER_ID);
     }
 }

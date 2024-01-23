@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Console;
 
 use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
-use App\Chron\Attribute\TagContainer;
+use App\Chron\Attribute\TagHandlerContainer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -27,7 +27,7 @@ class MapMessageCommand extends Command
                             { --ask=1    : Ask for complete message name }
                             { --short=1  : Short class base name output }';
 
-    public function __invoke(TagContainer $tagContainer): int
+    public function __invoke(TagHandlerContainer $tagContainer): int
     {
         $map = $tagContainer->getEntries();
 

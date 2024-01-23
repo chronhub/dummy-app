@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Reporter;
+namespace App\Chron\Reporter\Producer;
 
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use InvalidArgumentException;

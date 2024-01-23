@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Console;
 
 use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
-use App\Chron\Attribute\TagContainer;
+use App\Chron\Attribute\TagHandlerContainer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -54,7 +54,7 @@ class ExportMessageCommand extends Command
 
     protected function buildMessageMap(): array
     {
-        $map = $this->laravel[TagContainer::class]->getEntries();
+        $map = $this->laravel[TagHandlerContainer::class]->getEntries();
 
         $data = [];
         foreach ($map as $messageName => $messageHandlers) {

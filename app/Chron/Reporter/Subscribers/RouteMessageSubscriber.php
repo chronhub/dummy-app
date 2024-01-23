@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Reporter\Subscribers;
 
 use App\Chron\Attribute\MessageHandler\MessageHandler;
-use App\Chron\Reporter\IlluminateQueue;
+use App\Chron\Reporter\Producer\IlluminateQueue;
 use Closure;
 use Storm\Contract\Message\Header;
 use Storm\Contract\Tracker\MessageStory;

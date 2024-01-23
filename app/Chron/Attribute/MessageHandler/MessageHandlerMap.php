@@ -18,6 +18,8 @@ class MessageHandlerMap
     // todo handler is dedicated to a specific reporter,
     //  when find message handler we need to check if reporter is the same
 
+    // todo references in handler methods
+
     /**
      * @var Collection<string, array<MessageHandlerAttribute>>
      */
@@ -28,8 +30,6 @@ class MessageHandlerMap
     protected array $entries;
 
     protected Closure $prefixResolver;
-
-    protected array $config = [];
 
     public function __construct(
         protected MessageHandlerLoader $loader,

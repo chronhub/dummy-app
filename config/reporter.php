@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Chron\Console\ExportMessageCommand;
 use App\Chron\Console\MapListenerCommand;
 use App\Chron\Console\MapMessageCommand;
-use App\Chron\Reporter\QueueOption;
+use App\Chron\Reporter\Producer\QueueOption;
 use App\Chron\Reporter\Subscribers\RouteMessageSubscriber;
 use Storm\Contract\Reporter\Reporter;
 use Storm\Reporter\Subscriber\HandleCommand;
