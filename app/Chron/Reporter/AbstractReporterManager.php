@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Chron\Reporter;
 
-use App\Chron\Reporter\Subscribers\ReporterQueueSubscriber;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Arr;
 use RuntimeException;
 use Storm\Contract\Reporter\Reporter;
 use Storm\Contract\Tracker\Listener;
@@ -23,23 +23,27 @@ use function sprintf;
 
 abstract class AbstractReporterManager implements Manager
 {
-    public function __construct(protected Application $app)
-    {
+    protected array $config;
+
+    public function __construct(
+        protected Application $app,
+        array $config = []
+    ) {
+        $this->config = $config === [] ? $this->app['config']->get('reporter') : $config;
     }
 
-    protected function resolve(string $name, DomainType $type): Reporter
+    protected function resolve(string $reporterId, DomainType $type): Reporter
     {
-        $config = config('reporter.'.$name);
+        $config = Arr::get($this->config, $reporterId);
 
         if (blank($config)) {
-            throw new RuntimeException(sprintf('Reporter config not found for name %s', $name));
+            throw new RuntimeException(sprintf('Reporter config not found for name %s', $reporterId));
         }
 
         $reporter = $this->makeReporter($type, $config);
 
-        $this->addCommonSubscriber($reporter, $name);
+        $this->addCommonSubscriber($reporter, $reporterId);
         $this->addSubscribers($reporter, $config['subscribers'] ?? []);
-        $this->makeReporterAsyncIfRequested($reporter, $type, $config['queue'] ?? []);
 
         return $reporter;
     }
@@ -57,7 +61,7 @@ abstract class AbstractReporterManager implements Manager
 
     protected function addCommonSubscriber(Reporter $reporter, string $name): void
     {
-        $defaultSubscribers = config('reporter.subscribers', []);
+        $defaultSubscribers = Arr::get($this->config, 'subscribers', []);
 
         $this->addSubscribers($reporter, $defaultSubscribers);
 
@@ -125,22 +129,5 @@ abstract class AbstractReporterManager implements Manager
 
             $reporter->subscribe($listener);
         }
-    }
-
-    protected function makeReporterAsyncIfRequested(Reporter $reporter, DomainType $type, array $queues): void
-    {
-        if ($type === DomainType::QUERY || $queues === []) {
-            return;
-        }
-
-        if (($queues['async'] ?? false) === false) {
-            return;
-        }
-
-        $queue = $this->app[$queues['default']]->jsonSerialize();
-
-        $listener = new GenericListener(Reporter::DISPATCH_EVENT, new ReporterQueueSubscriber($queue), 98000);
-
-        $reporter->subscribe($listener);
     }
 }

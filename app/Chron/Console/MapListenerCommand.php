@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Storm\Contract\Reporter\Reporter;
@@ -16,14 +17,14 @@ use function sprintf;
 
 #[AsCommand(
     name: 'reporter-listener:map',
-    description: 'Get the listeners map by reporter name',
+    description: 'Get the listeners map by reporter id',
 )]
 class MapListenerCommand extends Command
 {
     const TABLE_HEADERS = ['Event', 'Origin', 'Priority', 'Listener'];
 
     protected $signature = 'reporter-listener:map
-                            { name?      : reporter name }
+                            { id?      : reporter id }
                             { --choice=1 : request for choice }';
 
     public function __invoke(): int
@@ -42,7 +43,7 @@ class MapListenerCommand extends Command
 
         // todo prettier
         $this->components->twoColumnDetail(
-            sprintf('ReporterClass: %s', $reporter::class),
+            sprintf('Reporter class: %s', $reporter::class),
             sprintf('Total: %d', $listeners->count())
         );
 
@@ -70,7 +71,7 @@ class MapListenerCommand extends Command
 
     protected function handleCompletionName(): string
     {
-        $argumentName = $this->argument('name');
+        $argumentName = $this->argument('id');
 
         if ($argumentName) {
             return $argumentName;
@@ -78,25 +79,17 @@ class MapListenerCommand extends Command
 
         if ($this->option('choice') === '1') {
             $name = $this->components->choice('Find reporter by id',
-                $this->flattenArray(config('reporter.reporter', []))
+                $this->findReporterIds()
             );
         }
 
-        return $name ?? throw new InvalidArgumentException('Reporter name not found or not provided');
+        return $name ?? throw new InvalidArgumentException('Reporter id not found or not provided');
     }
 
-    protected function flattenArray(array $reporters): array
+    protected function findReporterIds(): array
     {
-        $result = [];
+        $reporters = $this->laravel['config']->get('reporter.reporter', []);
 
-        foreach ($reporters as $reporter) {
-            foreach ($reporter as $config) {
-                if (isset($config['reporter'])) {
-                    $result[] = $config['reporter'];
-                }
-            }
-        }
-
-        return $result;
+        return Arr::flatten(Arr::pluck($reporters, '*.id'));
     }
 }

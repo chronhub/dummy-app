@@ -60,12 +60,12 @@ class MessageJob
 
     private function setQueueOptions(array $queue): void
     {
-        $this->connection ??= $queue['connection'];
-        $this->queue ??= $queue['name'];
-        $this->tries ??= $queue['tries'];
-        $this->delay ??= $queue['delay'];
-        $this->maxExceptions ??= $queue['max_exceptions'];
-        $this->timeout ??= $queue['timeout'];
-        $this->backoff ??= $queue['backoff'];
+        $this->connection = $queue['connection'] ?? $this->connection;
+        $this->queue = $queue['name'] ?? $this->queue;
+        $this->tries = $queue['tries'] ?? $this->tries;
+        $this->delay = $queue['delay'] ?? $this->delay;
+        $this->maxExceptions = $queue['max_exceptions'] ?? $this->maxExceptions;
+        $this->timeout = $queue['timeout'] ?? $this->timeout;
+        $this->backoff = $queue['backoff'] ?? $this->backoff;
     }
 }

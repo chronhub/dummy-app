@@ -6,6 +6,7 @@ namespace App\Chron\Attribute\MessageHandler;
 
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
+use InvalidArgumentException;
 
 use function array_merge;
 use function is_array;
@@ -35,26 +36,28 @@ class DetermineQueueHandler
         return $this->makeQueueFromReporter($reporterId, $queue) ?? $this->makeQueueConfiguration($queue);
     }
 
-    protected function makeQueueFromReporter(string $reporterId, null|string|array|object $queue): ?array
+    protected function makeQueueFromReporter(string $reporterId, ?array $queue): ?array
     {
-        $reporterQueue = Arr::get($this->config, sprintf('reporter.%s.queue', $reporterId));
+        $config = $this->searchReporterConfig($reporterId);
 
-        if (is_array($reporterQueue) && isset($reporterQueue['default'])) {
-            $userQueue = $this->container[$reporterQueue['default']]->jsonSerialize();
+        $configQueue = $config['queue'] ?? null;
 
-            $async = $reporterQueue['async'] ?? false;
-
-            if ($async && $queue === null) {
-                return $userQueue;
-            }
-
-            return array_merge($userQueue, $queue);
+        if ($configQueue === null) {
+            return $queue;
         }
 
-        return null;
+        $userQueue = $this->container[$configQueue['default']]->jsonSerialize();
+
+        $async = $configQueue['async'] ?? false;
+
+        if ($async === true && $queue === null) {
+            return $userQueue;
+        }
+
+        return array_merge($userQueue, $queue);
     }
 
-    protected function makeQueueConfiguration(null|string|array|object $queue): ?array
+    protected function makeQueueConfiguration(?array $queue): ?array
     {
         $defaultQueue = Arr::get($this->config, 'queue.default');
 
@@ -63,5 +66,18 @@ class DetermineQueueHandler
         }
 
         return $queue;
+    }
+
+    protected function searchReporterConfig(string $reporterId): array
+    {
+        foreach ($this->config['reporter'] as $reporter) {
+            foreach ($reporter as $config) {
+                if ($config['id'] === $reporterId) {
+                    return $config;
+                }
+            }
+        }
+
+        throw new InvalidArgumentException(sprintf('Configuration not found for reporter id %s', $reporterId));
     }
 }

@@ -20,7 +20,6 @@ class DispatchHandlerStrategy
     public function __construct(
         private readonly array $messageHandlers,
         private array $queues,
-        private readonly ?array $reporterQueue,
     ) {
     }
 
@@ -110,11 +109,6 @@ class DispatchHandlerStrategy
 
     protected function filterSyncHandlers(array $messageHandlers): array
     {
-        // the reporter queue is not null, so we don't dispatch any sync handler
-        if ($this->reporterQueue !== null) {
-            return [];
-        }
-
         $chainSyncHandlers = [];
 
         foreach ($this->queues as $priority => $queue) {
@@ -141,7 +135,7 @@ class DispatchHandlerStrategy
         foreach ($this->queues as $priority => $queue) {
             $messageHandler = $this->getMessageHandlerByPriority($this->messageHandlers, $priority);
 
-            if ($queue['dispatched'] === false && ($messageHandler->queue() !== null || $this->reporterQueue !== null)) {
+            if ($queue['dispatched'] === false && $messageHandler->queue() !== null) {
                 return $messageHandler;
             }
         }

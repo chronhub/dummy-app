@@ -25,26 +25,22 @@ final readonly class RouteMessageSubscriber
         return function (MessageStory $story): void {
             $message = $story->message();
 
-            $reporterQueue = $this->getReporterQueue($message);
-
-            $strategy = $this->handle($message, $reporterQueue);
-
-            $queues = $strategy->getQueues();
+            $strategy = $this->handle($message);
 
             $message = $message
-                ->withHeader(Header::QUEUE, $queues)
+                ->withHeader(Header::QUEUE, $strategy->getQueues())
                 ->withHeader(Header::EVENT_DISPATCHED, true);
 
             $handlers = $strategy->getStoryHandlers();
             $story->withHandlers($handlers);
 
-            $this->dispatchToQueue($message, $strategy->getAsyncHandler(), $reporterQueue);
+            $this->dispatchToQueue($message, $strategy->getAsyncHandler());
 
             $story->withMessage($message);
         };
     }
 
-    private function handle(Message $message, ?array $reporterQueue): DispatchHandlerStrategy
+    private function handle(Message $message): DispatchHandlerStrategy
     {
         $messageHandlers = $this->routing->route($message->name());
 
@@ -52,24 +48,19 @@ final readonly class RouteMessageSubscriber
 
         $queues = $alreadyDispatched ? $message->header(Header::QUEUE) : [];
 
-        $strategy = new DispatchHandlerStrategy($messageHandlers, $queues, $reporterQueue);
+        $strategy = new DispatchHandlerStrategy($messageHandlers, $queues);
 
         $strategy->handle($alreadyDispatched);
 
         return $strategy;
     }
 
-    private function dispatchToQueue(Message $message, ?MessageHandler $messageHandler, ?array $reporterQueue): void
+    private function dispatchToQueue(Message $message, ?MessageHandler $messageHandler): void
     {
         if ($messageHandler) {
-            $queue = $messageHandler->queue() ?? $reporterQueue;
+            $queue = $messageHandler->queue();
 
             $this->dispatcher->toQueue($message, $queue);
         }
-    }
-
-    private function getReporterQueue(Message $message): ?array
-    {
-        return $message->header(ReporterQueueSubscriber::REPORTER_QUEUE) ?? null;
     }
 }

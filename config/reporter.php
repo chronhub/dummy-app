@@ -25,7 +25,7 @@ return [
     'reporter' => [
         'command' => [
             'default' => [
-                'reporter' => 'reporter.command.default',
+                'id' => 'reporter.command.default',
                 //'class' => \Storm\Reporter\ReportCommand::class, // optional (default)
                 //'tracker' => \Storm\Tracker\TrackMessage::class, // optional, class or id
                 'subscribers' => [
@@ -46,7 +46,7 @@ return [
         ],
         'event' => [
             'default' => [
-                'reporter' => 'reporter.event.default',
+                'id' => 'reporter.event.default',
                 //'class' => \Storm\Reporter\ReportEvent::class, // optional (default)
                 //'tracker' => \Storm\Tracker\TrackMessage::class, // optional, class or id
                 'subscribers' => [
@@ -61,17 +61,12 @@ return [
                     ],
                 ],
 
-                'queue' => [
-                    'default' => QueueOption::class,
-                    'async' => true,
-                ],
-
                 //'queue' ...
             ],
         ],
         'query' => [
             'default' => [
-                'reporter' => 'reporter.query.default',
+                'id' => 'reporter.query.default',
                 //'class' => \Storm\Reporter\ReportQuery::class, // optional (default)
                 //'tracker' => \Storm\Tracker\TrackMessage::class, // optional, class or id
                 'subscribers' => [

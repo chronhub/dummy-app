@@ -13,6 +13,7 @@ use Storm\Contract\Reporter\Reporter;
  * @method static Reporter event(?string $name = null)
  * @method static Reporter query(?string $name = null)
  * @method static string   getDefaultId(string $type)
+ * @method static bool     hasId(string $reporterId, bool $isLoaded = false)
  */
 class Report extends Facade
 {

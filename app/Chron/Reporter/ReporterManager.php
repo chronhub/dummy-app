@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Chron\Reporter;
 
+use Illuminate\Support\Arr;
 use Storm\Contract\Reporter\Reporter;
 
+use function in_array;
 use function is_string;
 
 final class ReporterManager extends AbstractReporterManager
@@ -45,6 +47,17 @@ final class ReporterManager extends AbstractReporterManager
     public function getDefaultId(string $type): string
     {
         return $this->defaults[$type];
+    }
+
+    public function hasId(string $reporterId, bool $isLoaded = false): bool
+    {
+        if ($isLoaded) {
+            return isset($this->reporters[$reporterId]);
+        }
+
+        $reporterIds = Arr::flatten(Arr::pluck($this->config['reporter'], '*.id'));
+
+        return in_array($reporterId, $reporterIds, true);
     }
 
     public function addDefaults(string $type, string $id): void
