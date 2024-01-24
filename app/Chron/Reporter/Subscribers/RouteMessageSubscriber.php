@@ -25,42 +25,37 @@ final readonly class RouteMessageSubscriber
         return function (MessageStory $story): void {
             $message = $story->message();
 
-            $strategy = $this->handle($message);
+            $queueResolver = $this->resolve($message);
 
             $message = $message
-                ->withHeader(Header::QUEUE, $strategy->getQueues())
+                ->withHeader(Header::QUEUE, $queueResolver->getQueues())
                 ->withHeader(Header::EVENT_DISPATCHED, true);
 
-            $handlers = $strategy->getStoryHandlers();
-            $story->withHandlers($handlers);
+            $story->withHandlers($queueResolver->getSyncHandlers());
 
-            $this->dispatchToQueue($message, $strategy->getAsyncHandler());
+            $this->dispatchToQueue($message, $queueResolver->getAsyncHandler());
 
             $story->withMessage($message);
         };
     }
 
-    private function handle(Message $message): DispatchHandlerStrategy
+    private function resolve(Message $message): ChainHandlerResolver
     {
         $messageHandlers = $this->routing->route($message->name());
 
         $alreadyDispatched = $message->header(Header::EVENT_DISPATCHED);
 
-        $queues = $alreadyDispatched ? $message->header(Header::QUEUE) : [];
+        $queue = $alreadyDispatched ? $message->header(Header::QUEUE) : [];
 
-        $strategy = new DispatchHandlerStrategy($messageHandlers, $queues);
+        $resolver = new ChainHandlerResolver($messageHandlers, $queue);
 
-        $strategy->handle($alreadyDispatched);
-
-        return $strategy;
+        return $resolver->handle($alreadyDispatched);
     }
 
     private function dispatchToQueue(Message $message, ?MessageHandler $messageHandler): void
     {
         if ($messageHandler) {
-            $queue = $messageHandler->queue();
-
-            $this->dispatcher->toQueue($message, $queue);
+            $this->dispatcher->toQueue($message, $messageHandler->queue());
         }
     }
 }

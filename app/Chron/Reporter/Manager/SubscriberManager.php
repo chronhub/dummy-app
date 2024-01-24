@@ -17,7 +17,7 @@ use Storm\Support\Message\MessageDecoratorSubscriber;
 
 use function array_merge_recursive;
 
-class GenericReporterSubscriberManager implements ReporterSubscriberManager
+class SubscriberManager implements ReporterSubscriberManager
 {
     public function get(string $reporterId, DomainType $type): array
     {

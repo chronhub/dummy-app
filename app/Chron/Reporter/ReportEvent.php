@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Reporter;
 
 use App\Chron\Attribute\Reporter\AsReporter;
-use App\Chron\Reporter\Manager\GenericReporterSubscriberManager;
+use App\Chron\Reporter\Manager\SubscriberManager;
 use Storm\Contract\Reporter\Reporter;
 use Storm\Reporter\HasConstructableReporter;
 
@@ -13,7 +13,7 @@ use Storm\Reporter\HasConstructableReporter;
     id: 'reporter.event.default',
     type: DomainType::EVENT,
     sync: true,
-    subscribers: GenericReporterSubscriberManager::class,
+    subscribers: SubscriberManager::class,
 )]
 final class ReportEvent implements Reporter
 {

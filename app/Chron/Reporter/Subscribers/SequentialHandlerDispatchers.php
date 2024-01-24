@@ -11,7 +11,7 @@ use function array_keys;
 use function array_merge;
 use function sprintf;
 
-class DispatchHandlerStrategy
+class SequentialHandlerDispatchers
 {
     protected array $storyHandlers = [];
 
