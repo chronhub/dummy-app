@@ -31,7 +31,7 @@ class QueueData implements JsonSerializable
         );
     }
 
-    public static function newInstance(string $name, int $priority, ?array $queue): self
+    public static function newInstance(int $priority, string $name, ?array $queue): self
     {
         return new self(
             $priority,

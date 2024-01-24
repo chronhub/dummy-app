@@ -83,9 +83,9 @@ class ChainHandlerResolver
             ->takeUntil(function (QueueData $queue): bool {
                 $messageHandler = $this->getMessageHandlerByPriority($queue->priority);
 
-                $queue->markAsDispatched();
-
                 $this->setAsyncHandler($messageHandler);
+
+                $queue->markAsDispatched();
 
                 return true;
             });
@@ -161,8 +161,8 @@ class ChainHandlerResolver
                 function (Collection $messageHandlers): Collection {
                     return $messageHandlers->map(function (MessageHandler $messageHandler): QueueData {
                         return QueueData::newInstance(
-                            $messageHandler->name(),
                             $messageHandler->priority(),
+                            $messageHandler->name(),
                             $messageHandler->queue(),
                         );
                     });
@@ -218,9 +218,7 @@ class ChainHandlerResolver
     private function assertNotAlreadyCompleted(): void
     {
         $this->queues
-            ->filter(fn (QueueData $queue) => ! $queue->isCompleted())
-            ->whenEmpty(function () {
-                throw new RuntimeException('Queue already completed');
-            });
+            ->filter(fn (QueueData $queue): bool => ! $queue->isCompleted())
+            ->whenEmpty(fn () => throw new RuntimeException('Queue already completed'));
     }
 }

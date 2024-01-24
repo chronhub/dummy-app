@@ -44,12 +44,9 @@ final readonly class RouteMessageSubscriber
         $messageHandlers = $this->routing->route($message->name());
 
         $alreadyDispatched = $message->header(Header::EVENT_DISPATCHED);
-
         $queue = $alreadyDispatched ? $message->header(Header::QUEUE) : [];
 
-        $resolver = new ChainHandlerResolver($messageHandlers, $queue);
-
-        return $resolver->handle($alreadyDispatched);
+        return (new ChainHandlerResolver($messageHandlers, $queue))->handle($alreadyDispatched);
     }
 
     private function dispatchToQueue(Message $message, ?MessageHandler $messageHandler): void
