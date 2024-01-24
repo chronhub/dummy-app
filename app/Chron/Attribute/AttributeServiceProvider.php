@@ -20,18 +20,17 @@ class AttributeServiceProvider extends ServiceProvider implements DeferrableProv
 
     public function register(): void
     {
+        // fixMe
+        //  still need to bind the container to the app
+        //  as, it's needed for DetermineQueueHandler
         $this->app->singleton(BindReporterContainer::class);
-        $this->app->singleton(TagHandlerContainer::class);
+
         $this->app->singleton(AttributeContainer::class);
     }
 
     public function provides(): array
     {
-        return [
-            BindReporterContainer::class,
-            TagHandlerContainer::class,
-            AttributeContainer::class,
-        ];
+        return [AttributeContainer::class, BindReporterContainer::class];
     }
 
     protected function getAttributeContainer(): AttributeContainer

@@ -68,7 +68,7 @@ class ReporterMap
     protected function build(ReporterAttribute $attribute): void
     {
         if ($this->map->has($attribute->id)) {
-            throw new RuntimeException("Reporter $attribute->id already exists.");
+            throw new RuntimeException("Reporter $attribute->id already exists");
         }
 
         $this->map->put($attribute->id, $attribute);

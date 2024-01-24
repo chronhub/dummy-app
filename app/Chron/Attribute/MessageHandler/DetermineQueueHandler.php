@@ -10,7 +10,6 @@ use RuntimeException;
 use function array_merge;
 use function is_array;
 use function is_object;
-use function is_string;
 
 class DetermineQueueHandler
 {
@@ -18,12 +17,8 @@ class DetermineQueueHandler
     {
     }
 
-    public function make(string $reporterId, null|string|array|object $queue): ?array
+    public function make(string $reporterId, null|array|object $queue): ?array
     {
-        if (is_string($queue)) {
-            $queue = $this->container[$queue]->jsonSerialize();
-        }
-
         if (is_object($queue)) {
             $queue = $queue->jsonSerialize();
         }

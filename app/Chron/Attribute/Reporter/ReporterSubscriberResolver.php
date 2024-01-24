@@ -44,7 +44,7 @@ class ReporterSubscriberResolver
 
         foreach ($subscribers as $event => $subscriber) {
             if ($event === 'listeners') {
-                $this->resolveListeners($subscriber);
+                $listeners[] = $this->resolveListeners($subscriber);
             } else {
                 foreach ($subscriber as $listener) {
                     $listeners[] = $this->resolveGenericListeners($event, $listener);
@@ -55,6 +55,9 @@ class ReporterSubscriberResolver
         return $listeners;
     }
 
+    /**
+     * @return array<GenericListener>
+     */
     protected function resolveGenericListeners(string $event, array $listeners): array
     {
         $genericListeners = [];
@@ -70,6 +73,9 @@ class ReporterSubscriberResolver
         return $genericListeners;
     }
 
+    /**
+     * @return array<Listener>
+     */
     protected function resolveListeners(array $userListeners): array
     {
         $listeners = [];

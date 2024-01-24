@@ -6,24 +6,17 @@ namespace App\Chron\Attribute;
 
 use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
 use App\Chron\Attribute\MessageHandler\MessageHandlerMap;
-use BadMethodCallException;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use Illuminate\Support\Traits\ForwardsCalls;
 
 use function sprintf;
 
 /**
  * @template T of MessageHandlerAttribute
- *
- * @method Collection getBindings()
- * @method Collection getEntries()
  */
 class TagHandlerContainer
 {
-    use ForwardsCalls;
-
     public const HANDLER_TAG_PREFIX = '#';
 
     public const TAG = 'message.handler.%s';
@@ -61,12 +54,14 @@ class TagHandlerContainer
         );
     }
 
-    /**
-     * @throws BadMethodCallException
-     */
-    public function __call(string $method, array $parameters): mixed
+    public function getBindings(): Collection
     {
-        return $this->forwardCallTo($this->messageMap, $method, $parameters);
+        return $this->messageMap->getBindings();
+    }
+
+    public function getEntries(): Collection
+    {
+        return $this->messageMap->getEntries();
     }
 
     protected function tagConcrete(string $concrete, ?int $priority = null): string
