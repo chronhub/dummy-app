@@ -79,7 +79,7 @@ class ChainHandlerResolver
 
                 return $this->getMessageHandlerByPriority($queue->priority)->queue() !== null;
             })
-            ->takeUntil(function (QueueData $queue): bool {
+            ->first(function (QueueData $queue): bool {
                 $messageHandler = $this->getMessageHandlerByPriority($queue->priority);
 
                 $this->setAsyncHandler($messageHandler);
@@ -102,7 +102,7 @@ class ChainHandlerResolver
         if ($alreadyDispatched) {
             $this->queues
                 ->skipUntil(fn (QueueData $queue): bool => $queue->dispatched === true && $queue->handled === false)
-                ->takeUntil(function (QueueData $queue): bool {
+                ->first(function (QueueData $queue): bool {
                     $messageHandler = $this->getMessageHandlerByPriority($queue->priority);
 
                     $this->setFirstHandler($messageHandler);
@@ -178,28 +178,30 @@ class ChainHandlerResolver
      */
     protected function normalizeQueues(array $queues): Collection
     {
-        return $this->messageHandlers
+        return ($queues === [] ? $this->newQueues() : $this->queuesFromArray($queues))
+            ->values()
+            ->sortBy(fn (QueueData $queue): int => $queue->priority);
+    }
+
+    protected function newQueues(): Collection
+    {
+        return $this->messageHandlers->map(function (MessageHandler $messageHandler): QueueData {
+            return QueueData::newInstance(
+                $messageHandler->priority(),
+                $messageHandler->name(),
+                $messageHandler->queue(),
+            );
+        });
+    }
+
+    protected function queuesFromArray(array $queues): Collection
+    {
+        return collect($queues)
             ->when(
-                $queues === [],
-                function (Collection $messageHandlers): Collection {
-                    return $messageHandlers->map(function (MessageHandler $messageHandler): QueueData {
-                        return QueueData::newInstance(
-                            $messageHandler->priority(),
-                            $messageHandler->name(),
-                            $messageHandler->queue(),
-                        );
-                    });
-                },
-                function () use ($queues): Collection {
-                    return collect($queues)
-                        ->when(
-                            fn (Collection $queues): bool => $queues->count() !== count($this->messageHandlers),
-                            fn (Collection $queues) => throw new RuntimeException('Queues should be the same length as message handlers')
-                        )
-                        ->map(fn (array $queue): QueueData => QueueData::fromArray($queue))
-                        ->values();
-                }
-            )->sortBy(fn (QueueData $queue): int => $queue->priority);
+                fn (Collection $queues): bool => $queues->count() !== count($this->messageHandlers),
+                fn (Collection $queues) => throw new RuntimeException('Queues should be the same length as message handlers')
+            )
+            ->map(fn (array $queue): QueueData => QueueData::fromArray($queue));
     }
 
     /**
