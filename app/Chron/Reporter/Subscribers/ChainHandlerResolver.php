@@ -9,7 +9,6 @@ use Illuminate\Support\Collection;
 use RuntimeException;
 
 use function count;
-use function sprintf;
 
 class ChainHandlerResolver
 {
@@ -26,7 +25,7 @@ class ChainHandlerResolver
     protected ?MessageHandler $asyncHandler = null;
 
     public function __construct(
-        private readonly array $messageHandlers,
+        private readonly Collection $messageHandlers,
         array $queues,
     ) {
         $this->queues = $this->normalizeQueues($queues);
@@ -137,48 +136,6 @@ class ChainHandlerResolver
             ->map(fn (QueueData $queue) => $queue->jsonSerialize())->toArray();
     }
 
-    protected function getMessageHandlerByPriority(int $queuePriority): MessageHandler
-    {
-        foreach ($this->messageHandlers as $messageHandler) {
-            if ($messageHandler->priority() === $queuePriority) {
-                return $messageHandler;
-            }
-        }
-
-        throw new RuntimeException(sprintf('A message handler should be found at priority %d but none found', $queuePriority));
-    }
-
-    /**
-     * Normalize the message queue.
-     *
-     * @return Collection<QueueData>
-     */
-    protected function normalizeQueues(array $queues): Collection
-    {
-        return collect($this->messageHandlers)
-            ->when(
-                $queues === [],
-                function (Collection $messageHandlers): Collection {
-                    return $messageHandlers->map(function (MessageHandler $messageHandler): QueueData {
-                        return QueueData::newInstance(
-                            $messageHandler->priority(),
-                            $messageHandler->name(),
-                            $messageHandler->queue(),
-                        );
-                    });
-                },
-                function () use ($queues): Collection {
-                    return collect($queues)
-                        ->when(
-                            fn (Collection $queues): bool => $queues->count() !== count($this->messageHandlers),
-                            fn (Collection $queues) => throw new RuntimeException('Queues should be the same length as message handlers')
-                        )
-                        ->map(fn (array $queue): QueueData => QueueData::fromArray($queue))
-                        ->values();
-                }
-            )->sortBy(fn (QueueData $queue): int => $queue->priority);
-    }
-
     /**
      * Set an unique async handler to dispatch.
      *
@@ -205,6 +162,44 @@ class ChainHandlerResolver
         }
 
         $this->syncHandlers[] = $messageHandler;
+    }
+
+    protected function getMessageHandlerByPriority(int $queuePriority): MessageHandler
+    {
+        return $this->messageHandlers->first(
+            fn (MessageHandler $messageHandler): bool => $messageHandler->priority() === $queuePriority
+        );
+    }
+
+    /**
+     * Normalize the message queue.
+     *
+     * @return Collection<QueueData>
+     */
+    protected function normalizeQueues(array $queues): Collection
+    {
+        return $this->messageHandlers
+            ->when(
+                $queues === [],
+                function (Collection $messageHandlers): Collection {
+                    return $messageHandlers->map(function (MessageHandler $messageHandler): QueueData {
+                        return QueueData::newInstance(
+                            $messageHandler->priority(),
+                            $messageHandler->name(),
+                            $messageHandler->queue(),
+                        );
+                    });
+                },
+                function () use ($queues): Collection {
+                    return collect($queues)
+                        ->when(
+                            fn (Collection $queues): bool => $queues->count() !== count($this->messageHandlers),
+                            fn (Collection $queues) => throw new RuntimeException('Queues should be the same length as message handlers')
+                        )
+                        ->map(fn (array $queue): QueueData => QueueData::fromArray($queue))
+                        ->values();
+                }
+            )->sortBy(fn (QueueData $queue): int => $queue->priority);
     }
 
     /**

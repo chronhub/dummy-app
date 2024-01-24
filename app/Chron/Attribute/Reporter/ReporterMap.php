@@ -20,7 +20,7 @@ class ReporterMap
     /**
      * @var Collection<array<string, ReporterAttribute>>
      */
-    protected Collection $map;
+    protected Collection $entries;
 
     /**
      * @var array<string, string>
@@ -37,14 +37,14 @@ class ReporterMap
         protected ReporterSubscriberResolver $subscriberResolver,
         protected Application $app
     ) {
-        $this->map = new Collection();
+        $this->entries = new Collection();
     }
 
     public function load(): void
     {
         $this->loader->getAttributes()->each(fn (ReporterAttribute $attribute) => $this->build($attribute));
 
-        $this->map->each(fn (ReporterAttribute $attribute, string $reporterId) => $this->bind($reporterId, $attribute));
+        $this->entries->each(fn (ReporterAttribute $attribute, string $reporterId) => $this->bind($reporterId, $attribute));
     }
 
     public function getBindings(): Collection
@@ -54,7 +54,7 @@ class ReporterMap
 
     public function getEntries(): Collection
     {
-        return $this->map;
+        return $this->entries;
     }
 
     /**
@@ -67,11 +67,11 @@ class ReporterMap
 
     protected function build(ReporterAttribute $attribute): void
     {
-        if ($this->map->has($attribute->id)) {
+        if ($this->entries->has($attribute->id)) {
             throw new RuntimeException("Reporter $attribute->id already exists");
         }
 
-        $this->map->put($attribute->id, $attribute);
+        $this->entries->put($attribute->id, $attribute);
     }
 
     protected function bind(string $reporterId, ReporterAttribute $attribute): void

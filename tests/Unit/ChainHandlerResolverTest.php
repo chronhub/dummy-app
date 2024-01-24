@@ -9,12 +9,12 @@ use App\Chron\Reporter\Subscribers\ChainHandlerResolver;
 use RuntimeException;
 
 it('resolve sync and dispatch async handler one by one', function (): void {
-    $handlers = [
+    $handlers = collect([
         new MessageHandler('handler_2', fn () => 'foo', 2, null),
         new MessageHandler('handler_1', fn () => 'bar', 1, null),
         new MessageHandler('handler_4', fn () => 'redis', 4, ['connection' => 'redis']),
         new MessageHandler('handler_3', fn () => 'rabbitmq', 3, ['connection' => 'rabbitmq']),
-    ];
+    ]);
 
     $firstDispatch = (new ChainHandlerResolver($handlers, []))->handle(false);
 
@@ -52,10 +52,10 @@ it('resolve sync and dispatch async handler one by one', function (): void {
 });
 
 it('resolve async first and sync', function (): void {
-    $handlers = [
+    $handlers = collect([
         new MessageHandler('handler_2', fn () => 'foo', 2, null),
         new MessageHandler('handler_1', fn () => 'redis', 1, ['connection' => 'redis']),
-    ];
+    ]);
 
     $firstDispatch = (new ChainHandlerResolver($handlers, []))->handle(false);
 
@@ -84,10 +84,10 @@ it('resolve async first and sync', function (): void {
 });
 
 it('resolve async one by one', function (): void {
-    $handlers = [
+    $handlers = collect([
         new MessageHandler('handler_2', fn () => 'foo', 2, ['connection' => 'rabbitmq']),
         new MessageHandler('handler_1', fn () => 'redis', 1, ['connection' => 'redis']),
-    ];
+    ]);
 
     $firstDispatch = (new ChainHandlerResolver($handlers, []))->handle(false);
 
