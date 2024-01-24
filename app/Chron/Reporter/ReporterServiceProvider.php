@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Chron\Reporter;
 
-use App\Chron\Attribute\AttributeContainer;
 use App\Chron\Reporter\Manager\Manager;
 use App\Chron\Reporter\Manager\ReporterManager;
 use App\Chron\Reporter\Router\MessageRouter;
@@ -31,20 +30,11 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
     {
         $this->mergeConfigFrom($this->configPath, 'reporter');
 
-        $this->app->singleton(AttributeContainer::class);
-
         $this->app->bind(Router::class, MessageRouter::class);
         $this->app->bind(MessageProducer::class, AsyncMessageProducer::class);
 
         $this->app->singleton(Manager::class, ReporterManager::class);
         $this->app->alias(Manager::class, Report::REPORTER_ID);
-
-        $this->autoWireAttribute($this->app[AttributeContainer::class]);
-    }
-
-    protected function autoWireAttribute(AttributeContainer $container): void
-    {
-        $container->autoWire();
     }
 
     public function provides(): array
@@ -54,7 +44,6 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
             Report::REPORTER_ID,
             Router::class,
             MessageProducer::class,
-            AttributeContainer::class,
         ];
     }
 }

@@ -86,7 +86,9 @@ return [
     */
 
     'waits' => [
-        'redis:default' => 1,
+        'redis:default' => 3600,
+        'rabbitmq:default' => 3600,
+        'rabbitmq-high:default' => 3600,
     ],
 
     /*
@@ -168,7 +170,7 @@ return [
     |
     */
 
-    'memory_limit' => 512,
+    'memory_limit' => 1024,
 
     /*
     |--------------------------------------------------------------------------

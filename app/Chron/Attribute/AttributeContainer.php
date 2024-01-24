@@ -22,6 +22,11 @@ class AttributeContainer
         $this->tagHandlerContainer->tag();
     }
 
+    public function get(string $messageName): iterable
+    {
+        return $this->tagHandlerContainer->find($messageName);
+    }
+
     public function getBindings(string $key): Collection
     {
         return match ($key) {
