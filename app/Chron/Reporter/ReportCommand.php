@@ -16,7 +16,7 @@ use Storm\Reporter\HasConstructableReporter;
     type: DomainType::COMMAND,
     sync: false,
     subscribers: SubscriberManager::class,
-    defaultQueue: QueueOption::class
+    //defaultQueue: QueueOption::class
 )]
 final class ReportCommand implements Reporter
 {

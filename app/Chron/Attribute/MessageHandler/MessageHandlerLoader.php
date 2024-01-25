@@ -27,7 +27,7 @@ class MessageHandlerLoader
 
     public function getAttributes(): Collection
     {
-        $this->loadAttributes(collect($this->loader->classes));
+        $this->loadAttributes($this->loader->getClasses());
 
         return $this->attributes;
     }

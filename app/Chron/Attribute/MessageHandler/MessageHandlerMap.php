@@ -109,7 +109,7 @@ class MessageHandlerMap
 
     protected function newHandlerInstance(MessageHandlerAttribute $attribute, ?array $queue): callable
     {
-        $parameters = $this->makeParametersFromConstructor($attribute->references);
+        $parameters = $this->makeParametersFromConstructor($attribute->references, $attribute->handlerClass);
 
         $instance = $this->app->make($attribute->handlerClass, ...$parameters);
 
@@ -120,15 +120,17 @@ class MessageHandlerMap
         return new MessageHandler($name, $callback, $attribute->priority, $queue);
     }
 
-    protected function makeParametersFromConstructor(array $references): array
+    protected function makeParametersFromConstructor(array $references, string $handlerClass): array
     {
-        $parameters = [];
+        $arguments = [];
 
-        foreach ($references as [$parameterName, $serviceId]) {
-            $parameters[] = [$parameterName => $this->app[$serviceId]];
+        foreach ($references as $parameter) {
+            foreach ($parameter as [$parameterName, $serviceId]) {
+                $arguments[] = [$parameterName => $this->app[$serviceId]];
+            }
         }
 
-        return $parameters;
+        return $arguments;
     }
 
     protected function tagConcrete(string $concrete, ?int $key = null): string
@@ -138,7 +140,7 @@ class MessageHandlerMap
 
     protected function formatName(string $class, string $method): string
     {
-        return class_basename($class).'::'.$method;
+        return $class.'@'.$method;
     }
 
     protected function assertShouldHaveOneHandlerDependsOnType(MessageHandlerAttribute $data): void

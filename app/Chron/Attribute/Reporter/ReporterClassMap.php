@@ -7,15 +7,24 @@ namespace App\Chron\Attribute\Reporter;
 use App\Chron\Reporter\ReportCommand;
 use App\Chron\Reporter\ReportEvent;
 use App\Chron\Reporter\ReportQuery;
+use Illuminate\Support\Collection;
 
 class ReporterClassMap
 {
     /**
      * @var array<class-string>
      */
-    public array $classes = [
+    protected array $classes = [
         ReportCommand::class,
         ReportEvent::class,
         ReportQuery::class,
     ];
+
+    /**
+     * @return Collection<class-string>
+     */
+    public function getClasses(): Collection
+    {
+        return collect($this->classes);
+    }
 }

@@ -94,7 +94,7 @@ class AsMessageHandler implements JsonSerializable
             'message_name' => $this->handles,
             'message_handler' => [
                 'method' => $this->method,
-                'type' => method_exists($this, 'type') ? $this->type()->value() : throw new RuntimeException('Missing type method'),
+                'type' => method_exists($this, 'type') ? $this->type()->value() : throw new RuntimeException('Missing message handler type method'),
                 'priority' => $this->priority,
                 'queue' => $this->fromQueue,
             ],

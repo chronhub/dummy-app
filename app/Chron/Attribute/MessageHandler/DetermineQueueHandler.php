@@ -28,21 +28,30 @@ class DetermineQueueHandler
 
     protected function resolveQueueFromReporter(string $reporterId, ?array $queue): ?array
     {
+        // sync : sync,async,delegate
+
+        // if sync, force sync even for handler would have queue defined
+        // if async, force async even for handler would not have queue defined required default queue
+        // if delegate, handler queue is used if defined
+
+
         $config = $this->container->getQueues()[$reporterId] ?? null;
 
-        // no config found, return the queue as is
+        // no default config defined, return the queue as is
         if (! is_array($config)) {
             return $queue;
         }
 
-        $sync = $config['sync'] ?? true;
+        $sync = $config['sync'];
 
-        // if sync is true, return the queue if it's not null
-        if ($sync === true && $queue !== null) {
+        // if sync is true, return the handler queue as is
+        if ($sync === true) {
             return $queue;
         }
 
-        if ($config['queue'] === []) {
+        $reporterQueue = $config['queue'] ?? null;
+
+        if (blank($reporterQueue)) {
             throw new RuntimeException("Config queue cannot be empty for reporter $reporterId");
         }
 

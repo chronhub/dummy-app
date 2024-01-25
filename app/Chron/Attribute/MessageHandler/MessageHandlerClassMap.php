@@ -12,10 +12,11 @@ use App\Chron\Domain\Event\OnEvent\WhenCustomerEmailUpdated;
 use App\Chron\Domain\Event\OnEvent\WhenCustomerRegistered;
 use App\Chron\Domain\Event\OnEvent\WhenOrderMade;
 use App\Chron\Domain\Query\GetOneRandomCustomerHandler;
+use Illuminate\Support\Collection;
 
 class MessageHandlerClassMap
 {
-    public array $classes = [
+    protected array $classes = [
         // command handlers
         MakeOrderHandler::class,
         RegisterCustomerHandler::class,
@@ -30,4 +31,12 @@ class MessageHandlerClassMap
         // query handlers
         GetOneRandomCustomerHandler::class,
     ];
+
+    /**
+     * @return Collection<class-string>
+     */
+    public function getClasses(): Collection
+    {
+        return collect($this->classes);
+    }
 }
