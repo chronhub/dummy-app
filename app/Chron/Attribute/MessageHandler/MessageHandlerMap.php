@@ -88,31 +88,29 @@ class MessageHandlerMap
     protected function bind(string $name, array $handlers): void
     {
         foreach ($handlers as $priority => $attribute) {
-            $handlerId = $this->tagConcrete($name, $priority);
+            $abstract = $this->tagConcrete($name, $priority);
 
             $queue = $this->determineQueueHandler->make($attribute->reporterId, $attribute->queue);
 
-            $this->app->bind($handlerId, fn (): callable => $this->newHandlerInstance($attribute, $queue));
+            $this->app->bind($abstract, fn (): callable => $this->newHandlerInstance($attribute, $queue));
 
-            $this->updateBinding($name, $handlerId, $attribute, $priority, $queue);
+            $this->updateBinding($name, $abstract, $attribute, $priority, $queue);
         }
     }
 
     protected function updateBinding(string $name, string $handlerId, MessageHandlerAttribute $attribute, int $priority, ?array $queue): void
     {
-        $this->bindings[$name] = array_merge($this->bindings[$name] ?? [], [$priority => $handlerId]);
-
         $attribute = $attribute->newInstance($handlerId, $this->tagConcrete($name), $queue);
 
+        $this->bindings[$name] = array_merge($this->bindings[$name] ?? [], [$priority => $handlerId]);
         $this->entries[$name] = array_merge($this->entries[$name] ?? [], [$attribute]);
     }
 
     protected function newHandlerInstance(MessageHandlerAttribute $attribute, ?array $queue): callable
     {
-        $parameters = $this->makeParametersFromConstructor($attribute->references, $attribute->handlerClass);
+        $parameters = $this->makeParametersFromConstructor($attribute->references);
 
         $instance = $this->app->make($attribute->handlerClass, ...$parameters);
-
         $callback = ($attribute->handlerMethod === '__invoke') ? $instance : $instance->{$attribute->handlerMethod}(...);
 
         $name = $this->formatName($attribute->handlerClass, $attribute->handlerMethod);
@@ -120,7 +118,7 @@ class MessageHandlerMap
         return new MessageHandler($name, $callback, $attribute->priority, $queue);
     }
 
-    protected function makeParametersFromConstructor(array $references, string $handlerClass): array
+    protected function makeParametersFromConstructor(array $references): array
     {
         $arguments = [];
 
@@ -138,9 +136,9 @@ class MessageHandlerMap
         return ($this->prefixResolver)($concrete, $key);
     }
 
-    protected function formatName(string $class, string $method): string
+    protected function formatName(string $HandlerClass, string $handlerMethod): string
     {
-        return $class.'@'.$method;
+        return $HandlerClass.'@'.$handlerMethod;
     }
 
     protected function assertShouldHaveOneHandlerDependsOnType(MessageHandlerAttribute $data): void

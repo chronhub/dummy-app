@@ -5,57 +5,77 @@ declare(strict_types=1);
 namespace App\Chron\Attribute\MessageHandler;
 
 use App\Chron\Attribute\BindReporterContainer;
+use App\Chron\Attribute\Reporter\Enqueue;
+use Illuminate\Contracts\Container\Container;
 use RuntimeException;
 
 use function array_merge;
-use function is_array;
 use function is_object;
+use function is_string;
 
 class DetermineQueueHandler
 {
-    public function __construct(protected BindReporterContainer $container)
-    {
+    public function __construct(
+        protected BindReporterContainer $bind,
+        protected Container $container
+    ) {
     }
 
-    public function make(string $reporterId, null|array|object $queue): ?array
+    public function make(string $reporterId, null|string|array|object $queue): ?array
     {
         if (is_object($queue)) {
             $queue = $queue->jsonSerialize();
         }
 
-        return $this->resolveQueueFromReporter($reporterId, $queue);
+        if (is_string($queue)) {
+            $queue = $this->container[$queue]->jsonSerialize();
+        }
+
+        return $this->resolveQueue($reporterId, $queue);
     }
 
-    protected function resolveQueueFromReporter(string $reporterId, ?array $queue): ?array
+    protected function resolveQueue(string $reporterId, ?array $queue): ?array
     {
-        // sync : sync,async,delegate
+        [$defaultQueue, $enqueue] = $this->normalizeConfigurationQueue($reporterId);
 
-        // if sync, force sync even for handler would have queue defined
-        // if async, force async even for handler would not have queue defined required default queue
-        // if delegate, handler queue is used if defined
-
-        $config = $this->container->getQueues()[$reporterId] ?? null;
-
-        // no default config defined, return the queue as is
-        if (! is_array($config)) {
-            return $queue;
+        // force sync even for handler would have queue defined
+        if ($enqueue->isSync()) {
+            return null;
         }
 
-        $sync = $config['sync'];
+        // force async even for handler would not have queue defined, required default queue
+        if ($enqueue->isAsync()) {
+            if ($defaultQueue === null) {
+                throw new RuntimeException("Default queue cannot be empty for reporter $reporterId when enqueue is async");
+            }
 
-        // if sync is true, return the handler queue as is
-        if ($sync === true) {
-            return $queue;
+            return $queue === null ? $defaultQueue : array_merge($defaultQueue, $queue);
         }
 
-        $reporterQueue = $config['queue'] ?? null;
+        // delegate to handler queue but merge with default queue when queue exists
+        if ($enqueue->isDelegateMerge()) {
+            if ($queue === null) {
+                return null;
+            }
 
-        if (blank($reporterQueue)) {
-            throw new RuntimeException("Config queue cannot be empty for reporter $reporterId");
+            if ($defaultQueue === null) {
+                throw new RuntimeException("Default queue cannot be empty for reporter $reporterId when enqueue is delegate_merge_with_default");
+            }
+
+            return array_merge($defaultQueue, $queue);
         }
 
-        // if sync is false, merge the queue with the config queue
-        // do not define default queue if handlers queues must act as default
-        return $queue === null ? $config['queue'] : array_merge($config['queue'], $queue);
+        // handler queue is used if defined
+        return $queue;
+    }
+
+    /**
+     * @return array{0: null|array, 1: Enqueue}
+     */
+    protected function normalizeConfigurationQueue(string $reporterId): array
+    {
+        $config = $this->bind->getQueues()[$reporterId];
+
+        return [$config['default_queue'], Enqueue::from($config['enqueue'])];
     }
 }

@@ -7,48 +7,29 @@ namespace App\Chron\Attribute;
 use Illuminate\Support\Collection;
 use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionMethod;
 
 class ReflectionUtil
 {
+    /**
+     * @return Collection<ReflectionAttribute>
+     */
     public static function attributesInClass(ReflectionClass $reflectionClass, string $attribute): Collection
     {
         return collect($reflectionClass->getAttributes($attribute, ReflectionAttribute::IS_INSTANCEOF));
     }
 
+    /**
+     * @return Collection<array{0: ReflectionClass, 1: ReflectionMethod, 2: Collection<ReflectionAttribute|empty>}>
+     */
     public static function attributesInMethods(ReflectionClass $reflectionClass, string $attribute): Collection
     {
-        $methods = $reflectionClass->getMethods();
-
-        if ($methods === []) {
-            return collect();
-        }
-
-        $attributes = [];
-
-        foreach ($methods as $method) {
-            $attributes[] = [$method, collect($method->getAttributes($attribute, ReflectionAttribute::IS_INSTANCEOF))];
-        }
-
-        return collect($attributes);
-    }
-
-    public static function attributesInMethod(ReflectionClass $reflectionClass, string $method, string $attribute): Collection
-    {
-        $reflectionMethod = $reflectionClass->getMethod($method);
-
-        return collect($reflectionMethod->getAttributes($attribute, ReflectionAttribute::IS_INSTANCEOF));
-    }
-
-    public static function attributeInMethod(ReflectionClass $reflectionClass, string $method, string $attribute): ?ReflectionAttribute
-    {
-        $reflectionMethod = $reflectionClass->getMethod($method);
-
-        $attributes = $reflectionMethod->getAttributes($attribute, ReflectionAttribute::IS_INSTANCEOF);
-
-        if ($attributes === []) {
-            return null;
-        }
-
-        return $attributes[0];
+        return collect($reflectionClass->getMethods())->map(
+            fn (ReflectionMethod $reflectionMethod): array => [
+                $reflectionClass,
+                $reflectionMethod,
+                collect($reflectionMethod->getAttributes($attribute, ReflectionAttribute::IS_INSTANCEOF)),
+            ]
+        );
     }
 }

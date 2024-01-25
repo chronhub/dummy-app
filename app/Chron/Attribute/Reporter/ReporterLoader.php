@@ -59,7 +59,7 @@ class ReporterLoader
                         $attribute->id,
                         $reflectionClass->getName(),
                         $attribute->type->value,
-                        $attribute->sync,
+                        $attribute->enqueue->value,
                         $attribute->subscribers,
                         $attribute->listeners,
                         $attribute->defaultQueue,

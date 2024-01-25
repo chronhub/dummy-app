@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Chron\Attribute;
 
 use Illuminate\Support\Collection;
-use InvalidArgumentException;
 
 class AttributeContainer
 {
@@ -27,22 +26,19 @@ class AttributeContainer
         return $this->tagHandlerContainer->find($messageName);
     }
 
-    public function getBindings(string $key): Collection
+    public function getBindings(): Collection
     {
-        return match ($key) {
-            'reporter' => $this->bindReporterContainer->getBindings(),
-            'handler' => $this->tagHandlerContainer->getBindings(),
-            default => throw new InvalidArgumentException("Invalid binding key: $key, available keys: reporter, handler")
-        };
+        return $this->tagHandlerContainer->getBindings();
     }
 
-    public function getEntries(string $key): Collection
+    public function getReporterEntries(): Collection
     {
-        return match ($key) {
-            'reporter' => $this->bindReporterContainer->getEntries(),
-            'handler' => $this->tagHandlerContainer->getEntries(),
-            default => throw new InvalidArgumentException("Invalid entry key: $key, available keys: reporter, handler")
-        };
+        return $this->bindReporterContainer->getEntries();
+    }
+
+    public function getHandlerEntries(): Collection
+    {
+        return $this->tagHandlerContainer->getEntries();
     }
 
     public function getQueues(): array

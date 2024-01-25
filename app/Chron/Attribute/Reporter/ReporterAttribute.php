@@ -8,9 +8,9 @@ class ReporterAttribute
 {
     public function __construct(
         public string $id,
-        public string $class,
+        public string $abstract,
         public string $type,
-        public bool $sync,
+        public string $enqueue,
         public string|array $subscribers,
         public array $listeners,
         public ?string $defaultQueue,
@@ -22,9 +22,9 @@ class ReporterAttribute
     {
         return [
             'id' => $this->id,
-            'class' => $this->class,
+            'class' => $this->abstract,
             'type' => $this->type,
-            'sync' => $this->sync,
+            'enqueue' => $this->enqueue,
             'subscribers' => $this->subscribers,
             'listeners' => $this->listeners,
             'queue' => $this->defaultQueue,

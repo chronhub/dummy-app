@@ -24,7 +24,7 @@ class MapListenerCommand extends Command
     const TABLE_HEADERS = ['Event', 'Origin', 'Priority', 'Listener'];
 
     protected $signature = 'reporter-listener:map
-                            { id?      : reporter id }
+                            { id?        : reporter id }
                             { --choice=1 : request for choice }';
 
     public function __invoke(): int
@@ -86,7 +86,7 @@ class MapListenerCommand extends Command
 
     protected function findReporterIds(): array
     {
-        $bindings = $this->getAttributeContainer()->getBindings('reporter');
+        $bindings = $this->getAttributeContainer()->getReporterEntries();
 
         return $bindings->keys()->toArray();
     }

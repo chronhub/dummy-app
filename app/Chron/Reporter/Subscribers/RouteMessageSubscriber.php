@@ -25,7 +25,7 @@ final readonly class RouteMessageSubscriber
         return function (MessageStory $story): void {
             $message = $story->message();
 
-            $queueResolver = $this->resolve($message);
+            $queueResolver = $this->resolveQueue($message);
 
             $message = $message
                 ->withHeader(Header::QUEUE, $queueResolver->getQueues())
@@ -39,7 +39,7 @@ final readonly class RouteMessageSubscriber
         };
     }
 
-    private function resolve(Message $message): ChainHandlerResolver
+    private function resolveQueue(Message $message): ChainHandlerResolver
     {
         $messageHandlers = collect($this->routing->route($message->name()));
 

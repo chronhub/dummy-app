@@ -21,11 +21,6 @@ class BindReporterContainer
         $this->reporterMap->load();
     }
 
-    public function getBindings(): Collection
-    {
-        return $this->reporterMap->getBindings();
-    }
-
     public function getEntries(): Collection
     {
         return $this->reporterMap->getEntries();

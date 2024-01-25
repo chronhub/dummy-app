@@ -51,21 +51,23 @@ class MessageHandlerLoader
             return;
         }
 
-        $this->processAttributes($reflectionClass, $attributes, null);
+        $this->processAttributes($reflectionClass, null, $attributes);
     }
 
     protected function findAttributesInMethods(ReflectionClass $reflectionClass): void
     {
         $methods = ReflectionUtil::attributesInMethods($reflectionClass, AsMessageHandler::class);
 
-        $methods->each(function (array $attributes) use ($reflectionClass): void {
-            if ($attributes[0] instanceof ReflectionMethod && $attributes[1]->isNotEmpty()) {
-                $this->processAttributes($reflectionClass, $attributes[1], $attributes[0]);
+        $methods->each(function (array $reflection): void {
+            [$reflectionClass, $reflectionMethod, $attributes] = $reflection;
+
+            if ($attributes->isNotEmpty()) {
+                $this->processAttributes($reflectionClass, $reflectionMethod, $attributes);
             }
         });
     }
 
-    protected function processAttributes(ReflectionClass $reflectionClass, Collection $attributes, ?ReflectionMethod $reflectionMethod): void
+    protected function processAttributes(ReflectionClass $reflectionClass, ?ReflectionMethod $reflectionMethod, Collection $attributes): void
     {
         $attributes
             ->map(fn (ReflectionAttribute $attribute): object => $attribute->newInstance())

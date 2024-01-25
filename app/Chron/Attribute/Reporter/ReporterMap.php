@@ -10,10 +10,11 @@ use RuntimeException;
 use Storm\Contract\Reporter\Reporter;
 use Storm\Tracker\TrackMessage;
 
+use function class_exists;
 use function is_string;
 
 /**
- * @template TQueue of array{'queue': array, 'sync': bool}
+ * @template TQueue of array{'default_queue': ?array, 'enqueue': string}
  */
 class ReporterMap
 {
@@ -21,11 +22,6 @@ class ReporterMap
      * @var Collection<array<string, ReporterAttribute>>
      */
     protected Collection $entries;
-
-    /**
-     * @var array<string, string>
-     */
-    protected array $bindings;
 
     /**
      * @var array<string, TQueue>
@@ -42,16 +38,16 @@ class ReporterMap
 
     public function load(): void
     {
-        $this->loader->getAttributes()->each(fn (ReporterAttribute $attribute) => $this->build($attribute));
+        $this->loader->getAttributes()->each(function (ReporterAttribute $attribute): void {
+            $this->makeEntry($attribute);
 
-        $this->entries->each(fn (ReporterAttribute $attribute, string $reporterId) => $this->bind($reporterId, $attribute));
+            $this->bind($attribute);
+        });
     }
 
-    public function getBindings(): Collection
-    {
-        return collect($this->bindings);
-    }
-
+    /**
+     * @return Collection<array<string, ReporterAttribute>>
+     */
     public function getEntries(): Collection
     {
         return $this->entries;
@@ -65,7 +61,7 @@ class ReporterMap
         return $this->queues;
     }
 
-    protected function build(ReporterAttribute $attribute): void
+    protected function makeEntry(ReporterAttribute $attribute): void
     {
         if ($this->entries->has($attribute->id)) {
             throw new RuntimeException("Reporter $attribute->id already exists");
@@ -74,37 +70,48 @@ class ReporterMap
         $this->entries->put($attribute->id, $attribute);
     }
 
-    protected function bind(string $reporterId, ReporterAttribute $attribute): void
+    protected function bind(ReporterAttribute $attribute): void
     {
-        $this->app->bind($reporterId, fn (): Reporter => $this->newHandlerInstance($attribute));
+        $this->app->bind($attribute->id, fn (): Reporter => $this->newHandlerInstance($attribute));
 
-        $this->bindings[$reporterId] = $attribute->class;
-
-        $this->addDefaultQueueForMessageHandler($reporterId, $attribute->defaultQueue, $attribute->sync);
+        $this->provideDefaultQueueIfExists($attribute->id, $attribute->defaultQueue, $attribute->enqueue);
     }
 
     protected function newHandlerInstance(ReporterAttribute $attribute): Reporter
     {
-        $tracker = is_string($attribute->tracker) ? $this->app[$attribute->tracker] : new TrackMessage();
-
-        $reporterClass = $attribute->class;
-
-        /** @var Reporter $reporter */
-        $reporter = new $reporterClass($tracker);
+        $reporter = $this->determineReporter($attribute);
 
         $subscribers = $this->subscriberResolver->make($attribute);
-
         $reporter->subscribe(...$subscribers);
 
         return $reporter;
     }
 
-    protected function addDefaultQueueForMessageHandler(string $reporterId, ?string $defaultQueue, bool $sync): void
+    protected function determineReporter(ReporterAttribute $attribute): Reporter
+    {
+        // todo add class to reporter attribute tp make different between class and abstract
+
+        $abstract = $attribute->abstract;
+
+        if (class_exists($attribute->abstract)) {
+            $tracker = is_string($attribute->tracker) ? $this->app[$attribute->tracker] : new TrackMessage();
+
+            return new $abstract($tracker);
+        }
+
+        if ($abstract === $attribute->id) {
+            throw new RuntimeException("Reporter $abstract is already bound under id $attribute->id");
+        }
+
+        return $this->app[$abstract];
+    }
+
+    protected function provideDefaultQueueIfExists(string $reporterId, ?string $defaultQueue, string $enqueue): void
     {
         if (is_string($defaultQueue)) {
             $defaultQueue = $this->app[$defaultQueue]->jsonSerialize();
         }
 
-        $this->queues[$reporterId] = ['queue' => $defaultQueue, 'sync' => $sync];
+        $this->queues[$reporterId] = ['default_queue' => $defaultQueue, 'enqueue' => $enqueue];
     }
 }

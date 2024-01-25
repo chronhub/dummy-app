@@ -13,7 +13,7 @@ use App\Chron\Reporter\ReportEvent;
 #[AsCommandHandler(
     reporter: 'reporter.command.default',
     handles: MakeOrder::class,
-    fromQueue: ['connection' => 'redis', 'name' => 'default'],
+    //fromQueue: ['connection' => 'redis', 'name' => 'default'],
     method: 'command',
 )]
 final readonly class MakeOrderHandler

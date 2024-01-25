@@ -9,7 +9,6 @@ use App\Chron\Attribute\Reference;
 use App\Chron\Domain\Event\CustomerRegistered;
 use App\Chron\Infra\CustomerRepository;
 use App\Chron\Reporter\ReportEvent;
-use App\Chron\Reporter\ReportQuery;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',
@@ -22,7 +21,6 @@ final readonly class RegisterCustomerHandler
     public function __construct(
         private CustomerRepository $customerRepository,
         #[Reference('reporter.event.default')] private ReportEvent $reportEvent,
-        #[Reference('reporter.query.default')] private ReportQuery $reportQuery,
     ) {
     }
 

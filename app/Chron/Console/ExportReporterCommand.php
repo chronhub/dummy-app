@@ -7,12 +7,12 @@ namespace App\Chron\Console;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(
-    name: 'reporter:export',
+    name: 'reporter-reporter:export',
     description: 'Export reporter map'
 )]
 class ExportReporterCommand extends AbstractExporterCommand
 {
-    protected $signature = 'reporter:export
+    protected $signature = 'reporter-reporter:export
                             { --path=         : default to storage_app() }
                             { --name=         : default to reporter-map.extension }
                             { --extension=php : export data to json or php(array) }
@@ -20,11 +20,12 @@ class ExportReporterCommand extends AbstractExporterCommand
 
     protected function buildMessageMap(): array
     {
-        $map = $this->getAttributeContainer()->getEntries('reporter');
+        $map = $this->getAttributeContainer()->getReporterEntries();
 
         $data = [];
+
         foreach ($map as $reporterId => $reporter) {
-            $data[$reporterId] = $reporter->jsonSerialize();
+            $data[$reporterId] += $reporter->jsonSerialize();
         }
 
         if ($data === []) {

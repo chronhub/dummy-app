@@ -21,6 +21,9 @@ class ReporterSubscriberResolver
     {
     }
 
+    /**
+     * @return array<Listener>
+     */
     public function make(ReporterAttribute $attribute): array
     {
         $subscribers = array_map(
@@ -31,23 +34,23 @@ class ReporterSubscriberResolver
         return Arr::flatten($subscribers);
     }
 
-    protected function fromSubscriberFactory(string $factory, string $reporterId, string $type): array
+    protected function fromFactory(string $factory, string $reporterId, string $type): array
     {
         $subscribers = $this->app[$factory]->get($reporterId, DomainType::from($type));
 
-        return $this->transformToListener($subscribers);
+        return $this->toListener($subscribers);
     }
 
-    protected function transformToListener(array $subscribers): array
+    protected function toListener(array $subscribers): array
     {
         $listeners = [];
 
         foreach ($subscribers as $event => $subscriber) {
             if ($event === 'listeners') {
-                $listeners[] = $this->resolveListeners($subscriber);
+                $listeners[] = $this->resolveListener($subscriber);
             } else {
                 foreach ($subscriber as $listener) {
-                    $listeners[] = $this->resolveGenericListeners($event, $listener);
+                    $listeners[] = $this->resolveGenericListener($event, $listener);
                 }
             }
         }
@@ -58,7 +61,7 @@ class ReporterSubscriberResolver
     /**
      * @return array<GenericListener>
      */
-    protected function resolveGenericListeners(string $event, array $listeners): array
+    protected function resolveGenericListener(string $event, array $listeners): array
     {
         $genericListeners = [];
 
@@ -76,7 +79,7 @@ class ReporterSubscriberResolver
     /**
      * @return array<Listener>
      */
-    protected function resolveListeners(array $userListeners): array
+    protected function resolveListener(array $userListeners): array
     {
         $listeners = [];
 
@@ -98,11 +101,11 @@ class ReporterSubscriberResolver
     protected function resolveSubscribers(): array
     {
         return [
-            fn (ReporterAttribute $attribute): array => $this->resolveListeners($attribute->listeners),
+            fn (ReporterAttribute $attribute): array => $this->resolveListener($attribute->listeners),
             function (ReporterAttribute $attribute): array {
                 return is_string($attribute->subscribers)
-                    ? $this->fromSubscriberFactory($attribute->subscribers, $attribute->id, $attribute->type)
-                    : $this->transformToListener($attribute->subscribers);
+                    ? $this->fromFactory($attribute->subscribers, $attribute->id, $attribute->type)
+                    : $this->toListener($attribute->subscribers);
             },
         ];
     }

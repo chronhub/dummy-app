@@ -23,7 +23,7 @@ class ExportMessageCommand extends AbstractExporterCommand
 
     protected function buildMessageMap(): array
     {
-        $map = $this->getAttributeContainer()->getEntries('message');
+        $map = $this->getAttributeContainer()->getHandlerEntries();
 
         $data = [];
 
@@ -32,7 +32,7 @@ class ExportMessageCommand extends AbstractExporterCommand
         }
 
         if ($data === []) {
-            $this->components->error('No messages found in map');
+            $this->components->error('No message found in map');
 
             exit(self::FAILURE);
         }

@@ -18,9 +18,11 @@ use function array_map;
 )]
 class MapMessageCommand extends Command
 {
+    protected ?AttributeContainer $attributeContainer = null;
+
     // todo filter headers / type
     // todo add a vertical table when message is requested
-    const TABLE_HEADERS = ['Reporter', 'Type', 'Message', 'Tag', 'Handler class', 'Handler method', 'Handler priority', 'Queue'];
+    const TABLE_HEADERS = ['Reporter', 'Type', 'Message', 'Handler class', 'Handler method', 'Queue', 'Enqueue'];
 
     protected $signature = 'reporter-message:map
                             { --message= : Message name either full or short class name }
@@ -29,7 +31,7 @@ class MapMessageCommand extends Command
 
     public function __invoke(): int
     {
-        $map = $this->getAttributeContainer()->getEntries('handler');
+        $map = $this->getAttributeContainer()->getHandlerEntries();
 
         $messageName = $this->requestMessageName($map);
 
@@ -74,18 +76,23 @@ class MapMessageCommand extends Command
             $handler->reporterId,
             $handler->type,
             $this->shortClass($messageName),
-            $handler->messageId,
+            //$handler->messageId,
             //$handler->handlerId,
             $this->shortClass($handler->handlerClass),
-            $handler->handlerMethod,
-            $handler->priority,
+            $this->formatHandlerMethod($handler->handlerMethod, $handler->priority),
             $this->formatQueue($handler->queue),
+            $this->formatEnqueue($handler->reporterId),
         ], $handlers);
     }
 
     protected function shortClass(string $class): string
     {
         return ($this->option('short') === '0') ? $class : class_basename($class);
+    }
+
+    protected function formatHandlerMethod(string $method, int $priority): string
+    {
+        return $method.' .....P'.$priority;
     }
 
     protected function formatQueue(?array $queue): string
@@ -107,6 +114,13 @@ class MapMessageCommand extends Command
         return $async;
     }
 
+    protected function formatEnqueue(string $reporterId): string
+    {
+        $config = $this->getAttributeContainer()->getQueues()[$reporterId];
+
+        return $config['enqueue'].($config['default_queue'] !== null ? ': with default' : ': no default');
+    }
+
     protected function requestMessageName(Collection $entries): ?string
     {
         $messageName = null;
@@ -126,6 +140,6 @@ class MapMessageCommand extends Command
 
     protected function getAttributeContainer(): AttributeContainer
     {
-        return $this->laravel[AttributeContainer::class];
+        return $this->attributeContainer ??= $this->laravel[AttributeContainer::class];
     }
 }

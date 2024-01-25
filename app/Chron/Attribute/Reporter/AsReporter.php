@@ -28,12 +28,14 @@ class AsReporter
     /**
      * Whether the reporter is sync or async.
      *
-     * Query reporter cannot be async
+     * Query reporter must be sync
      *
-     * When sync, you can configure your message handlers to be dispatched async.
-     * For async, see @defaultQueue
+     * When 'sync', all your handlers will be sync, regardless of their handler queue configuration.
+     * When 'async', all your handlers will be async, regardless of their handler queue configuration, required the default queue
+     * When 'delegate', delegate behavior to the handler queue configuration, the default queue is not used
+     * when 'delegate_merge_with_default', delegate behavior to the handler queue configuration, require the default queue
      */
-    public bool $sync;
+    public Enqueue $enqueue;
 
     /**
      * Subscribers to be registered to the reporter.
@@ -50,12 +52,7 @@ class AsReporter
     public array $listeners;
 
     /**
-     * Default queue to be used when dispatching async.
-     *
-     * Merged with message handler queues when they are configured as an array.
-     * A null default queue means that your handlers:
-     *      - will be merged as is in a message job if configured as an array or string
-     *      - will change the behavior of your null handler queue to be sync, regardless of the reporter sync property
+     * Default queue to be used when dispatching async or when delegate to handler.
      */
     public ?string $defaultQueue;
 
@@ -69,29 +66,43 @@ class AsReporter
     public function __construct(
         string $id,
         string|DomainType $type,
-        bool $sync,
+        Enqueue $enqueue,
         string|array $subscribers,
         array $listeners = [],
         ?string $defaultQueue = null,
         ?string $tracker = null,
     ) {
         $this->type = $type instanceof DomainType ? $type : DomainType::from($type);
-
-        if ($this->type === DomainType::QUERY) {
-            if ($sync === false) {
-                throw new InvalidArgumentException('Query reporter cannot be async');
-            }
-
-            if ($defaultQueue !== null) {
-                throw new InvalidArgumentException('Query reporter cannot have a default queue');
-            }
-        }
-
         $this->id = $id;
-        $this->sync = $sync;
+        $this->enqueue = $enqueue;
         $this->subscribers = $subscribers;
         $this->listeners = $listeners;
         $this->defaultQueue = $defaultQueue;
         $this->tracker = $tracker;
+
+        $this->validateType();
+        $this->validateEnqueue();
+    }
+
+    protected function validateType(): void
+    {
+        if ($this->type === DomainType::QUERY) {
+            if ($this->enqueue !== Enqueue::SYNC) {
+                throw new InvalidArgumentException('Query reporter must be sync');
+            }
+
+            if ($this->defaultQueue !== null) {
+                throw new InvalidArgumentException('Query reporter cannot have a default queue');
+            }
+        }
+    }
+
+    protected function validateEnqueue(): void
+    {
+        if ($this->enqueue === Enqueue::ASYNC || $this->enqueue === Enqueue::DELEGATE_MERGE) {
+            if ($this->defaultQueue === null) {
+                throw new InvalidArgumentException('Async and delegate_merge_with_default reporter must have a default queue');
+            }
+        }
     }
 }
