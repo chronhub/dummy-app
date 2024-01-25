@@ -34,7 +34,6 @@ class DetermineQueueHandler
         // if async, force async even for handler would not have queue defined required default queue
         // if delegate, handler queue is used if defined
 
-
         $config = $this->container->getQueues()[$reporterId] ?? null;
 
         // no default config defined, return the queue as is
