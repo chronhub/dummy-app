@@ -41,6 +41,7 @@ final readonly class RouteMessageSubscriber
 
     private function resolveQueue(Message $message): ChainHandlerResolver
     {
+        // todo make collection of handlers from routing route
         $messageHandlers = collect($this->routing->route($message->name()));
 
         $alreadyDispatched = $message->header(Header::EVENT_DISPATCHED);

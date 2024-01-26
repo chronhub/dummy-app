@@ -34,6 +34,8 @@ final readonly class StartTransactionalCommand
     {
         $queue = $message->header(Header::QUEUE);
 
+        // todo can known like this if is sync as queue can only bet set after route message
+        //  we should try start transaction after route message
         if ($message->header(Header::EVENT_DISPATCHED) !== true) {
             return false;
         }

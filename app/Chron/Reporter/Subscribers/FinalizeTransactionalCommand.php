@@ -6,9 +6,7 @@ namespace App\Chron\Reporter\Subscribers;
 
 use Closure;
 use Illuminate\Database\Connection;
-use Storm\Contract\Message\Header;
 use Storm\Contract\Tracker\MessageStory;
-use Storm\Message\Message;
 
 final readonly class FinalizeTransactionalCommand
 {
@@ -25,7 +23,7 @@ final readonly class FinalizeTransactionalCommand
                 $this->connection->rollBack();
                 logger('Rollback transactional for command: '.$message->name(), ['exception' => $story->exception()->getMessage()]);
             } else {
-                if ($this->inTransaction($message)) {
+                if ($this->inTransaction()) {
                     $this->connection->commit();
                     logger('Commit transactional for command: '.$message->name());
                 }
@@ -33,21 +31,8 @@ final readonly class FinalizeTransactionalCommand
         };
     }
 
-    private function inTransaction(Message $message): bool
+    private function inTransaction(): bool
     {
-        $queue = $message->header(Header::QUEUE);
-
-        if ($message->header(Header::EVENT_DISPATCHED) !== true || $this->connection->transactionLevel() === 0) {
-            return false;
-        }
-
-        // assume sync
-        if ($queue === null) {
-            return true;
-        }
-
-        $queueData = QueueData::fromArray($queue[0]);
-
-        return $queueData->isCompleted();
+        return $this->connection->transactionLevel() > 0;
     }
 }

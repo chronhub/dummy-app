@@ -25,10 +25,10 @@ class SubscriberManager implements ReporterSubscriberManager
     protected array $subscribers = [
         'factory' => [100000 => MakeMessage::class],
         'message_decorator' => [98000 => MessageDecoratorSubscriber::class],
-        'route_message' => [10000 => RouteMessageSubscriber::class],
-        'sync_route_message' => [10000 => SyncRouteMessageSubscriber::class],
         'start_transaction' => [20000 => StartTransactionalCommand::class],
         'correlation' => [15000 => CorrelationHeaderCommand::class],
+        'route_message' => [10000 => RouteMessageSubscriber::class],
+        'sync_route_message' => [10000 => SyncRouteMessageSubscriber::class],
         'finalize_transaction' => [1000 => FinalizeTransactionalCommand::class],
         'handle_command' => [0 => HandleCommand::class],
         'handle_event' => [0 => HandleEvent::class],

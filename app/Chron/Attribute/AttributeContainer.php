@@ -35,6 +35,13 @@ class AttributeContainer
         return $this->messageContainer->find($messageName);
     }
 
+    /**
+     * Return reporter name by message name.
+     *
+     * @throws InvalidArgumentException when the message is an array and message class name is not provided
+     * @throws MessageNotFound          when the reporter is not found
+     * @throws RuntimeException         when multiple reporters found
+     */
     public function getReporterByMessageName(array|object $message, ?string $messageClassName = null): string
     {
         if (is_array($message) && $messageClassName === null) {
