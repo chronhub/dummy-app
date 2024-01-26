@@ -54,11 +54,21 @@ class ReporterMap
     }
 
     /**
+     * Return default queue and enqueue method for message handler
+     *
      * @return array<string, TQueue>
      */
-    public function getQueues(): array
+    public function getDeclaredQueues(): array
     {
-        return $this->queues;
+        return $this->entries->mapWithKeys(function (ReporterAttribute $attribute): array {
+            $defaultQueue = $attribute->defaultQueue;
+
+            if (is_string($defaultQueue)) {
+                $defaultQueue = $this->app[$defaultQueue]->jsonSerialize();
+            }
+
+            return [$attribute->id => ['default_queue' => $defaultQueue, 'enqueue' => $attribute->enqueue]];
+        })->toArray();
     }
 
     protected function makeEntry(ReporterAttribute $attribute): void
@@ -73,8 +83,6 @@ class ReporterMap
     protected function bind(ReporterAttribute $attribute): void
     {
         $this->app->bind($attribute->id, fn (): Reporter => $this->newHandlerInstance($attribute));
-
-        $this->provideDefaultQueueIfExists($attribute->id, $attribute->defaultQueue, $attribute->enqueue);
     }
 
     protected function newHandlerInstance(ReporterAttribute $attribute): Reporter
@@ -89,8 +97,6 @@ class ReporterMap
 
     protected function determineReporter(ReporterAttribute $attribute): Reporter
     {
-        // todo add class to reporter attribute tp make different between class and abstract
-
         $abstract = $attribute->abstract;
 
         if (class_exists($attribute->abstract)) {
@@ -99,19 +105,7 @@ class ReporterMap
             return new $abstract($tracker);
         }
 
-        if ($abstract === $attribute->id) {
-            throw new RuntimeException("Reporter $abstract is already bound under id $attribute->id");
-        }
-
-        return $this->app[$abstract];
-    }
-
-    protected function provideDefaultQueueIfExists(string $reporterId, ?string $defaultQueue, string $enqueue): void
-    {
-        if (is_string($defaultQueue)) {
-            $defaultQueue = $this->app[$defaultQueue]->jsonSerialize();
-        }
-
-        $this->queues[$reporterId] = ['default_queue' => $defaultQueue, 'enqueue' => $enqueue];
+        // fixMe: bound reporter as service is not supported yet
+        throw new RuntimeException("Reporter $abstract not found. Bound as service is not supported yet");
     }
 }

@@ -9,7 +9,6 @@ use App\Chron\Domain\Command\RegisterCustomer;
 use App\Chron\Domain\Command\UpdateCustomerEmail;
 use App\Chron\Reporter\Report;
 use Storm\Contract\Message\Header;
-use Storm\Contract\Reporter\Reporter;
 use Storm\Support\QueryPromiseTrait;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Uid\Uuid;
@@ -22,49 +21,42 @@ final class HomeController
 
     public function __invoke(): Response
     {
-        $this->sendCommand(Report::get('reporter.command.default'));
+        $command = $this->getRandomCommand();
+
+        Report::relay($command);
 
         return new Response('ok');
     }
 
-    private function sendCommand(Reporter $reporter): void
+    private function getRandomCommand(): object
     {
         $works = [
-            fn () => $this->registerCustomer($reporter),
-            fn () => $this->updateEmailCustomer($reporter),
-            fn () => $this->makeOrder($reporter),
+            fn () => $this->registerCustomer(),
+            fn () => $this->updateEmailCustomer(),
+            fn () => $this->makeOrder(),
         ];
 
-        $works[array_rand($works)]();
+        return $works[array_rand($works)]();
     }
 
-    private function registerCustomer(Reporter $reporter): void
+    private function registerCustomer(): object
     {
-        $command = RegisterCustomer::with(Uuid::v4()->jsonSerialize(), fake()->name, fake()->email);
-        $command = $command->withHeaders([
+        return RegisterCustomer::with(Uuid::v4()->jsonSerialize(), fake()->name, fake()->email)->withHeaders([
             Header::EVENT_TYPE => RegisterCustomer::class,
         ]);
-
-        $reporter->relay($command);
     }
 
-    private function updateEmailCustomer(Reporter $reporter): void
+    private function updateEmailCustomer(): object
     {
-        $command = UpdateCustomerEmail::fromContent([]);
-        $command = $command->withHeaders([
+        return UpdateCustomerEmail::fromContent([])->withHeaders([
             Header::EVENT_TYPE => UpdateCustomerEmail::class,
         ]);
-
-        $reporter->relay($command);
     }
 
-    private function makeOrder(Reporter $reporter): void
+    private function makeOrder(): object
     {
-        $command = MakeOrder::fromContent([]);
-        $command = $command->withHeaders([
+        return MakeOrder::fromContent([])->withHeaders([
             Header::EVENT_TYPE => MakeOrder::class,
         ]);
-
-        $reporter->relay($command);
     }
 }

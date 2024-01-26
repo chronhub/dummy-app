@@ -5,17 +5,18 @@ declare(strict_types=1);
 namespace App\Chron\Attribute;
 
 use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
-use App\Chron\Attribute\MessageHandler\MessageHandlerMap;
+use App\Chron\Attribute\MessageHandler\MessageMap;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
+use function array_map;
 use function sprintf;
 
 /**
  * @template T of MessageHandlerAttribute
  */
-class TagHandlerContainer
+class MessageContainer
 {
     public const HANDLER_TAG_PREFIX = '#';
 
@@ -27,7 +28,7 @@ class TagHandlerContainer
     public array $map = [];
 
     public function __construct(
-        protected MessageHandlerMap $messageMap,
+        protected MessageMap $messageMap,
         protected Container $container
     ) {
         $this->messageMap->setPrefixResolver(
@@ -42,21 +43,30 @@ class TagHandlerContainer
         return $this->container->tagged($tagName);
     }
 
+    public function findReporterOfMessage(string $messageName): array
+    {
+        return $this->messageMap->getEntries()->filter(
+            fn (array $messageHandlers, string $message) => $message === $messageName
+        )->map(function (array $messageHandlers) {
+            return array_map(
+                fn (MessageHandlerAttribute $messageHandler) => $messageHandler->reporterId,
+                $messageHandlers
+            );
+        })->collapse()->unique()->values()->all();
+    }
+
     public function tag(): void
     {
         $this->messageMap->load();
 
-        $this->messageMap->getBindings()->each(
-            fn (array $messageHandlers, string $messageName) => $this->container->tag(
-                $messageHandlers,
-                $this->tagConcrete($messageName)
+        $this->messageMap->getEntries()->map(
+            fn (array $messageHandlers) => array_map(
+                fn (MessageHandlerAttribute $messageHandler) => $messageHandler->handlerId,
+                $messageHandlers
             )
+        )->each(
+            fn (array $handlerIds, string $messageName) => $this->container->tag($handlerIds, $this->tagConcrete($messageName))
         );
-    }
-
-    public function getBindings(): Collection
-    {
-        return $this->messageMap->getBindings();
     }
 
     public function getEntries(): Collection

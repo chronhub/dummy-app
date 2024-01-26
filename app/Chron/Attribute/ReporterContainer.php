@@ -8,7 +8,7 @@ use App\Chron\Attribute\Reporter\ReporterMap;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
 
-class BindReporterContainer
+class ReporterContainer
 {
     public function __construct(
         protected ReporterMap $reporterMap,
@@ -28,6 +28,6 @@ class BindReporterContainer
 
     public function getQueues(): array
     {
-        return $this->reporterMap->getQueues();
+        return $this->reporterMap->getDeclaredQueues();
     }
 }

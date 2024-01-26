@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute\MessageHandler;
 
-use App\Chron\Attribute\BindReporterContainer;
 use App\Chron\Attribute\Reporter\Enqueue;
+use App\Chron\Attribute\ReporterContainer;
 use Illuminate\Contracts\Container\Container;
 use RuntimeException;
 
@@ -13,10 +13,10 @@ use function array_merge;
 use function is_object;
 use function is_string;
 
-class DetermineQueueHandler
+class QueueResolver
 {
     public function __construct(
-        protected BindReporterContainer $bind,
+        protected ReporterContainer $reporterContainer,
         protected Container $container
     ) {
     }
@@ -36,7 +36,7 @@ class DetermineQueueHandler
 
     protected function resolveQueue(string $reporterId, ?array $queue): ?array
     {
-        [$defaultQueue, $enqueue] = $this->normalizeConfigurationQueue($reporterId);
+        [$defaultQueue, $enqueue] = $this->getDeclaredQueue($reporterId);
 
         // force sync even for handler would have queue defined
         if ($enqueue->isSync()) {
@@ -46,7 +46,7 @@ class DetermineQueueHandler
         // force async even for handler would not have queue defined, required default queue
         if ($enqueue->isAsync()) {
             if ($defaultQueue === null) {
-                throw new RuntimeException("Default queue cannot be empty for reporter $reporterId when enqueue is async");
+                throw new RuntimeException("Default queue cannot be null for reporter $reporterId when enqueue is async");
             }
 
             return $queue === null ? $defaultQueue : array_merge($defaultQueue, $queue);
@@ -59,7 +59,7 @@ class DetermineQueueHandler
             }
 
             if ($defaultQueue === null) {
-                throw new RuntimeException("Default queue cannot be empty for reporter $reporterId when enqueue is delegate_merge_with_default");
+                throw new RuntimeException("Default queue cannot be null for reporter $reporterId when enqueue is delegate_merge_with_default");
             }
 
             return array_merge($defaultQueue, $queue);
@@ -72,9 +72,9 @@ class DetermineQueueHandler
     /**
      * @return array{0: null|array, 1: Enqueue}
      */
-    protected function normalizeConfigurationQueue(string $reporterId): array
+    protected function getDeclaredQueue(string $reporterId): array
     {
-        $config = $this->bind->getQueues()[$reporterId];
+        $config = $this->reporterContainer->getQueues()[$reporterId];
 
         return [$config['default_queue'], Enqueue::from($config['enqueue'])];
     }

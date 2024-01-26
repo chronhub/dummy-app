@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Chron\Reporter;
 
 use Illuminate\Support\Facades\Facade;
+use React\Promise\PromiseInterface;
 use Storm\Contract\Reporter\Reporter;
 
 /**
- * @method static Reporter get(string $name)
+ * @method static Reporter              get(string $name)
+ * @method static PromiseInterface|null relay(array|object $message, ?string $hint = null)
  */
 class Report extends Facade
 {

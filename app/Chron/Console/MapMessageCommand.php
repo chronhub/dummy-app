@@ -31,7 +31,7 @@ class MapMessageCommand extends Command
 
     public function __invoke(): int
     {
-        $map = $this->getAttributeContainer()->getHandlerEntries();
+        $map = $this->getAttributeContainer()->getMessageEntries();
 
         $messageName = $this->requestMessageName($map);
 
@@ -92,7 +92,7 @@ class MapMessageCommand extends Command
 
     protected function formatHandlerMethod(string $method, int $priority): string
     {
-        return $method.' .....P'.$priority;
+        return "P$priority ....".$method;
     }
 
     protected function formatQueue(?array $queue): string
@@ -116,7 +116,7 @@ class MapMessageCommand extends Command
 
     protected function formatEnqueue(string $reporterId): string
     {
-        $config = $this->getAttributeContainer()->getQueues()[$reporterId];
+        $config = $this->getAttributeContainer()->getDeclaredQueues()[$reporterId];
 
         return $config['enqueue'].($config['default_queue'] !== null ? ': with default' : ': no default');
     }

@@ -4,45 +4,71 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute;
 
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
+use InvalidArgumentException;
+use RuntimeException;
+use Storm\Reporter\Exception\MessageNotFound;
+
+use function count;
+use function is_array;
+use function is_object;
 
 class AttributeContainer
 {
     public function __construct(
-        protected BindReporterContainer $bindReporterContainer,
-        protected TagHandlerContainer $tagHandlerContainer,
+        protected ReporterContainer $reporterContainer,
+        protected MessageContainer $messageContainer,
+        protected Application $app
     ) {
     }
 
     public function autoWire(): void
     {
-        $this->bindReporterContainer->bind();
+        $this->reporterContainer->bind();
 
-        $this->tagHandlerContainer->tag();
+        $this->messageContainer->tag();
     }
 
     public function get(string $messageName): iterable
     {
-        return $this->tagHandlerContainer->find($messageName);
+        return $this->messageContainer->find($messageName);
     }
 
-    public function getBindings(): Collection
+    public function getReporterByMessageName(array|object $message, ?string $messageClassName = null): string
     {
-        return $this->tagHandlerContainer->getBindings();
+        if (is_array($message) && $messageClassName === null) {
+            throw new InvalidArgumentException('Message class name is required when message is an array');
+        }
+
+        $messageClass = is_object($message) ? $message::class : $messageClassName;
+
+        $reporters = $this->messageContainer->findReporterOfMessage($messageClass);
+
+        if ($reporters === []) {
+            throw MessageNotFound::withMessageName($messageClass);
+        }
+
+        // we do not deal with multiple event reporters
+        if (count($reporters) > 1) {
+            throw new RuntimeException('Multiple reporters found for message '.$messageClass);
+        }
+
+        return $reporters[0];
     }
 
     public function getReporterEntries(): Collection
     {
-        return $this->bindReporterContainer->getEntries();
+        return $this->reporterContainer->getEntries();
     }
 
-    public function getHandlerEntries(): Collection
+    public function getMessageEntries(): Collection
     {
-        return $this->tagHandlerContainer->getEntries();
+        return $this->messageContainer->getEntries();
     }
 
-    public function getQueues(): array
+    public function getDeclaredQueues(): array
     {
-        return $this->bindReporterContainer->getQueues();
+        return $this->reporterContainer->getQueues();
     }
 }

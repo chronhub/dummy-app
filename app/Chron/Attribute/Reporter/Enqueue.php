@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute\Reporter;
 
+// todo change name
 enum Enqueue: string
 {
     case SYNC = 'sync';

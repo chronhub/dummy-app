@@ -13,7 +13,7 @@ use RuntimeException;
 use function array_merge;
 use function uksort;
 
-class MessageHandlerMap
+class MessageMap
 {
     // todo handler is dedicated to a specific reporter,
     //  when find message handler we need to check if reporter is the same
@@ -25,15 +25,13 @@ class MessageHandlerMap
      */
     protected Collection $map;
 
-    protected array $bindings;
-
     protected array $entries;
 
     protected Closure $prefixResolver;
 
     public function __construct(
         protected MessageHandlerLoader $loader,
-        protected DetermineQueueHandler $determineQueueHandler,
+        protected QueueResolver $queueResolver,
         protected Application $app
     ) {
         $this->map = new Collection();
@@ -45,11 +43,6 @@ class MessageHandlerMap
             ->each(fn (MessageHandlerAttribute $attribute) => $this->build($attribute));
 
         $this->map->each(fn (array $messageHandlers, string $messageName) => $this->bind($messageName, $messageHandlers));
-    }
-
-    public function getBindings(): Collection
-    {
-        return collect($this->bindings);
     }
 
     public function getEntries(): Collection
@@ -90,19 +83,18 @@ class MessageHandlerMap
         foreach ($handlers as $priority => $attribute) {
             $abstract = $this->tagConcrete($name, $priority);
 
-            $queue = $this->determineQueueHandler->make($attribute->reporterId, $attribute->queue);
+            $queue = $this->queueResolver->make($attribute->reporterId, $attribute->queue);
 
             $this->app->bind($abstract, fn (): callable => $this->newHandlerInstance($attribute, $queue));
 
-            $this->updateBinding($name, $abstract, $attribute, $priority, $queue);
+            $this->updateEntry($name, $abstract, $attribute, $queue);
         }
     }
 
-    protected function updateBinding(string $name, string $handlerId, MessageHandlerAttribute $attribute, int $priority, ?array $queue): void
+    protected function updateEntry(string $name, string $handlerId, MessageHandlerAttribute $attribute, ?array $queue): void
     {
         $attribute = $attribute->newInstance($handlerId, $this->tagConcrete($name), $queue);
 
-        $this->bindings[$name] = array_merge($this->bindings[$name] ?? [], [$priority => $handlerId]);
         $this->entries[$name] = array_merge($this->entries[$name] ?? [], [$attribute]);
     }
 

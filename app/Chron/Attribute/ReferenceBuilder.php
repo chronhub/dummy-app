@@ -49,7 +49,7 @@ class ReferenceBuilder
             foreach ($attributes as $attribute) {
                 $instance = $attribute->newInstance();
 
-                $this->assertReferenceExists($instance->name, $reflectionClass->getName());
+                $this->assertReferenceExistsInContainer($instance->name, $reflectionClass->getName());
 
                 $references[] = [$parameter->getName(), $instance->name];
             }
@@ -63,7 +63,7 @@ class ReferenceBuilder
      *
      * @throws RuntimeException When reference id is not found in container
      */
-    protected function assertReferenceExists(string $referenceId, string $handlerClass): void
+    protected function assertReferenceExistsInContainer(string $referenceId, string $handlerClass): void
     {
         if (! $this->container->bound($referenceId)) {
             throw new RuntimeException(sprintf('Reference %s not found in message handler class %s', $referenceId, $handlerClass));

@@ -11,7 +11,7 @@ class AttributeServiceProvider extends ServiceProvider implements DeferrableProv
 {
     public function boot(): void
     {
-        $autoWire = config('reporter.auto_wire', true);
+        $autoWire = config('reporter.auto_wire', false);
 
         if ($autoWire === true) {
             $this->getAttributeContainer()->autoWire();
@@ -20,17 +20,14 @@ class AttributeServiceProvider extends ServiceProvider implements DeferrableProv
 
     public function register(): void
     {
-        // fixMe
-        //  still need to bind the container to the app
-        //  as, it's needed for DetermineQueueHandler
-        $this->app->singleton(BindReporterContainer::class);
+        $this->app->singleton(ReporterContainer::class);
 
         $this->app->singleton(AttributeContainer::class);
     }
 
     public function provides(): array
     {
-        return [AttributeContainer::class, BindReporterContainer::class];
+        return [AttributeContainer::class, ReporterContainer::class];
     }
 
     protected function getAttributeContainer(): AttributeContainer

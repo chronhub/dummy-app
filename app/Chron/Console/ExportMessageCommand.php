@@ -23,7 +23,7 @@ class ExportMessageCommand extends AbstractExporterCommand
 
     protected function buildMessageMap(): array
     {
-        $map = $this->getAttributeContainer()->getHandlerEntries();
+        $map = $this->getAttributeContainer()->getMessageEntries();
 
         $data = [];
 
