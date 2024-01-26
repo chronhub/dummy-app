@@ -15,7 +15,7 @@ use Storm\Reporter\HasConstructableReporter;
 #[AsReporter(
     id: 'reporter.command.default',
     type: DomainType::COMMAND,
-    enqueue: Enqueue::SYNC,
+    enqueue: Enqueue::DELEGATE,
     subscribers: SubscriberManager::class,
     //defaultQueue: QueueOption::class
 )]

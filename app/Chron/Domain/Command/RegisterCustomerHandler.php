@@ -13,7 +13,7 @@ use App\Chron\Reporter\ReportEvent;
 #[AsCommandHandler(
     reporter: 'reporter.command.default',
     handles: RegisterCustomer::class,
-    //fromQueue: ['connection' => 'rabbitmq', 'name' => 'default'],
+    fromQueue: ['connection' => 'rabbitmq', 'name' => 'default'],
     method: 'command',
 )]
 final readonly class RegisterCustomerHandler

@@ -13,7 +13,7 @@ use App\Chron\Reporter\ReportEvent;
 #[AsCommandHandler(
     reporter: 'reporter.command.default',
     handles: UpdateCustomerEmail::class,
-    //fromQueue: ['connection' => 'rabbitmq-high', 'name' => 'high'],
+    fromQueue: ['connection' => 'rabbitmq-high', 'name' => 'high'],
     method: 'command',
 )]
 final readonly class UpdateCustomerEmailHandler
