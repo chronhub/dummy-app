@@ -15,6 +15,9 @@ final readonly class MessageRouter implements Router
 
     public function get(string $name): ?array
     {
+        // todo bring reporterId and check if all handlers match it
+        //  like this any message can be handler by any reporter
+
         return $this->container->get($name);
     }
 }

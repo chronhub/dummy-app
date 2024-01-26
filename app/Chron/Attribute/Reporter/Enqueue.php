@@ -8,8 +8,11 @@ namespace App\Chron\Attribute\Reporter;
 enum Enqueue: string
 {
     case SYNC = 'sync';
+
     case ASYNC = 'async';
+
     case DELEGATE = 'delegate';
+
     case DELEGATE_MERGE = 'delegate_merge_with_default';
 
     public function isSync(): bool
