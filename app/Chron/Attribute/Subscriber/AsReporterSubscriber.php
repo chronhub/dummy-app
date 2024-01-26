@@ -61,7 +61,7 @@ class AsReporterSubscriber
      *
      * To detach subscriber on demand, you can name it,
      * must be unique across all subscribers from the same reporter
-     * or, we name it with convention: "className@methodName"
+     * or, we name it with convention: "fcqn@methodName"
      *
      * Probably use an in memory storage to store subscribers
      * should have access to the reporter tracker
