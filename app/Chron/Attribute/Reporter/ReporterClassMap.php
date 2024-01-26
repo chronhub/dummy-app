@@ -6,6 +6,7 @@ namespace App\Chron\Attribute\Reporter;
 
 use App\Chron\Reporter\ReportCommand;
 use App\Chron\Reporter\ReportEvent;
+use App\Chron\Reporter\ReportNotification;
 use App\Chron\Reporter\ReportQuery;
 use Illuminate\Support\Collection;
 
@@ -16,6 +17,7 @@ class ReporterClassMap
      */
     protected array $classes = [
         ReportCommand::class,
+        ReportNotification::class,
         ReportEvent::class,
         ReportQuery::class,
     ];

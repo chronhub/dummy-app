@@ -57,7 +57,7 @@ class MapMessageCommand extends Command
 
     protected function filterByMessage(Collection $messages, string $message): Collection
     {
-        return $messages->filter(
+        return $messages->where(
             fn (array $handlers, string $messageName): bool => $messageName === $message || class_basename($messageName) === $message
         );
     }

@@ -13,7 +13,7 @@ use ReflectionClass;
 class ReporterLoader
 {
     /**
-     * @var Collection<array<MessageHandlerAttribute>>
+     * @var Collection<MessageHandlerAttribute>
      */
     protected Collection $attributes;
 

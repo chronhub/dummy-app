@@ -38,11 +38,13 @@ class ReporterMap
 
     public function load(): void
     {
-        $this->loader->getAttributes()->each(function (ReporterAttribute $attribute): void {
-            $this->makeEntry($attribute);
+        $this->loader
+            ->getAttributes()
+            ->each(function (ReporterAttribute $attribute): void {
+                $this->makeEntry($attribute);
 
-            $this->bind($attribute);
-        });
+                $this->bind($attribute);
+            });
     }
 
     /**
@@ -90,6 +92,7 @@ class ReporterMap
         $reporter = $this->determineReporter($attribute);
 
         $subscribers = $this->subscriberResolver->make($attribute);
+
         $reporter->subscribe(...$subscribers);
 
         return $reporter;
@@ -99,7 +102,7 @@ class ReporterMap
     {
         $abstract = $attribute->abstract;
 
-        if (class_exists($attribute->abstract)) {
+        if (class_exists($abstract)) {
             $tracker = is_string($attribute->tracker) ? $this->app[$attribute->tracker] : new TrackMessage();
 
             return new $abstract($tracker);

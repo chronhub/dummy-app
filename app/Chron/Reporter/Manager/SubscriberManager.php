@@ -87,8 +87,8 @@ class SubscriberManager implements ReporterSubscriberManager
         return [
             Reporter::DISPATCH_EVENT => [
                 [100000 => MakeMessage::class],
-                [98000 => MessageDecoratorSubscriber::class], //stub wip
                 [99000 => new NameReporter($reporterId)],
+                [98000 => MessageDecoratorSubscriber::class], //stub wip
             ],
 
             Reporter::FINALIZE_EVENT => [

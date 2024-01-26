@@ -10,7 +10,6 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-use function array_map;
 use function sprintf;
 
 /**
@@ -45,28 +44,24 @@ class MessageContainer
 
     public function findReporterOfMessage(string $messageName): array
     {
-        return $this->messageMap->getEntries()->filter(
-            fn (array $messageHandlers, string $message) => $message === $messageName
-        )->map(function (array $messageHandlers) {
-            return array_map(
-                fn (MessageHandlerAttribute $messageHandler) => $messageHandler->reporterId,
-                $messageHandlers
-            );
-        })->collapse()->unique()->values()->all();
+        return $this->messageMap->getEntries()
+            ->filter(fn (array $messageHandlers, string $message) => $message === $messageName)
+            ->values()
+            ->collapse()
+            ->pluck('reporterId')
+            ->unique()
+            ->toArray();
     }
 
     public function tag(): void
     {
         $this->messageMap->load();
 
-        $this->messageMap->getEntries()->map(
-            fn (array $messageHandlers) => array_map(
-                fn (MessageHandlerAttribute $messageHandler) => $messageHandler->handlerId,
-                $messageHandlers
-            )
-        )->each(
-            fn (array $handlerIds, string $messageName) => $this->container->tag($handlerIds, $this->tagConcrete($messageName))
-        );
+        $this->messageMap->getEntries()
+            ->collapse()
+            ->groupBy('messageId')
+            ->map(fn (Collection $messageHandlers) => $messageHandlers->pluck('handlerId'))
+            ->each(fn (Collection $handlerIds, string $messageId) => $this->container->tag($handlerIds->toArray(), $messageId));
     }
 
     public function getEntries(): Collection

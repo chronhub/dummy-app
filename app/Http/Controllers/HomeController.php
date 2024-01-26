@@ -32,8 +32,8 @@ final class HomeController
     {
         $works = [
             fn () => $this->registerCustomer(),
-            fn () => $this->updateEmailCustomer(),
-            fn () => $this->makeOrder(),
+            // fn () => $this->updateEmailCustomer(),
+            // fn () => $this->makeOrder(),
         ];
 
         return $works[array_rand($works)]();

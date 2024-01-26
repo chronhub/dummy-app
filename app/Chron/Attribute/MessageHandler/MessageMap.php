@@ -15,16 +15,14 @@ use function uksort;
 
 class MessageMap
 {
-    // todo handler is dedicated to a specific reporter,
-    //  when find message handler we need to check if reporter is the same
-
-    // todo references in handler methods
-
     /**
      * @var Collection<string, array<MessageHandlerAttribute>>
      */
     protected Collection $map;
 
+    /**
+     * @var array<string, array<MessageHandlerAttribute>>
+     */
     protected array $entries;
 
     protected Closure $prefixResolver;
@@ -39,6 +37,8 @@ class MessageMap
 
     public function load(): void
     {
+        // todo join map and entries
+        // we only update messageid, handlerid, queue
         $this->loader->getAttributes()
             ->each(fn (MessageHandlerAttribute $attribute) => $this->build($attribute));
 

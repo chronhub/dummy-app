@@ -8,10 +8,11 @@ use App\Chron\Attribute\MessageHandler\AsEventHandler;
 use App\Chron\Domain\Event\CustomerRegistered;
 
 #[AsEventHandler(
-    reporter: 'reporter.event.default',
+    reporter: 'reporter.event.notification',
     handles: CustomerRegistered::class,
+    fromQueue: ['connection' => 'rabbitmq', 'name' => 'default'],
     method: 'onEvent',
-    priority: 3,
+    priority: 1,
 )]
 final class SendEmailToRegisteredCustomer
 {
