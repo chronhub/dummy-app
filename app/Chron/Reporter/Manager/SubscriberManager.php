@@ -7,7 +7,7 @@ namespace App\Chron\Reporter\Manager;
 use App\Chron\Reporter\DomainType;
 use App\Chron\Reporter\Subscribers\CorrelationHeaderCommand;
 use App\Chron\Reporter\Subscribers\FinalizeTransactionalCommand;
-use App\Chron\Reporter\Subscribers\RouteMessageSubscriber;
+use App\Chron\Reporter\Subscribers\RouteMessage;
 use App\Chron\Reporter\Subscribers\StartTransactionalCommand;
 use App\Chron\Reporter\Subscribers\SyncRouteMessageSubscriber;
 use Storm\Contract\Reporter\Reporter;
@@ -27,7 +27,7 @@ class SubscriberManager implements ReporterSubscriberManager
         'message_decorator' => [98000 => MessageDecoratorSubscriber::class],
         'start_transaction' => [20000 => StartTransactionalCommand::class],
         'correlation' => [15000 => CorrelationHeaderCommand::class],
-        'route_message' => [10000 => RouteMessageSubscriber::class],
+        'route_message' => [10000 => RouteMessage::class],
         'sync_route_message' => [10000 => SyncRouteMessageSubscriber::class],
         'finalize_transaction' => [1000 => FinalizeTransactionalCommand::class],
         'handle_command' => [0 => HandleCommand::class],

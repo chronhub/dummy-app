@@ -6,3 +6,6 @@
 #todo
 
 - [ ] #3 subscriber as attribute:
+- [ ] #4 cache container:
+- [ ] #4 rest container as closure Container::getInstance();
+- [ ] #5 set up test through facade;

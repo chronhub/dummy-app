@@ -49,6 +49,16 @@ class MessageMap
 
     protected function build(MessageHandlerAttribute $attribute): void
     {
+        // todo reporter id for each message handler must be the same
+        //  our strategy to dispatch can fit many reporters
+
+        // todo how to dispatch event with no handler
+        //  can use notification reporter with a no handler property
+        //  they could all end his the same handler at least to log it
+
+        // todo when event handlers are all completed, we should dispatch an internal event
+        // probably with laravel event dispatcher
+
         if (! $this->entries->has($attribute->handles)) {
             $this->entries->put($attribute->handles, [$attribute->priority => $attribute]);
 

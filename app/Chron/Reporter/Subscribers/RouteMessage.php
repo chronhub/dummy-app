@@ -12,7 +12,7 @@ use Storm\Contract\Tracker\MessageStory;
 use Storm\Message\Message;
 use Storm\Reporter\Routing;
 
-final readonly class RouteMessageSubscriber
+final readonly class RouteMessage
 {
     public function __construct(
         private Routing $routing,
