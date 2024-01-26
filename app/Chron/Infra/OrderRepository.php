@@ -42,7 +42,9 @@ readonly class OrderRepository
 
         $data['metadata'] = json_encode($data['metadata'] + $headers);
 
-        $this->dispatch->insertData($data);
+        $this->connection->table('stream_event')->insert($data);
+
+        ///$this->dispatch->insertData($data);
     }
 
     /**

@@ -20,14 +20,16 @@ final readonly class CustomerRepository
 
     public function createCustomer(string $id, array $headers, array $content): void
     {
-        $this->dispatch->insertData([
+        $data = [
             'stream_name' => 'customer',
             'id' => $id,
             'type' => 'aggregate_customer',
             'version' => 1,
             'metadata' => json_encode($headers),
             'content' => json_encode($content),
-        ]);
+        ];
+
+        $this->connection->table('stream_event')->insert($data);
     }
 
     public function updateRandomCustomerEmail(array $headers): void
@@ -36,7 +38,7 @@ final readonly class CustomerRepository
 
         $content = json_decode($customer->content);
 
-        $this->dispatch->insertData([
+        $data = [
             'stream_name' => 'customer',
             'id' => $customer->id,
             'type' => 'aggregate_customer',
@@ -47,7 +49,9 @@ final readonly class CustomerRepository
                 'customer_old_email' => $content->customer_email,
                 'customer_email' => fake()->email,
             ]),
-        ]);
+        ];
+
+        $this->connection->table('stream_event')->insert($data);
     }
 
     public function oneRandomCustomer(): stdClass

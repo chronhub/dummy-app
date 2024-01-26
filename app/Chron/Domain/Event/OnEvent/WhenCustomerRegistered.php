@@ -14,7 +14,7 @@ final class WhenCustomerRegistered
     #[AsEventHandler(
         reporter: 'reporter.event.default',
         handles: CustomerRegistered::class,
-        priority: 2,
+        priority: 3,
     )]
     public function onEvent(CustomerRegistered $event): void
     {
@@ -24,7 +24,7 @@ final class WhenCustomerRegistered
     #[AsEventHandler(
         reporter: 'reporter.event.default',
         handles: CustomerRegistered::class,
-        priority: 3,
+        priority: 2,
     )]
     public function mySecondHandler(CustomerRegistered $event): void
     {

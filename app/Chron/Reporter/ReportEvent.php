@@ -22,7 +22,6 @@ final class ReportEvent implements Reporter
 
     public function relay(object|array $message): void
     {
-        logger('ReportEvent:');
         $this->dispatch($message);
     }
 }
