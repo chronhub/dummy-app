@@ -48,6 +48,8 @@ class AsReporterSubscriber
 
     /**
      * Method name
+     *
+     * Default to "__invoke", optional on method subscriber
      */
     public ?string $method;
 
