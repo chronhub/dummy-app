@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Chron\Console;
 
+use App\Chron\Attribute\Reporter\ReporterAttribute;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(
-    name: 'reporter-reporter:export',
+    name: 'reporter:export',
     description: 'Export reporter map'
 )]
 class ExportReporterCommand extends AbstractExporterCommand
 {
-    protected $signature = 'reporter-reporter:export
+    protected $signature = 'reporter:export
                             { --path=         : default to storage_app() }
                             { --name=         : default to reporter-map.extension }
                             { --extension=php : export data to json or php(array) }
@@ -20,21 +21,17 @@ class ExportReporterCommand extends AbstractExporterCommand
 
     protected function buildMessageMap(): array
     {
-        $map = $this->getAttributeContainer()->getReporterEntries();
+        $entries = $this->getAttributeContainer()
+            ->getReporterEntries()
+            ->map(fn (ReporterAttribute $attribute): array => $attribute->jsonSerialize())->toArray();
 
-        $data = [];
-
-        foreach ($map as $reporterId => $reporter) {
-            $data[$reporterId] += $reporter->jsonSerialize();
-        }
-
-        if ($data === []) {
+        if ($entries === []) {
             $this->components->error('No reporter found in map');
 
             exit(self::FAILURE);
         }
 
-        return $data;
+        return $entries;
     }
 
     protected function defaultName(): string

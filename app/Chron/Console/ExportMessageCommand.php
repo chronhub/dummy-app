@@ -23,11 +23,10 @@ class ExportMessageCommand extends AbstractExporterCommand
 
     protected function buildMessageMap(): array
     {
-        $map = $this->getAttributeContainer()->getMessageEntries();
+        $entries = $this->getAttributeContainer()->getMessageEntries();
 
         $data = [];
-
-        foreach ($map as $messageName => $messageHandlers) {
+        foreach ($entries as $messageName => $messageHandlers) {
             $data[$messageName] = array_map(fn (MessageHandlerAttribute $handler): array => $handler->jsonSerialize(), $messageHandlers);
         }
 
