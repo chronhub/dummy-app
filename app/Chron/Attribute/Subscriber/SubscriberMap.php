@@ -9,17 +9,15 @@ use Illuminate\Support\Collection;
 use Storm\Contract\Tracker\Listener;
 use Storm\Tracker\GenericListener;
 
-use function is_callable;
-
-class ReporterSubscriberMap
+class SubscriberMap
 {
     /**
-     * @var Collection{string, array<ReporterSubscriberAttribute}>
+     * @var Collection{string, array<SubscriberAttribute}>
      */
     protected Collection $entries;
 
     public function __construct(
-        protected ReporterSubscriberLoader $loader,
+        protected SubscriberLoader $loader,
         protected Application $app
     ) {
         $this->entries = new Collection();
@@ -29,7 +27,7 @@ class ReporterSubscriberMap
     {
         $this->entries = $this->loader
             ->getAttributes()
-            ->map(fn (ReporterSubscriberAttribute $attribute) => $this->build($attribute));
+            ->map(fn (SubscriberAttribute $attribute) => $this->build($attribute));
     }
 
     public function getEntries(): Collection
@@ -37,31 +35,24 @@ class ReporterSubscriberMap
         return $this->entries;
     }
 
-    protected function build(ReporterSubscriberAttribute $attribute): ReporterSubscriberHandler
+    protected function build(SubscriberAttribute $attribute): SubscriberHandler
     {
+        $name = $this->formatName($attribute->name, $attribute->className, $attribute->method);
 
-        // todo bind listener
-        return $this->newSubscriberInstance($attribute);
+        $listener = $this->makeListener($attribute);
+
+        return new SubscriberHandler($name, $attribute->supports, $listener, $attribute->autowire);
     }
 
-    protected function newSubscriberInstance(ReporterSubscriberAttribute $attribute): ReporterSubscriberHandler
+    protected function makeListener(SubscriberAttribute $attribute): Listener
     {
         $parameters = $this->makeParametersFromConstructor($attribute->references);
 
         $instance = $this->app->make($attribute->className, ...$parameters);
 
-        $callback = is_callable($instance) ? $instance : $instance->{$attribute->method}(...);
+        $instance = ($attribute->method === '__invoke') ? $instance : $instance->{$attribute->method}(...);
 
-        $name = $this->formatName($attribute->name, $attribute->className, $attribute->method);
-
-        $listener = $this->toListener($attribute->event, $callback, $attribute->priority);
-
-        return new ReporterSubscriberHandler($name, $attribute->supports, $listener, $attribute->autowire);
-    }
-
-    protected function toListener(string $event, callable $instance, int $priority): Listener
-    {
-        return new GenericListener($event, $instance, $priority);
+        return new GenericListener($attribute->event, $instance, $attribute->priority);
     }
 
     protected function formatName(?string $name, string $class, string $method): string

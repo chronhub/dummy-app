@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Domain\Command;
 
 use App\Chron\Attribute\MessageHandler\AsCommandHandler;
-use App\Chron\Attribute\Reference;
+use App\Chron\Attribute\Reference\Reference;
 use App\Chron\Domain\Event\OrderMade;
 use App\Chron\Infra\OrderRepository;
 use App\Chron\Reporter\ReportEvent;

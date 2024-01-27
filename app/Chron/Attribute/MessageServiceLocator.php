@@ -10,7 +10,7 @@ use function iterator_to_array;
 
 class MessageServiceLocator
 {
-    public function __construct(protected AttributeContainer $container)
+    public function __construct(protected Kernel $container)
     {
     }
 

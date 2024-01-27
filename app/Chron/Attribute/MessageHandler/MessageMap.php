@@ -95,14 +95,20 @@ class MessageMap
 
     protected function newHandlerInstance(MessageHandlerAttribute $attribute, ?array $queue): callable
     {
-        $parameters = $this->makeParametersFromConstructor($attribute->references);
-
-        $instance = $this->app->make($attribute->handlerClass, ...$parameters);
-        $callback = ($attribute->handlerMethod === '__invoke') ? $instance : $instance->{$attribute->handlerMethod}(...);
+        $callback = $this->makeCallback($attribute);
 
         $name = $this->formatName($attribute->handlerClass, $attribute->handlerMethod);
 
         return new MessageHandler($name, $callback, $attribute->priority, $queue);
+    }
+
+    protected function makeCallback(MessageHandlerAttribute $attribute): callable
+    {
+        $parameters = $this->makeParametersFromConstructor($attribute->references);
+
+        $instance = $this->app->make($attribute->handlerClass, ...$parameters);
+
+        return ($attribute->handlerMethod === '__invoke') ? $instance : $instance->{$attribute->handlerMethod}(...);
     }
 
     protected function makeParametersFromConstructor(array $references): array

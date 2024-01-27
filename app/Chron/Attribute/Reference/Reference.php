@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Attribute;
+namespace App\Chron\Attribute\Reference;
 
 use Attribute;
 use InvalidArgumentException;

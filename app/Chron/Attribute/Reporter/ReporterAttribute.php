@@ -17,6 +17,17 @@ class ReporterAttribute
     ) {
     }
 
+    /**
+     * @return array{
+     *     id: string,
+     *     class: string,
+     *     type: string,
+     *     enqueue: string,
+     *     listeners: array<string>,
+     *     queue: null|string,
+     *     tracker: null|string,
+     * }
+     */
     public function jsonSerialize(): array
     {
         return [

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Reporter\Manager;
 
-use App\Chron\Attribute\AttributeContainer;
+use App\Chron\Attribute\Kernel;
 use Illuminate\Contracts\Foundation\Application;
 use React\Promise\PromiseInterface;
 use Storm\Contract\Reporter\Reporter;
@@ -12,7 +12,7 @@ use Storm\Contract\Reporter\Reporter;
 final class ReporterManager implements Manager
 {
     public function __construct(
-        protected AttributeContainer $attributeContainer,
+        protected Kernel $attributeContainer,
         protected Application $app
     ) {
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Reporter\Subscribers;
 
-use App\Chron\Attribute\Reference;
+use App\Chron\Attribute\Reference\Reference;
 use App\Chron\Attribute\Subscriber\AsReporterSubscriber;
 use Closure;
 use Storm\Contract\Message\MessageFactory;

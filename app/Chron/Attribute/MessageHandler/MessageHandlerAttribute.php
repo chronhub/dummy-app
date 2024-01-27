@@ -22,6 +22,20 @@ class MessageHandlerAttribute implements JsonSerializable
     ) {
     }
 
+    /**
+     * @return array{
+     *     reporter_id: string,
+     *     handler_class: string,
+     *     handler_method: string,
+     *     handles: string,
+     *     queue: null|string|array,
+     *     priority: int,
+     *     type: string,
+     *     references: array,
+     *     handler_id: null|string,
+     *     message_id: null|string,
+     * }
+     */
     public function jsonSerialize(): array
     {
         return [
@@ -41,18 +55,10 @@ class MessageHandlerAttribute implements JsonSerializable
     public function newInstance(string $handlerId, string $messageId, ?array $queue): self
     {
         $self = clone $this;
+        $self->handlerId = $handlerId;
+        $self->messageId = $messageId;
+        $self->queue = $queue;
 
-        return new $self(
-            $this->reporterId,
-            $this->handlerClass,
-            $this->handlerMethod,
-            $this->handles,
-            $queue,
-            $this->priority,
-            $this->type,
-            $this->references,
-            $handlerId,
-            $messageId,
-        );
+        return $self;
     }
 }

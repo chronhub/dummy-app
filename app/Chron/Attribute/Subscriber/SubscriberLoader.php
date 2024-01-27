@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute\Subscriber;
 
-use App\Chron\Attribute\ReferenceBuilder;
+use App\Chron\Attribute\Reference\ReferenceBuilder;
 use App\Chron\Attribute\ReflectionUtil;
 use Illuminate\Support\Collection;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
 
-class ReporterSubscriberLoader
+class SubscriberLoader
 {
     /**
-     * @var Collection<ReporterSubscriberAttribute>
+     * @var Collection<SubscriberAttribute>
      */
     protected Collection $attributes;
 
     public function __construct(
-        protected ReporterSubscriberClassMap $catalog,
+        protected SubscriberClassMap $catalog,
         protected ReferenceBuilder $referenceBuilder,
     ) {
         $this->attributes = new Collection();
@@ -73,7 +73,7 @@ class ReporterSubscriberLoader
             ->map(fn (ReflectionAttribute $attribute): object => $attribute->newInstance())
             ->each(function (AsReporterSubscriber $attribute) use ($reflectionClass, $reflectionMethod): void {
                 $this->attributes->push(
-                    new ReporterSubscriberAttribute(
+                    new SubscriberAttribute(
                         $reflectionClass->getName(),
                         $attribute->event,
                         $attribute->supports,

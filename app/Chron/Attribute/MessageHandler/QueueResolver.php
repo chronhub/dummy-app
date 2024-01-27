@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Attribute\MessageHandler;
 
 use App\Chron\Attribute\Reporter\Enqueue;
-use App\Chron\Attribute\ReporterContainer;
+use App\Chron\Attribute\Reporters;
 use Illuminate\Contracts\Container\Container;
 use RuntimeException;
 
@@ -16,7 +16,7 @@ use function is_string;
 class QueueResolver
 {
     public function __construct(
-        protected ReporterContainer $reporterContainer,
+        protected Reporters $reporterContainer,
         protected Container $container
     ) {
     }

@@ -15,30 +15,28 @@ use function count;
 use function is_array;
 use function is_object;
 
-class AttributeContainer
+class Kernel
 {
     public function __construct(
-        protected ReporterContainer $reporterContainer,
-        protected ReporterSubscriberContainer $reporterSubscriberContainer,
-        protected MessageContainer $messageContainer,
+        protected Reporters $reporters,
+        protected Subscribers $subscribers,
+        protected Messages $messages,
         protected Application $app
     ) {
     }
 
-    public function autoWire(): void
+    public function bootstraps(): void
     {
-        $this->reporterContainer->bind();
+        $this->reporters->bootstrap();
 
-        $reporters = $this->listReporters();
+        $this->subscribers->bootstrap($this->listReporters());
 
-        $this->reporterSubscriberContainer->provides($reporters);
-
-        $this->messageContainer->tag();
+        $this->messages->bootstrap();
     }
 
     public function get(string $messageName): iterable
     {
-        return $this->messageContainer->find($messageName);
+        return $this->messages->find($messageName);
     }
 
     /**
@@ -56,7 +54,7 @@ class AttributeContainer
 
         $messageClass = is_object($message) ? $message::class : $messageClassName;
 
-        $reporters = $this->messageContainer->findReporterOfMessage($messageClass);
+        $reporters = $this->messages->findReporterOfMessage($messageClass);
 
         if ($reporters === []) {
             throw MessageNotFound::withMessageName($messageClass);
@@ -75,21 +73,21 @@ class AttributeContainer
      */
     public function listReporters(): array
     {
-        return $this->reporterContainer->getEntries()->keys()->toArray();
+        return $this->reporters->getEntries()->keys()->toArray();
     }
 
     public function getReporterEntries(): Collection
     {
-        return $this->reporterContainer->getEntries();
+        return $this->reporters->getEntries();
     }
 
     public function getMessageEntries(): Collection
     {
-        return $this->messageContainer->getEntries();
+        return $this->messages->getEntries();
     }
 
     public function getDeclaredQueues(): array
     {
-        return $this->reporterContainer->getQueues();
+        return $this->reporters->getQueues();
     }
 }

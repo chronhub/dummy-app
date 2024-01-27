@@ -6,7 +6,7 @@ namespace App\Chron\Attribute\Subscriber;
 
 use Illuminate\Support\Arr;
 
-class ReporterSubscriberAttribute
+class SubscriberAttribute
 {
     public array $supports;
 

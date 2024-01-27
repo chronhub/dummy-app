@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute;
 
-use App\Chron\Attribute\Subscriber\ReporterSubscriberHandler;
-use App\Chron\Attribute\Subscriber\ReporterSubscriberMap;
+use App\Chron\Attribute\Subscriber\SubscriberHandler;
+use App\Chron\Attribute\Subscriber\SubscriberMap;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
 use Storm\Contract\Reporter\Reporter;
@@ -13,33 +13,29 @@ use Storm\Contract\Tracker\Listener;
 use Storm\Reporter\Subscriber\NameReporter;
 use Storm\Tracker\GenericListener;
 
-class ReporterSubscriberContainer
+class Subscribers
 {
-    protected array $reporterIds = [];
-
     public function __construct(
-        protected ReporterSubscriberMap $reporterSubscriberMap,
+        protected SubscriberMap $subscriberMap,
         protected Application $app
     ) {
     }
 
-    public function provides(array $reporters): void
+    public function bootstrap(array $reporters): void
     {
-        $this->reporterIds = $reporters;
+        $this->subscriberMap->load();
 
-        $this->reporterSubscriberMap->load();
-
-        $this->whenResolveReporter();
+        $this->whenResolveReporter($reporters);
     }
 
     public function getEntries(): Collection
     {
-        return $this->reporterSubscriberMap->getEntries();
+        return $this->subscriberMap->getEntries();
     }
 
-    protected function whenResolveReporter(): void
+    protected function whenResolveReporter(array $reporterIds): void
     {
-        foreach ($this->reporterIds as $reporterId) {
+        foreach ($reporterIds as $reporterId) {
             $this->app->resolving($reporterId, function (Reporter $reporter) use ($reporterId) {
                 $listeners = $this->resolveSubscribers($reporterId);
 
@@ -58,9 +54,9 @@ class ReporterSubscriberContainer
      */
     protected function resolveSubscribers(string $reporter): array
     {
-        return $this->reporterSubscriberMap->getEntries()
-            ->filter(fn (ReporterSubscriberHandler $handler) => $handler->match($reporter))
-            ->map(fn (ReporterSubscriberHandler $handler) => $handler->listener)
+        return $this->subscriberMap->getEntries()
+            ->filter(fn (SubscriberHandler $handler) => $handler->match($reporter))
+            ->map(fn (SubscriberHandler $handler) => $handler->listener)
             ->toArray();
     }
 }

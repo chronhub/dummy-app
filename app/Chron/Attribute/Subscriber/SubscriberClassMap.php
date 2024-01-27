@@ -15,7 +15,7 @@ use App\Chron\Reporter\Subscribers\RouteMessage;
 use App\Chron\Reporter\Subscribers\TransactionalCommand;
 use Illuminate\Support\Collection;
 
-class ReporterSubscriberClassMap
+class SubscriberClassMap
 {
     protected array $subscribers = [
         MakeMessage::class,

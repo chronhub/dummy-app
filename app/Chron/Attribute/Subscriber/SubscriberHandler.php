@@ -8,7 +8,7 @@ use Storm\Contract\Tracker\Listener;
 
 use function fnmatch;
 
-class ReporterSubscriberHandler
+class SubscriberHandler
 {
     public function __construct(
         public string $name,

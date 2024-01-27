@@ -15,7 +15,7 @@ use function sprintf;
 /**
  * @template T of MessageHandlerAttribute
  */
-class MessageContainer
+class Messages
 {
     public const HANDLER_TAG_PREFIX = '#';
 
@@ -33,6 +33,13 @@ class MessageContainer
         $this->messageMap->setPrefixResolver(
             fn (string $messageName, ?int $priority) => $this->tagConcrete($messageName, $priority)
         );
+    }
+
+    public function bootstrap(): void
+    {
+        $this->messageMap->load();
+
+        $this->tagMessageHandlers();
     }
 
     public function find(string $messageName): iterable
@@ -53,20 +60,18 @@ class MessageContainer
             ->toArray();
     }
 
-    public function tag(): void
+    public function getEntries(): Collection
     {
-        $this->messageMap->load();
+        return $this->messageMap->getEntries();
+    }
 
+    protected function tagMessageHandlers(): void
+    {
         $this->messageMap->getEntries()
             ->collapse()
             ->groupBy('messageId')
             ->map(fn (Collection $messageHandlers) => $messageHandlers->pluck('handlerId'))
             ->each(fn (Collection $handlerIds, string $messageId) => $this->container->tag($handlerIds->toArray(), $messageId));
-    }
-
-    public function getEntries(): Collection
-    {
-        return $this->messageMap->getEntries();
     }
 
     protected function tagConcrete(string $concrete, ?int $priority = null): string

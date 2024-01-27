@@ -8,7 +8,7 @@ use App\Chron\Attribute\Reporter\ReporterMap;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
 
-class ReporterContainer
+class Reporters
 {
     public function __construct(
         protected ReporterMap $reporterMap,
@@ -16,7 +16,7 @@ class ReporterContainer
     ) {
     }
 
-    public function bind(): void
+    public function bootstrap(): void
     {
         $this->reporterMap->load();
     }
