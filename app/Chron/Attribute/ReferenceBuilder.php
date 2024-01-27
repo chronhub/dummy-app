@@ -25,7 +25,7 @@ class ReferenceBuilder
     /**
      * Find references in reflection class constructor
      *
-     * @return array<array{'__construct': string ,Ref}>|array
+     * @return array<array{'__construct': string, Ref}>|array
      *
      * @throws ReflectionException
      */

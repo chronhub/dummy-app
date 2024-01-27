@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute\Subscriber;
 
-use App\Chron\Reporter\DomainType;
 use Illuminate\Support\Arr;
 
 class ReporterSubscriberAttribute
 {
     public array $supports;
-
-    public string|null|DomainType $supportType;
 
     public function __construct(
         public string $className,

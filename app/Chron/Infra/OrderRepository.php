@@ -15,7 +15,6 @@ use function json_encode;
 readonly class OrderRepository
 {
     public function __construct(
-        protected TransactionalDispatcher $dispatch,
         protected Connection $connection,
         protected ApiQuery $apiQuery,
         protected CustomerRepository $customerRepository,
@@ -43,8 +42,6 @@ readonly class OrderRepository
         $data['metadata'] = json_encode($data['metadata'] + $headers);
 
         $this->connection->table('stream_event')->insert($data);
-
-        ///$this->dispatch->insertData($data);
     }
 
     /**

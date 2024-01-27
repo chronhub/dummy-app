@@ -12,10 +12,8 @@ use function json_encode;
 
 final readonly class CustomerRepository
 {
-    public function __construct(
-        private TransactionalDispatcher $dispatch,
-        private Connection $connection,
-    ) {
+    public function __construct(private Connection $connection)
+    {
     }
 
     public function createCustomer(string $id, array $headers, array $content): void
