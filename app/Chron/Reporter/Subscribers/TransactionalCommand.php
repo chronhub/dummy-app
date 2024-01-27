@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace App\Chron\Reporter\Subscribers;
 
 use App\Chron\Attribute\Subscriber\AsReporterSubscriber;
-use App\Chron\Reporter\DomainType;
+use Closure;
 use Illuminate\Database\Connection;
 use Storm\Contract\Message\Header;
 use Storm\Contract\Reporter\Reporter;
-use Storm\Contract\Tracker\Listener;
 use Storm\Contract\Tracker\MessageStory;
 use Storm\Message\Message;
-use Storm\Tracker\GenericListener;
 
 final readonly class TransactionalCommand
 {
@@ -22,13 +20,14 @@ final readonly class TransactionalCommand
 
     #[AsReporterSubscriber(
         supports: ['reporter.command.default'],
-        supportType: DomainType::COMMAND,
+        event: Reporter::DISPATCH_EVENT,
         method: 'startTransaction',
-        autowire: true
+        priority: 30000,
+        autowire: true,
     )]
-    public function startTransaction(): Listener
+    public function startTransaction(): Closure
     {
-        return new GenericListener(Reporter::DISPATCH_EVENT, function (MessageStory $story): void {
+        return function (MessageStory $story): void {
             $message = $story->message();
 
             if ($this->isTransactional($message)) {
@@ -37,18 +36,19 @@ final readonly class TransactionalCommand
             } else {
                 logger('No transactional for command: '.$message->name());
             }
-        }, 10000);
+        };
     }
 
     #[AsReporterSubscriber(
         supports: ['reporter.command.default'],
-        supportType: DomainType::COMMAND,
+        event: Reporter::FINALIZE_EVENT,
         method: 'finalizeTransaction',
-        autowire: true
+        priority: 1000,
+        autowire: true,
     )]
-    public function finalizeTransaction(): Listener
+    public function finalizeTransaction(): Closure
     {
-        return new GenericListener(Reporter::DISPATCH_EVENT, function (MessageStory $story): void {
+        return function (MessageStory $story): void {
             $message = $story->message();
 
             if ($story->hasException()) {
@@ -60,7 +60,7 @@ final readonly class TransactionalCommand
                     logger('Commit transactional for command: '.$message->name());
                 }
             }
-        }, 1000);
+        };
     }
 
     private function isTransactional(Message $message): bool

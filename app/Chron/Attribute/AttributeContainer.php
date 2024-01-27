@@ -8,6 +8,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use RuntimeException;
+use Storm\Contract\Reporter\Reporter;
 use Storm\Reporter\Exception\MessageNotFound;
 
 use function count;
@@ -18,6 +19,7 @@ class AttributeContainer
 {
     public function __construct(
         protected ReporterContainer $reporterContainer,
+        protected ReporterSubscriberContainer $reporterSubscriberContainer,
         protected MessageContainer $messageContainer,
         protected Application $app
     ) {
@@ -26,6 +28,10 @@ class AttributeContainer
     public function autoWire(): void
     {
         $this->reporterContainer->bind();
+
+        $reporters = $this->listReporters();
+
+        $this->reporterSubscriberContainer->provides($reporters);
 
         $this->messageContainer->tag();
     }
@@ -62,6 +68,14 @@ class AttributeContainer
         }
 
         return $reporters[0];
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function listReporters(): array
+    {
+        return $this->reporterContainer->getEntries()->keys()->toArray();
     }
 
     public function getReporterEntries(): Collection

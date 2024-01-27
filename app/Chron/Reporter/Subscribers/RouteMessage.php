@@ -5,13 +5,21 @@ declare(strict_types=1);
 namespace App\Chron\Reporter\Subscribers;
 
 use App\Chron\Attribute\MessageHandler\MessageHandler;
+use App\Chron\Attribute\Subscriber\AsReporterSubscriber;
 use App\Chron\Reporter\Producer\IlluminateQueue;
 use Closure;
 use Storm\Contract\Message\Header;
+use Storm\Contract\Reporter\Reporter;
 use Storm\Contract\Tracker\MessageStory;
 use Storm\Message\Message;
 use Storm\Reporter\Routing;
 
+#[AsReporterSubscriber(
+    supports: ['reporter.command.*', 'reporter.event.*'],
+    event: Reporter::DISPATCH_EVENT,
+    priority: 20000,
+    autowire: true,
+)]
 final readonly class RouteMessage
 {
     public function __construct(

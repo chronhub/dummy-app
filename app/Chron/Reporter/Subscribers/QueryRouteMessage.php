@@ -4,13 +4,21 @@ declare(strict_types=1);
 
 namespace App\Chron\Reporter\Subscribers;
 
+use App\Chron\Attribute\Subscriber\AsReporterSubscriber;
 use Closure;
 use RuntimeException;
 use Storm\Contract\Message\Header;
+use Storm\Contract\Reporter\Reporter;
 use Storm\Contract\Tracker\MessageStory;
 use Storm\Reporter\Routing;
 
-final readonly class SyncRouteMessageSubscriber
+#[AsReporterSubscriber(
+    supports: ['reporter.query.*'],
+    event: Reporter::DISPATCH_EVENT,
+    priority: 20000,
+    autowire: true,
+)]
+final readonly class QueryRouteMessage
 {
     public function __construct(private Routing $routing)
     {

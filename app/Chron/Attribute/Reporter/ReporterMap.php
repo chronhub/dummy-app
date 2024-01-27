@@ -30,7 +30,6 @@ class ReporterMap
 
     public function __construct(
         protected ReporterLoader $loader,
-        protected ReporterSubscriberResolver $subscriberResolver,
         protected Application $app
     ) {
         $this->entries = new Collection();
@@ -91,9 +90,9 @@ class ReporterMap
     {
         $reporter = $this->determineReporter($attribute);
 
-        $subscribers = $this->subscriberResolver->make($attribute);
-
-        $reporter->subscribe(...$subscribers);
+        if ($attribute->listeners !== []) {
+            $reporter->subscribe(...$attribute->listeners);
+        }
 
         return $reporter;
     }

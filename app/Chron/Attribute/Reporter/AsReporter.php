@@ -7,7 +7,6 @@ namespace App\Chron\Attribute\Reporter;
 use App\Chron\Reporter\DomainType;
 use Attribute;
 use InvalidArgumentException;
-use Storm\Contract\Reporter\SubscriberManager;
 use Storm\Contract\Tracker\MessageTracker;
 
 #[Attribute(Attribute::TARGET_CLASS)]
@@ -38,13 +37,6 @@ class AsReporter
     public Enqueue $enqueue;
 
     /**
-     * Subscribers to be registered to the reporter.
-     *
-     * @see SubscriberManager
-     */
-    public string $subscribers;
-
-    /**
      * Listeners to be registered to the reporter.
      *
      * @var array<string>|array
@@ -67,7 +59,6 @@ class AsReporter
         string $id,
         string|DomainType $type,
         Enqueue $enqueue,
-        string|array $subscribers,
         array $listeners = [],
         ?string $defaultQueue = null,
         ?string $tracker = null,
@@ -75,7 +66,6 @@ class AsReporter
         $this->type = $type instanceof DomainType ? $type : DomainType::from($type);
         $this->id = $id;
         $this->enqueue = $enqueue;
-        $this->subscribers = $subscribers;
         $this->listeners = $listeners;
         $this->defaultQueue = $defaultQueue;
         $this->tracker = $tracker;

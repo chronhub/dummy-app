@@ -6,7 +6,6 @@ namespace App\Chron\Reporter;
 
 use App\Chron\Attribute\Reporter\AsReporter;
 use App\Chron\Attribute\Reporter\Enqueue;
-use App\Chron\Reporter\Manager\SubscriberManager;
 use React\Promise\PromiseInterface;
 use Storm\Contract\Reporter\Reporter;
 use Storm\Reporter\HasConstructableReporter;
@@ -15,7 +14,6 @@ use Storm\Reporter\HasConstructableReporter;
     id: 'reporter.query.default',
     type: DomainType::QUERY,
     enqueue: Enqueue::SYNC,
-    subscribers: SubscriberManager::class,
 )]
 final class ReportQuery implements Reporter
 {

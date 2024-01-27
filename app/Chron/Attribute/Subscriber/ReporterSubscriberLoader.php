@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Attribute\MessageHandler;
+namespace App\Chron\Attribute\Subscriber;
 
 use App\Chron\Attribute\ReferenceBuilder;
 use App\Chron\Attribute\ReflectionUtil;
@@ -11,15 +11,15 @@ use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
 
-class MessageHandlerLoader
+class ReporterSubscriberLoader
 {
     /**
-     * @var Collection<array<MessageHandlerAttribute>>
+     * @var Collection<ReporterSubscriberAttribute>
      */
     protected Collection $attributes;
 
     public function __construct(
-        protected MessageHandlerClassMap $catalog,
+        protected ReporterSubscriberClassMap $catalog,
         protected ReferenceBuilder $referenceBuilder,
     ) {
         $this->attributes = new Collection();
@@ -45,7 +45,7 @@ class MessageHandlerLoader
 
     protected function findAttributesInClass(ReflectionClass $reflectionClass): void
     {
-        $attributes = ReflectionUtil::attributesInClass($reflectionClass, AsMessageHandler::class);
+        $attributes = ReflectionUtil::attributesInClass($reflectionClass, AsReporterSubscriber::class);
 
         if ($attributes->isEmpty()) {
             return;
@@ -56,7 +56,7 @@ class MessageHandlerLoader
 
     protected function findAttributesInMethods(ReflectionClass $reflectionClass): void
     {
-        $methods = ReflectionUtil::attributesInMethods($reflectionClass, AsMessageHandler::class);
+        $methods = ReflectionUtil::attributesInMethods($reflectionClass, AsReporterSubscriber::class);
 
         $methods->each(function (array $reflection): void {
             [$reflectionClass, $reflectionMethod, $attributes] = $reflection;
@@ -71,16 +71,16 @@ class MessageHandlerLoader
     {
         $attributes
             ->map(fn (ReflectionAttribute $attribute): object => $attribute->newInstance())
-            ->each(function (AsCommandHandler|AsEventHandler|AsQueryHandler $attribute) use ($reflectionClass, $reflectionMethod): void {
+            ->each(function (AsReporterSubscriber $attribute) use ($reflectionClass, $reflectionMethod): void {
                 $this->attributes->push(
-                    new MessageHandlerAttribute(
-                        $attribute->reporter,
+                    new ReporterSubscriberAttribute(
                         $reflectionClass->getName(),
+                        $attribute->event,
+                        $attribute->supports,
                         $this->determineHandlerMethod($attribute->method, $reflectionMethod),
-                        $attribute->handles,
-                        $attribute->fromQueue,
                         $attribute->priority,
-                        $attribute->type()->value,
+                        $attribute->name,
+                        $attribute->autowire,
                         $this->referenceBuilder->fromConstructor($reflectionClass)
                     ),
                 );

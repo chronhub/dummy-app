@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute\Subscriber;
 
-use App\Chron\Reporter\DomainType;
 use Attribute;
 use Storm\Contract\Reporter\Reporter;
 
@@ -24,15 +23,7 @@ class AsReporterSubscriber
     public string|array|null $supports;
 
     /**
-     * Support a domain type.
-     */
-    public string|DomainType|null $supportType;
-
-    /**
      * Event name
-     *
-     * When the event is null, method(s) expects to return a listener instance;
-     * otherwise methods expect to return a Closure
      *
      * @see Reporter::DISPATCH_EVENT
      * @see Reporter::FINALIZE_EVENT
@@ -75,14 +66,12 @@ class AsReporterSubscriber
 
     public function __construct(
         string|array $supports,
-        string|DomainType|null $supportType,
-        ?string $event = null,
+        string $event,
         ?string $method = null,
         ?int $priority = null,
         ?string $name = null,
         bool $autowire = false
     ) {
-        $this->supportType = $supportType;
         $this->event = $event;
         $this->supports = $supports;
         $this->method = $method;

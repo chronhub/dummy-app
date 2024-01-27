@@ -60,7 +60,6 @@ class ReporterLoader
                         $reflectionClass->getName(),
                         $attribute->type->value,
                         $attribute->enqueue->value,
-                        $attribute->subscribers,
                         $attribute->listeners,
                         $attribute->defaultQueue,
                         $attribute->tracker,

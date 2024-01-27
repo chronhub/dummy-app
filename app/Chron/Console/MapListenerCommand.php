@@ -59,7 +59,10 @@ class MapListenerCommand extends Command
 
     protected function formatTableData(Collection $listeners): array
     {
+        // todo fix priority per group
         return $listeners
+            ->groupBy(fn (Listener $listener): string => $listener->name())
+            ->flatten()
             ->sortByDesc(fn (Listener $listener): int => $listener->priority())
             ->map(fn (Listener $listener) => [
                 $listener->name(),
