@@ -4,22 +4,25 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute\Subscriber;
 
+use App\Chron\Attribute\AbstractLoader;
+use App\Chron\Attribute\Catalog;
 use App\Chron\Attribute\Reference\ReferenceBuilder;
-use App\Chron\Attribute\ReflectionUtil;
 use Illuminate\Support\Collection;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
 
-class SubscriberLoader
+class SubscriberLoader extends AbstractLoader
 {
+    public const ATTRIBUTE_NAME = AsReporterSubscriber::class;
+
     /**
      * @var Collection<SubscriberAttribute>
      */
     protected Collection $attributes;
 
     public function __construct(
-        protected SubscriberClassMap $catalog,
+        protected Catalog $catalog,
         protected ReferenceBuilder $referenceBuilder,
     ) {
         $this->attributes = new Collection();
@@ -27,7 +30,7 @@ class SubscriberLoader
 
     public function getAttributes(): Collection
     {
-        $this->loadAttributes($this->catalog->getClasses());
+        $this->loadAttributes($this->catalog->getSubscriberClasses());
 
         return $this->attributes;
     }
@@ -37,34 +40,10 @@ class SubscriberLoader
         $classes
             ->map(fn (string $class): ReflectionClass => new ReflectionClass($class))
             ->each(function (ReflectionClass $reflectionClass): void {
-                $this->findAttributesInClass($reflectionClass);
+                $this->findAttributesInClass($reflectionClass, self::ATTRIBUTE_NAME);
 
-                $this->findAttributesInMethods($reflectionClass);
+                $this->findAttributesInMethods($reflectionClass, self::ATTRIBUTE_NAME);
             });
-    }
-
-    protected function findAttributesInClass(ReflectionClass $reflectionClass): void
-    {
-        $attributes = ReflectionUtil::attributesInClass($reflectionClass, AsReporterSubscriber::class);
-
-        if ($attributes->isEmpty()) {
-            return;
-        }
-
-        $this->processAttributes($reflectionClass, null, $attributes);
-    }
-
-    protected function findAttributesInMethods(ReflectionClass $reflectionClass): void
-    {
-        $methods = ReflectionUtil::attributesInMethods($reflectionClass, AsReporterSubscriber::class);
-
-        $methods->each(function (array $reflection): void {
-            [$reflectionClass, $reflectionMethod, $attributes] = $reflection;
-
-            if ($attributes->isNotEmpty()) {
-                $this->processAttributes($reflectionClass, $reflectionMethod, $attributes);
-            }
-        });
     }
 
     protected function processAttributes(ReflectionClass $reflectionClass, ?ReflectionMethod $reflectionMethod, Collection $attributes): void
@@ -77,7 +56,7 @@ class SubscriberLoader
                         $reflectionClass->getName(),
                         $attribute->event,
                         $attribute->supports,
-                        $this->determineHandlerMethod($attribute->method, $reflectionMethod),
+                        $this->determineMethodName($attribute->method, $reflectionMethod),
                         $attribute->priority,
                         $attribute->name,
                         $attribute->autowire,
@@ -85,14 +64,5 @@ class SubscriberLoader
                     ),
                 );
             });
-    }
-
-    protected function determineHandlerMethod(?string $handlerMethod, ?ReflectionMethod $reflectionMethod): string
-    {
-        return match (true) {
-            $handlerMethod !== null => $handlerMethod,
-            $reflectionMethod !== null => $reflectionMethod->getName(),
-            default => '__invoke',
-        };
     }
 }

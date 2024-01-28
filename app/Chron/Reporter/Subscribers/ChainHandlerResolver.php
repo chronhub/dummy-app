@@ -31,11 +31,22 @@ class ChainHandlerResolver
         $this->queues = $this->normalizeQueues($queues);
     }
 
+    /**
+     * Chain handlers and dispatch the first async handler.
+     */
     public function handle(bool $alreadyDispatched): self
     {
         $this->assertNotAlreadyCompleted();
 
         return $this->firstToHandleWhen($alreadyDispatched)->chainSync()->nextAsync();
+    }
+
+    /**
+     * Check if the queue is fully completed.
+     */
+    public function isCompleted(): bool
+    {
+        return $this->queues->every(fn (QueueData $queue): bool => $queue->isCompleted());
     }
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute\Messaging;
 
+use App\Chron\Attribute\Reporter\DeclaredQueue;
 use App\Chron\Reporter\DomainType;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
@@ -19,7 +20,7 @@ class MessageMap
 
     public const TAG = 'message.handler.%s';
 
-    protected QueueResolver $queueResolver;
+    protected DeclaredQueue $queueResolver;
 
     /**
      * @var Collection{string, array<MessageAttribute}>
@@ -33,9 +34,9 @@ class MessageMap
         $this->entries = new Collection();
     }
 
-    public function load(array $queues): void
+    public function load(DeclaredQueue $declaredQueue): void
     {
-        $this->queueResolver = new QueueResolver($queues, $this->app);
+        $this->queueResolver = $declaredQueue;
 
         $this->entries = $this->loader->getAttributes()
             ->each(fn (MessageAttribute $attribute) => $this->build($attribute))
@@ -73,13 +74,6 @@ class MessageMap
         // todo reporter id for each message handler must be the same
         //  our strategy to dispatch can fit many reporters
 
-        // todo how to dispatch event with no handler
-        //  can use notification reporter with a no handler property
-        //  they could all end his the same handler at least to log it
-
-        // todo when event handlers are all completed, we should dispatch an internal event
-        // probably with laravel event dispatcher
-
         if (! $this->entries->has($attribute->handles)) {
             $this->entries->put($attribute->handles, [$attribute->priority => $attribute]);
 
@@ -106,7 +100,7 @@ class MessageMap
         return $messageHandlers->map(function (MessageAttribute $attribute) {
             $abstract = $this->tagConcrete($attribute->handles, $attribute->priority);
 
-            $queue = $this->queueResolver->make($attribute->reporterId, $attribute->queue);
+            $queue = $this->queueResolver->mergeIfNeeded($attribute->reporterId, $attribute->queue);
 
             $this->app->bind($abstract, fn (): callable => $this->newHandlerInstance($attribute, $queue));
 
@@ -165,9 +159,9 @@ class MessageMap
         return $concreteTag;
     }
 
-    protected function formatName(string $HandlerClass, string $handlerMethod): string
+    protected function formatName(string $handlerClass, string $handlerMethod): string
     {
-        return $HandlerClass.'@'.$handlerMethod;
+        return $handlerClass.'@'.$handlerMethod;
     }
 
     protected function assertShouldHaveOneHandlerDependsOnType(MessageAttribute $data): void

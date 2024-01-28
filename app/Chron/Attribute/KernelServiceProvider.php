@@ -14,20 +14,18 @@ class KernelServiceProvider extends ServiceProvider implements DeferrableProvide
         $autoWire = config('reporter.auto_wire', false);
 
         if ($autoWire === true) {
-            $this->getKernel()->bootstraps();
+            $this->getKernel()->boot();
         }
     }
 
     public function register(): void
     {
         $this->app->singleton(Kernel::class);
-
-        $this->app->bind(Chore::class);
     }
 
     public function provides(): array
     {
-        return [Kernel::class, Chore::class];
+        return [Kernel::class];
     }
 
     protected function getKernel(): Kernel

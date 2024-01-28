@@ -8,9 +8,8 @@ use App\Chron\Attribute\Messaging\AsEventHandler;
 use App\Chron\Domain\Event\CustomerRegistered;
 
 #[AsEventHandler(
-    reporter: 'reporter.event.notification',
+    reporter: 'reporter.event.default',
     handles: CustomerRegistered::class,
-    fromQueue: ['connection' => 'rabbitmq', 'name' => 'default'],
     method: 'onEvent',
     priority: 1,
 )]

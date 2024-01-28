@@ -20,7 +20,7 @@ class ReporterAttribute
     /**
      * @return array{
      *     id: string,
-     *     class: string,
+     *     abstract: string,
      *     type: string,
      *     enqueue: string,
      *     listeners: array<string>,
@@ -32,7 +32,7 @@ class ReporterAttribute
     {
         return [
             'id' => $this->id,
-            'class' => $this->abstract,
+            'abstract' => $this->abstract,
             'type' => $this->type,
             'enqueue' => $this->enqueue,
             'listeners' => $this->listeners,

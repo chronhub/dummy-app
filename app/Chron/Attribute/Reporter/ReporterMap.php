@@ -13,9 +13,6 @@ use Storm\Tracker\TrackMessage;
 use function class_exists;
 use function is_string;
 
-/**
- * @template TQueue of array{'default_queue': ?array, 'enqueue': string}
- */
 class ReporterMap
 {
     /**
@@ -24,7 +21,7 @@ class ReporterMap
     protected Collection $entries;
 
     /**
-     * @var array<string, TQueue>
+     * @var array<ReporterMode>
      */
     protected array $queues = [];
 
@@ -55,20 +52,16 @@ class ReporterMap
 
     /**
      * Return default queue and enqueue method for message handler
-     *
-     * @return array<string, TQueue>
      */
-    public function getDeclaredQueues(): array
+    public function getDeclaredQueue(): DeclaredQueue
     {
-        return $this->entries->mapWithKeys(function (ReporterAttribute $attribute): array {
-            $defaultQueue = $attribute->defaultQueue;
+        $queues = $this->entries->map(fn (ReporterAttribute $attribute): ReporterMode => new ReporterMode(
+            $attribute->id,
+            Enqueue::from($attribute->enqueue),
+            $attribute->defaultQueue
+        ))->toArray();
 
-            if (is_string($defaultQueue)) {
-                $defaultQueue = $this->app[$defaultQueue]->jsonSerialize();
-            }
-
-            return [$attribute->id => ['default_queue' => $defaultQueue, 'enqueue' => $attribute->enqueue]];
-        })->toArray();
+        return new DeclaredQueue($queues, $this->app);
     }
 
     protected function makeEntry(ReporterAttribute $attribute): void

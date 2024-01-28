@@ -24,7 +24,7 @@ final readonly class RouteMessage
 {
     public function __construct(
         private Routing $routing,
-        private IlluminateQueue $dispatcher,
+        private IlluminateQueue $queueDispatcher,
     ) {
     }
 
@@ -33,15 +33,15 @@ final readonly class RouteMessage
         return function (MessageStory $story): void {
             $message = $story->message();
 
-            $queueResolver = $this->resolveQueue($message);
+            $chainHandler = $this->resolveQueue($message);
 
             $message = $message
-                ->withHeader(Header::QUEUE, $queueResolver->getQueues())
+                ->withHeader(Header::QUEUE, $chainHandler->getQueues())
                 ->withHeader(Header::EVENT_DISPATCHED, true);
 
-            $story->withHandlers($queueResolver->getSyncHandlers());
+            $story->withHandlers($chainHandler->getSyncHandlers());
 
-            $this->dispatchToQueue($message, $queueResolver->getAsyncHandler());
+            $this->dispatchToQueue($message, $chainHandler->getAsyncHandler());
 
             $story->withMessage($message);
         };
@@ -49,7 +49,6 @@ final readonly class RouteMessage
 
     private function resolveQueue(Message $message): ChainHandlerResolver
     {
-        // todo make collection of handlers from routing route
         $messageHandlers = collect($this->routing->route($message->name()));
 
         $alreadyDispatched = $message->header(Header::EVENT_DISPATCHED);
@@ -61,7 +60,7 @@ final readonly class RouteMessage
     private function dispatchToQueue(Message $message, ?MessageHandler $messageHandler): void
     {
         if ($messageHandler) {
-            $this->dispatcher->toQueue($message, $messageHandler->queue());
+            $this->queueDispatcher->toQueue($message, $messageHandler->queue());
         }
     }
 }

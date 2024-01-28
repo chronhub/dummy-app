@@ -4,27 +4,31 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute\Reporter;
 
+use App\Chron\Attribute\AbstractLoader;
+use App\Chron\Attribute\Catalog;
 use App\Chron\Attribute\Messaging\MessageAttribute;
-use App\Chron\Attribute\ReflectionUtil;
 use Illuminate\Support\Collection;
 use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionMethod;
 
-class ReporterLoader
+class ReporterLoader extends AbstractLoader
 {
+    public const ATTRIBUTE_NAME = AsReporter::class;
+
     /**
      * @var Collection<MessageAttribute>
      */
     protected Collection $attributes;
 
-    public function __construct(protected ReporterClassMap $loader)
+    public function __construct(protected Catalog $catalog)
     {
         $this->attributes = new Collection();
     }
 
     public function getAttributes(): Collection
     {
-        $this->loadAttributes($this->loader->getClasses());
+        $this->loadAttributes($this->catalog->getReporterClasses());
 
         return $this->attributes;
     }
@@ -34,22 +38,11 @@ class ReporterLoader
         $classes
             ->map(fn (string $class): ReflectionClass => new ReflectionClass($class))
             ->each(function (ReflectionClass $reflectionClass): void {
-                $this->findAttributesInClass($reflectionClass);
+                $this->findAttributesInClass($reflectionClass, self::ATTRIBUTE_NAME);
             });
     }
 
-    protected function findAttributesInClass(ReflectionClass $reflectionClass): void
-    {
-        $attributes = ReflectionUtil::attributesInClass($reflectionClass, AsReporter::class);
-
-        if ($attributes->isEmpty()) {
-            return;
-        }
-
-        $this->processAttributes($reflectionClass, $attributes);
-    }
-
-    protected function processAttributes(ReflectionClass $reflectionClass, Collection $attributes): void
+    protected function processAttributes(ReflectionClass $reflectionClass, ?ReflectionMethod $reflectionMethod, Collection $attributes): void
     {
         $attributes
             ->map(fn (ReflectionAttribute $attribute): object => $attribute->newInstance())

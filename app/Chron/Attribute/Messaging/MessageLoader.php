@@ -4,22 +4,25 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute\Messaging;
 
+use App\Chron\Attribute\AbstractLoader;
+use App\Chron\Attribute\Catalog;
 use App\Chron\Attribute\Reference\ReferenceBuilder;
-use App\Chron\Attribute\ReflectionUtil;
 use Illuminate\Support\Collection;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
 
-class MessageLoader
+class MessageLoader extends AbstractLoader
 {
+    public const ATTRIBUTE_NAME = AsMessageHandler::class;
+
     /**
      * @var Collection<array<MessageAttribute>>
      */
     protected Collection $attributes;
 
     public function __construct(
-        protected MessageClassMap $catalog,
+        protected Catalog $catalog,
         protected ReferenceBuilder $referenceBuilder,
     ) {
         $this->attributes = new Collection();
@@ -27,7 +30,7 @@ class MessageLoader
 
     public function getAttributes(): Collection
     {
-        $this->loadAttributes($this->catalog->getClasses());
+        $this->loadAttributes($this->catalog->getMessageHandlersClasses());
 
         return $this->attributes;
     }
@@ -37,34 +40,10 @@ class MessageLoader
         $classes
             ->map(fn (string $class): ReflectionClass => new ReflectionClass($class))
             ->each(function (ReflectionClass $reflectionClass): void {
-                $this->findAttributesInClass($reflectionClass);
+                $this->findAttributesInClass($reflectionClass, self::ATTRIBUTE_NAME);
 
-                $this->findAttributesInMethods($reflectionClass);
+                $this->findAttributesInMethods($reflectionClass, self::ATTRIBUTE_NAME);
             });
-    }
-
-    protected function findAttributesInClass(ReflectionClass $reflectionClass): void
-    {
-        $attributes = ReflectionUtil::attributesInClass($reflectionClass, AsMessageHandler::class);
-
-        if ($attributes->isEmpty()) {
-            return;
-        }
-
-        $this->processAttributes($reflectionClass, null, $attributes);
-    }
-
-    protected function findAttributesInMethods(ReflectionClass $reflectionClass): void
-    {
-        $methods = ReflectionUtil::attributesInMethods($reflectionClass, AsMessageHandler::class);
-
-        $methods->each(function (array $reflection): void {
-            [$reflectionClass, $reflectionMethod, $attributes] = $reflection;
-
-            if ($attributes->isNotEmpty()) {
-                $this->processAttributes($reflectionClass, $reflectionMethod, $attributes);
-            }
-        });
     }
 
     protected function processAttributes(ReflectionClass $reflectionClass, ?ReflectionMethod $reflectionMethod, Collection $attributes): void
@@ -76,7 +55,7 @@ class MessageLoader
                     new MessageAttribute(
                         $attribute->reporter,
                         $reflectionClass->getName(),
-                        $this->determineHandlerMethod($attribute->method, $reflectionMethod),
+                        $this->determineMethodName($attribute->method, $reflectionMethod),
                         $attribute->handles,
                         $attribute->fromQueue,
                         $attribute->priority,
@@ -85,14 +64,5 @@ class MessageLoader
                     ),
                 );
             });
-    }
-
-    protected function determineHandlerMethod(?string $handlerMethod, ?ReflectionMethod $reflectionMethod): string
-    {
-        return match (true) {
-            $handlerMethod !== null => $handlerMethod,
-            $reflectionMethod !== null => $reflectionMethod->getName(),
-            default => '__invoke',
-        };
     }
 }

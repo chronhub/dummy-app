@@ -116,9 +116,11 @@ class MapMessageCommand extends Command
 
     protected function formatEnqueue(string $reporterId): string
     {
-        $config = $this->kernel()->getDeclaredQueues()[$reporterId];
+        $config = $this->kernel()->getDeclaredQueues()->getQueueById($reporterId);
 
-        return $config['enqueue'].($config['default_queue'] !== null ? ': with default' : ': no default');
+        $format = $config->enqueue->value;
+
+        return $format.($config->default !== null ? ': with default' : ': no default');
     }
 
     protected function requestMessageName(Collection $entries): ?string
