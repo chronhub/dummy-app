@@ -21,8 +21,7 @@ class ExportReporterCommand extends AbstractExporterCommand
 
     protected function buildMessageMap(): array
     {
-        $entries = $this->getAttributeContainer()
-            ->getReporterEntries()
+        $entries = $this->kernel()->reporting()
             ->map(fn (ReporterAttribute $attribute): array => $attribute->jsonSerialize())->toArray();
 
         if ($entries === []) {

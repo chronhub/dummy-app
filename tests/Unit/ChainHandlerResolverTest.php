@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\Chron\Attribute\MessageHandler\MessageHandler;
+use App\Chron\Attribute\Messaging\MessageHandler;
 use App\Chron\Reporter\Subscribers\ChainHandlerResolver;
 use RuntimeException;
 

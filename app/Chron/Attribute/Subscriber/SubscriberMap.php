@@ -6,7 +6,9 @@ namespace App\Chron\Attribute\Subscriber;
 
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
+use Storm\Contract\Reporter\Reporter;
 use Storm\Contract\Tracker\Listener;
+use Storm\Reporter\Subscriber\NameReporter;
 use Storm\Tracker\GenericListener;
 
 class SubscriberMap
@@ -23,11 +25,13 @@ class SubscriberMap
         $this->entries = new Collection();
     }
 
-    public function load(): void
+    public function load(array $reporters): void
     {
         $this->entries = $this->loader
             ->getAttributes()
             ->map(fn (SubscriberAttribute $attribute) => $this->build($attribute));
+
+        $this->whenResolveReporter($reporters);
     }
 
     public function getEntries(): Collection
@@ -71,5 +75,32 @@ class SubscriberMap
         }
 
         return $arguments;
+    }
+
+    protected function whenResolveReporter(array $reporterIds): void
+    {
+        foreach ($reporterIds as $reporterId) {
+            $this->app->resolving($reporterId, function (Reporter $reporter) use ($reporterId) {
+                $listeners = $this->resolveSubscribers($reporterId);
+
+                foreach ($listeners as $subscriber) {
+                    $reporter->subscribe($subscriber);
+                }
+
+                // todo how to deal with this
+                $reporter->subscribe(new GenericListener(Reporter::DISPATCH_EVENT, new NameReporter($reporterId), 99000));
+            });
+        }
+    }
+
+    /**
+     * @return array<Listener>
+     */
+    protected function resolveSubscribers(string $reporter): array
+    {
+        return $this->getEntries()
+            ->filter(fn (SubscriberHandler $handler) => $handler->match($reporter))
+            ->map(fn (SubscriberHandler $handler) => $handler->listener)
+            ->toArray();
     }
 }

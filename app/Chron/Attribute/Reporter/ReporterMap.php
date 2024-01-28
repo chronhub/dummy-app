@@ -37,8 +37,7 @@ class ReporterMap
 
     public function load(): void
     {
-        $this->loader
-            ->getAttributes()
+        $this->loader->getAttributes()
             ->each(function (ReporterAttribute $attribute): void {
                 $this->makeEntry($attribute);
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Reporter\Subscribers;
 
-use App\Chron\Attribute\MessageHandler\MessageHandler;
+use App\Chron\Attribute\Messaging\MessageHandler;
 use App\Chron\Attribute\Subscriber\AsReporterSubscriber;
 use App\Chron\Reporter\Producer\IlluminateQueue;
 use Closure;

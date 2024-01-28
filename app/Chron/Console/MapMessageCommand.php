@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Console;
 
 use App\Chron\Attribute\Kernel;
-use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
+use App\Chron\Attribute\Messaging\MessageAttribute;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -31,11 +31,11 @@ class MapMessageCommand extends Command
 
     public function __invoke(): int
     {
-        $map = $this->getAttributeContainer()->getMessageEntries();
+        $entries = $this->kernel()->messaging();
 
-        $messageName = $this->requestMessageName($map);
+        $messageName = $this->requestMessageName($entries);
 
-        $messages = $this->findInMap($map, $messageName);
+        $messages = $this->findInMap($entries, $messageName);
 
         if ($messageName && $messages->isEmpty()) {
             $this->components->error('Message name not found in map for '.$messageName);
@@ -72,7 +72,7 @@ class MapMessageCommand extends Command
 
     protected function formatHandler(array $handlers, string $messageName): array
     {
-        return array_map(fn (MessageHandlerAttribute $handler): array => [
+        return array_map(fn (MessageAttribute $handler): array => [
             $handler->reporterId,
             $handler->type,
             $this->shortClass($messageName),
@@ -116,7 +116,7 @@ class MapMessageCommand extends Command
 
     protected function formatEnqueue(string $reporterId): string
     {
-        $config = $this->getAttributeContainer()->getDeclaredQueues()[$reporterId];
+        $config = $this->kernel()->getDeclaredQueues()[$reporterId];
 
         return $config['enqueue'].($config['default_queue'] !== null ? ': with default' : ': no default');
     }
@@ -138,7 +138,7 @@ class MapMessageCommand extends Command
         return $messageName;
     }
 
-    protected function getAttributeContainer(): Kernel
+    protected function kernel(): Kernel
     {
         return $this->attributeContainer ??= $this->laravel[Kernel::class];
     }

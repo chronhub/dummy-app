@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Console;
 
-use App\Chron\Attribute\MessageHandler\MessageHandlerAttribute;
+use App\Chron\Attribute\Messaging\MessageAttribute;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 use function array_map;
@@ -23,11 +23,11 @@ class ExportMessageCommand extends AbstractExporterCommand
 
     protected function buildMessageMap(): array
     {
-        $entries = $this->getAttributeContainer()->getMessageEntries();
+        $entries = $this->kernel()->messaging();
 
         $data = [];
         foreach ($entries as $messageName => $messageHandlers) {
-            $data[$messageName] = array_map(fn (MessageHandlerAttribute $handler): array => $handler->jsonSerialize(), $messageHandlers);
+            $data[$messageName] = array_map(fn (MessageAttribute $handler): array => $handler->jsonSerialize(), $messageHandlers);
         }
 
         if ($data === []) {

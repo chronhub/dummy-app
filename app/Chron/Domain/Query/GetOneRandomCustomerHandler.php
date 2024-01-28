@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Domain\Query;
 
-use App\Chron\Attribute\MessageHandler\AsQueryHandler;
+use App\Chron\Attribute\Messaging\AsQueryHandler;
 use App\Chron\Infra\CustomerRepository;
 use React\Promise\Deferred;
 

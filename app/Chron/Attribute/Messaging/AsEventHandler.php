@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Attribute\MessageHandler;
+namespace App\Chron\Attribute\Messaging;
 
 use App\Chron\Reporter\DomainType;
 use Attribute;

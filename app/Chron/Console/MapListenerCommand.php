@@ -87,14 +87,15 @@ class MapListenerCommand extends Command
         return $name ?? throw new InvalidArgumentException('Reporter id not found or not provided');
     }
 
+    /**
+     * @return array<string>
+     */
     protected function findReporterIds(): array
     {
-        $bindings = $this->getAttributeContainer()->getReporterEntries();
-
-        return $bindings->keys()->toArray();
+        return $this->kernel()->getReporterBindings();
     }
 
-    protected function getAttributeContainer(): Kernel
+    protected function kernel(): Kernel
     {
         return $this->laravel[Kernel::class];
     }

@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Attribute\MessageHandler;
+namespace App\Chron\Attribute\Messaging;
 
 use App\Chron\Attribute\Reporter\Enqueue;
-use App\Chron\Attribute\Reporters;
 use Illuminate\Contracts\Container\Container;
 use RuntimeException;
 
@@ -16,7 +15,7 @@ use function is_string;
 class QueueResolver
 {
     public function __construct(
-        protected Reporters $reporterContainer,
+        protected array $queues,
         protected Container $container
     ) {
     }
@@ -74,7 +73,7 @@ class QueueResolver
      */
     protected function getDeclaredQueue(string $reporterId): array
     {
-        $config = $this->reporterContainer->getQueues()[$reporterId];
+        $config = $this->queues[$reporterId];
 
         return [$config['default_queue'], Enqueue::from($config['enqueue'])];
     }

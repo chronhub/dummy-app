@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Attribute\MessageHandler;
+namespace App\Chron\Attribute\Messaging;
 
 use App\Chron\Attribute\Reference\ReferenceBuilder;
 use App\Chron\Attribute\ReflectionUtil;
@@ -11,15 +11,15 @@ use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
 
-class MessageHandlerLoader
+class MessageLoader
 {
     /**
-     * @var Collection<array<MessageHandlerAttribute>>
+     * @var Collection<array<MessageAttribute>>
      */
     protected Collection $attributes;
 
     public function __construct(
-        protected MessageHandlerClassMap $catalog,
+        protected MessageClassMap $catalog,
         protected ReferenceBuilder $referenceBuilder,
     ) {
         $this->attributes = new Collection();
@@ -73,7 +73,7 @@ class MessageHandlerLoader
             ->map(fn (ReflectionAttribute $attribute): object => $attribute->newInstance())
             ->each(function (AsCommandHandler|AsEventHandler|AsQueryHandler $attribute) use ($reflectionClass, $reflectionMethod): void {
                 $this->attributes->push(
-                    new MessageHandlerAttribute(
+                    new MessageAttribute(
                         $attribute->reporter,
                         $reflectionClass->getName(),
                         $this->determineHandlerMethod($attribute->method, $reflectionMethod),

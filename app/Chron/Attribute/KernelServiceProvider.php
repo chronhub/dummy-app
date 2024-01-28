@@ -20,14 +20,14 @@ class KernelServiceProvider extends ServiceProvider implements DeferrableProvide
 
     public function register(): void
     {
-        $this->app->singleton(Reporters::class);
-
         $this->app->singleton(Kernel::class);
+
+        $this->app->bind(Chore::class);
     }
 
     public function provides(): array
     {
-        return [Kernel::class, Reporters::class];
+        return [Kernel::class, Chore::class];
     }
 
     protected function getKernel(): Kernel

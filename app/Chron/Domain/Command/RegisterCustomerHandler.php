@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Domain\Command;
 
-use App\Chron\Attribute\MessageHandler\AsCommandHandler;
+use App\Chron\Attribute\Messaging\AsCommandHandler;
 use App\Chron\Attribute\Reference\Reference;
 use App\Chron\Domain\Event\CustomerRegistered;
 use App\Chron\Infra\CustomerRepository;

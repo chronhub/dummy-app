@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Domain\Event\OnEvent;
 
-use App\Chron\Attribute\MessageHandler\AsEventHandler;
+use App\Chron\Attribute\Messaging\AsEventHandler;
 use App\Chron\Domain\Event\CustomerRegistered;
 
 #[AsEventHandler(

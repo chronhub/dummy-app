@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute;
 
+use App\Chron\Attribute\Messaging\MessageMap;
+use App\Chron\Attribute\Reporter\ReporterMap;
+use App\Chron\Attribute\Subscriber\SubscriberMap;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use RuntimeException;
-use Storm\Contract\Reporter\Reporter;
 use Storm\Reporter\Exception\MessageNotFound;
 
 use function count;
@@ -18,20 +20,22 @@ use function is_object;
 class Kernel
 {
     public function __construct(
-        protected Reporters $reporters,
-        protected Subscribers $subscribers,
-        protected Messages $messages,
+        protected ReporterMap $reporters,
+        protected SubscriberMap $subscribers,
+        protected MessageMap $messages,
         protected Application $app
     ) {
     }
 
     public function bootstraps(): void
     {
-        $this->reporters->bootstrap();
+        $this->reporters->load();
 
-        $this->subscribers->bootstrap($this->listReporters());
+        $this->subscribers->load(
+            $this->reporters->getEntries()->keys()->toArray()
+        );
 
-        $this->messages->bootstrap();
+        $this->messages->load($this->reporters->getDeclaredQueues());
     }
 
     public function get(string $messageName): iterable
@@ -40,7 +44,7 @@ class Kernel
     }
 
     /**
-     * Return reporter name by message name.
+     * Find reporter id by message name.
      *
      * @throws InvalidArgumentException when the message is an array and message class name is not provided
      * @throws MessageNotFound          when the reporter is not found
@@ -68,26 +72,31 @@ class Kernel
         return $reporters[0];
     }
 
-    /**
-     * @return array<string>
-     */
-    public function listReporters(): array
-    {
-        return $this->reporters->getEntries()->keys()->toArray();
-    }
-
-    public function getReporterEntries(): Collection
+    public function reporting(): Collection
     {
         return $this->reporters->getEntries();
     }
 
-    public function getMessageEntries(): Collection
+    public function messaging(): Collection
     {
         return $this->messages->getEntries();
     }
 
+    /**
+     * Get all reporter bindings keys.
+     *
+     * @return array<string>
+     */
+    public function getReporterBindings(): array
+    {
+        return $this->reporters->getEntries()->keys()->toArray();
+    }
+
+    /**
+     * Get all reporters queues.
+     */
     public function getDeclaredQueues(): array
     {
-        return $this->reporters->getQueues();
+        return $this->reporters->getDeclaredQueues();
     }
 }

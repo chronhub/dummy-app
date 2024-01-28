@@ -106,7 +106,7 @@ abstract class AbstractExporterCommand extends Command
         }
     }
 
-    protected function getAttributeContainer(): Kernel
+    protected function kernel(): Kernel
     {
         return $this->laravel[Kernel::class];
     }
