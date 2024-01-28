@@ -17,7 +17,7 @@ use Storm\Contract\Tracker\MessageStory;
     priority: 97000,
     autowire: true,
 )]
-class CorrelationHeaderCommand
+final class CorrelationHeaderCommand
 {
     public function __invoke(): Closure
     {

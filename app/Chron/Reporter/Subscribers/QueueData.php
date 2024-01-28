@@ -70,6 +70,15 @@ class QueueData implements JsonSerializable
         return $this->dispatched && $this->handled;
     }
 
+    /**
+     * @return array{
+     *     priority: int,
+     *     name: string,
+     *     queue: array|null,
+     *     dispatched: bool,
+     *     handled: bool,
+     * }
+     */
     public function jsonSerialize(): array
     {
         return [
