@@ -16,7 +16,7 @@ class SubscriberAttribute
         string|array $supports,
         public ?string $method = null,
         public ?int $priority = null,
-        public ?string $name = null,
+        public ?string $alias = null,
         public bool $autowire = false,
         public array $references = [],
     ) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute\Subscriber;
 
+use App\Chron\Attribute\Reference\ReferenceResolverTrait;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
 use Storm\Contract\Reporter\Reporter;
@@ -13,8 +14,10 @@ use Storm\Tracker\GenericListener;
 
 class SubscriberMap
 {
+    use ReferenceResolverTrait;
+
     /**
-     * @var Collection{string, array<SubscriberAttribute}>
+     * @var Collection{string, array<SubscriberAttribute>}
      */
     protected Collection $entries;
 
@@ -41,11 +44,17 @@ class SubscriberMap
 
     protected function build(SubscriberAttribute $attribute): SubscriberHandler
     {
-        $name = $this->formatName($attribute->name, $attribute->className, $attribute->method);
+        $alias = $this->formatAlias($attribute->alias, $attribute->className, $attribute->method);
 
         $listener = $this->makeListener($attribute);
 
-        return new SubscriberHandler($name, $attribute->supports, $listener, $attribute->autowire);
+        return new SubscriberHandler($alias, $attribute->supports, $listener, $attribute->autowire);
+    }
+
+    protected function formatAlias(?string $alias, string $class, string $method): string
+    {
+        // todo deal with multiple reporters, as they should be bound
+        return $alias ?? $class.'@'.$method;
     }
 
     protected function makeListener(SubscriberAttribute $attribute): Listener
@@ -59,24 +68,6 @@ class SubscriberMap
         return new GenericListener($attribute->event, $instance, $attribute->priority);
     }
 
-    protected function formatName(?string $name, string $class, string $method): string
-    {
-        return $name ?? $class.'@'.$method;
-    }
-
-    protected function makeParametersFromConstructor(array $references): array
-    {
-        $arguments = [];
-
-        foreach ($references as $parameter) {
-            foreach ($parameter as [$parameterName, $serviceId]) {
-                $arguments[] = [$parameterName => $this->app[$serviceId]];
-            }
-        }
-
-        return $arguments;
-    }
-
     protected function whenResolveReporter(array $reporterIds): void
     {
         foreach ($reporterIds as $reporterId) {
@@ -87,7 +78,7 @@ class SubscriberMap
                     $reporter->subscribe($subscriber);
                 }
 
-                // todo how to deal with this
+                // todo where to deal with this
                 $reporter->subscribe(new GenericListener(Reporter::DISPATCH_EVENT, new NameReporter($reporterId), 99000));
             });
         }
@@ -102,5 +93,10 @@ class SubscriberMap
             ->filter(fn (SubscriberHandler $handler) => $handler->match($reporter))
             ->map(fn (SubscriberHandler $handler) => $handler->listener)
             ->toArray();
+    }
+
+    protected function app(string $serviceId): mixed
+    {
+        return $this->app[$serviceId];
     }
 }

@@ -21,7 +21,7 @@ class ReporterMap
     protected Collection $entries;
 
     /**
-     * @var array<ReporterMode>
+     * @var array<ReporterQueue>
      */
     protected array $queues = [];
 
@@ -34,7 +34,8 @@ class ReporterMap
 
     public function load(): void
     {
-        $this->loader->getAttributes()
+        $this->loader
+            ->getAttributes()
             ->each(function (ReporterAttribute $attribute): void {
                 $this->makeEntry($attribute);
 
@@ -55,9 +56,9 @@ class ReporterMap
      */
     public function getDeclaredQueue(): DeclaredQueue
     {
-        $queues = $this->entries->map(fn (ReporterAttribute $attribute): ReporterMode => new ReporterMode(
+        $queues = $this->entries->map(fn (ReporterAttribute $attribute): ReporterQueue => new ReporterQueue(
             $attribute->id,
-            Enqueue::from($attribute->enqueue),
+            Mode::from($attribute->mode),
             $attribute->defaultQueue
         ))->toArray();
 

@@ -10,11 +10,18 @@ use RuntimeException;
 use function array_merge;
 use function is_object;
 use function is_string;
+use function sprintf;
 
 class DeclaredQueue
 {
+    public const ERROR_DEFAULT_QUEUE_NOT_DEFINED_FOR_ASYNC = 'Default queue cannot be null for reporter %s when mode is async';
+
+    public const ERROR_QUEUE_DEFINED_FOR_ASYNC = 'Handler queue cannot be defined for reporter %s when mode is async';
+
+    public const ERROR_DEFAULT_QUEUE_NOT_DEFINED = 'Default queue cannot be null for reporter %s when mode is delegate to merge';
+
     /**
-     * @param array<ReporterMode> $queues
+     * @param array<ReporterQueue> $queues
      */
     public function __construct(
         protected array $queues,
@@ -36,14 +43,14 @@ class DeclaredQueue
     }
 
     /**
-     * @return array<ReporterMode>
+     * @return array<ReporterQueue>
      */
     public function getQueues(): array
     {
         return $this->queues;
     }
 
-    public function getQueueById(string $reporterId): ?ReporterMode
+    public function getQueueById(string $reporterId): ?ReporterQueue
     {
         return $this->queues[$reporterId] ?? null;
     }
@@ -53,29 +60,29 @@ class DeclaredQueue
         $declared = $this->queues[$reporterId];
 
         // force sync even for handler would have queue defined
-        if ($declared->enqueue->isSync()) {
+        if ($declared->mode->isSync()) {
             return null;
         }
 
         // force async all handlers to use default queue
-        if ($declared->enqueue->isAsync()) {
+        if ($declared->mode->isAsync()) {
             if ($declared->default === null) {
-                throw new RuntimeException("Default queue cannot be null for reporter $reporterId when enqueue is async");
+                throw new RuntimeException(sprintf(self::ERROR_DEFAULT_QUEUE_NOT_DEFINED_FOR_ASYNC, $reporterId));
             }
 
             if ($handlerQueue !== null) {
-                throw new RuntimeException("Queue cannot be defined for reporter $reporterId when enqueue is async");
+                throw new RuntimeException(sprintf(self::ERROR_QUEUE_DEFINED_FOR_ASYNC, $reporterId));
             }
 
             return $this->mergeWithDefaultQueue($declared->default, null);
         }
 
         // delegate to handler queue but merge with only required default queue when queue exists
-        if ($declared->enqueue->isDelegateMerge()) {
+        if ($declared->mode->isDelegateMerge()) {
             return match (true) {
                 $handlerQueue === null => null,
                 $declared->default !== null => $this->mergeWithDefaultQueue($declared->default, $handlerQueue),
-                default => throw new RuntimeException("Default queue cannot be null for reporter $reporterId when enqueue is delegate_merge_with_default")
+                default => throw new RuntimeException(sprintf(self::ERROR_DEFAULT_QUEUE_NOT_DEFINED, $reporterId))
             };
         }
 

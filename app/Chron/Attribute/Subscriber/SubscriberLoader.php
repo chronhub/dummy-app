@@ -58,7 +58,7 @@ class SubscriberLoader extends AbstractLoader
                         $attribute->supports,
                         $this->determineMethodName($attribute->method, $reflectionMethod),
                         $attribute->priority,
-                        $attribute->name,
+                        $attribute->alias,
                         $attribute->autowire,
                         $this->referenceBuilder->fromConstructor($reflectionClass)
                     ),

@@ -11,7 +11,7 @@ use function fnmatch;
 class SubscriberHandler
 {
     public function __construct(
-        public string $name,
+        public string $alias,
         public array $reporters,
         public Listener $listener,
         public bool $autowire,

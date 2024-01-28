@@ -118,7 +118,7 @@ class MapMessageCommand extends Command
     {
         $config = $this->kernel()->getDeclaredQueues()->getQueueById($reporterId);
 
-        $format = $config->enqueue->value;
+        $format = $config->mode->value;
 
         return $format.($config->default !== null ? ': with default' : ': no default');
     }

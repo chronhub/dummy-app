@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute\Messaging;
 
+use App\Chron\Attribute\Reference\ReferenceResolverTrait;
 use App\Chron\Attribute\Reporter\DeclaredQueue;
 use App\Chron\Reporter\DomainType;
 use Illuminate\Contracts\Foundation\Application;
@@ -16,6 +17,8 @@ use function uksort;
 
 class MessageMap
 {
+    use ReferenceResolverTrait;
+
     public const HANDLER_TAG_PREFIX = '#';
 
     public const TAG = 'message.handler.%s';
@@ -126,19 +129,6 @@ class MessageMap
         return ($attribute->handlerMethod === '__invoke') ? $instance : $instance->{$attribute->handlerMethod}(...);
     }
 
-    protected function makeParametersFromConstructor(array $references): array
-    {
-        $arguments = [];
-
-        foreach ($references as $parameter) {
-            foreach ($parameter as [$parameterName, $serviceId]) {
-                $arguments[] = [$parameterName => $this->app[$serviceId]];
-            }
-        }
-
-        return $arguments;
-    }
-
     protected function tagMessageHandlers(): void
     {
         $this->entries
@@ -171,5 +161,10 @@ class MessageMap
         }
 
         throw new RuntimeException('Only one handler per command and query types is allowed');
+    }
+
+    protected function app(string $serviceId): mixed
+    {
+        return $this->app[$serviceId];
     }
 }
