@@ -59,17 +59,22 @@ class MapListenerCommand extends Command
 
     protected function formatTableData(Collection $listeners): array
     {
-        // todo fix priority per group
         return $listeners
-            ->groupBy(fn (Listener $listener): string => $listener->name())
-            ->flatten()
-            ->sortByDesc(fn (Listener $listener): int => $listener->priority())
-            ->map(fn (Listener $listener) => [
-                $listener->name(),
-                $listener->origin(),
-                $listener->priority(),
-                $listener::class,
-            ])->toArray();
+            ->groupBy(fn (Listener $listener) => $listener->name())
+            ->map(function (Collection $group) {
+                return $group
+                    ->sortByDesc(fn (Listener $listener) => $listener->priority())
+                    ->map(function (Listener $listener) {
+                        return [
+                            $listener->name(),
+                            $listener->origin(),
+                            $listener->priority(),
+                            $listener::class,
+                        ];
+                    });
+            })
+            ->collapse()
+            ->toArray();
     }
 
     protected function handleCompletionName(): string
