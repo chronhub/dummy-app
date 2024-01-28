@@ -12,9 +12,14 @@ use Storm\Tracker\TrackMessage;
 
 use function class_exists;
 use function is_string;
+use function sprintf;
 
 class ReporterMap
 {
+    public const ERROR_REPORTER_NOT_FOUND = 'Reporter %s not found; bound as service is not supported yet';
+
+    public const ERROR_REPORTER_ALREADY_EXISTS = 'Reporter %s already exists';
+
     /**
      * @var Collection<array<string, ReporterAttribute>>
      */
@@ -44,6 +49,21 @@ class ReporterMap
     }
 
     /**
+     * Return default queue and enqueue method for message handler
+     */
+    public function getDeclaredQueue(): DeclaredQueue
+    {
+        $queues = $this->entries
+            ->map(fn (ReporterAttribute $attribute): ReporterQueue => new ReporterQueue(
+                $attribute->id,
+                Mode::from($attribute->mode),
+                $attribute->defaultQueue
+            ))->toArray();
+
+        return new DeclaredQueue($queues, $this->app);
+    }
+
+    /**
      * @return Collection<array<string, ReporterAttribute>>
      */
     public function getEntries(): Collection
@@ -51,24 +71,10 @@ class ReporterMap
         return $this->entries;
     }
 
-    /**
-     * Return default queue and enqueue method for message handler
-     */
-    public function getDeclaredQueue(): DeclaredQueue
-    {
-        $queues = $this->entries->map(fn (ReporterAttribute $attribute): ReporterQueue => new ReporterQueue(
-            $attribute->id,
-            Mode::from($attribute->mode),
-            $attribute->defaultQueue
-        ))->toArray();
-
-        return new DeclaredQueue($queues, $this->app);
-    }
-
     protected function makeEntry(ReporterAttribute $attribute): void
     {
         if ($this->entries->has($attribute->id)) {
-            throw new RuntimeException("Reporter $attribute->id already exists");
+            throw new RuntimeException(sprintf(self::ERROR_REPORTER_ALREADY_EXISTS, $attribute->id));
         }
 
         $this->entries->put($attribute->id, $attribute);
@@ -76,10 +82,10 @@ class ReporterMap
 
     protected function bind(ReporterAttribute $attribute): void
     {
-        $this->app->bind($attribute->id, fn (): Reporter => $this->newHandlerInstance($attribute));
+        $this->app->bind($attribute->id, fn (): Reporter => $this->newReporterInstance($attribute));
     }
 
-    protected function newHandlerInstance(ReporterAttribute $attribute): Reporter
+    protected function newReporterInstance(ReporterAttribute $attribute): Reporter
     {
         $reporter = $this->determineReporter($attribute);
 
@@ -101,6 +107,6 @@ class ReporterMap
         }
 
         // fixMe: bound reporter as service is not supported yet
-        throw new RuntimeException("Reporter $abstract not found. Bound as service is not supported yet");
+        throw new RuntimeException(sprintf(self::ERROR_REPORTER_NOT_FOUND, $abstract));
     }
 }

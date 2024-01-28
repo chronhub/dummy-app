@@ -54,6 +54,9 @@ class SubscriberMap
     protected function formatAlias(?string $alias, string $class, string $method): string
     {
         // todo deal with multiple reporters, as they should be bound
+        //  tags all subscribers id with alias per reporter.id.subscribers
+        //  fetch and resolve when a reporter is resolved
+        //  this will allow for multiple reporters to be resolved
         return $alias ?? $class.'@'.$method;
     }
 
@@ -72,7 +75,7 @@ class SubscriberMap
     {
         foreach ($reporterIds as $reporterId) {
             $this->app->resolving($reporterId, function (Reporter $reporter) use ($reporterId) {
-                $listeners = $this->resolveSubscribers($reporterId);
+                $listeners = $this->filterSubscribersForReporter($reporterId);
 
                 foreach ($listeners as $subscriber) {
                     $reporter->subscribe($subscriber);
@@ -87,7 +90,7 @@ class SubscriberMap
     /**
      * @return array<Listener>
      */
-    protected function resolveSubscribers(string $reporter): array
+    protected function filterSubscribersForReporter(string $reporter): array
     {
         return $this->getEntries()
             ->filter(fn (SubscriberHandler $handler) => $handler->match($reporter))

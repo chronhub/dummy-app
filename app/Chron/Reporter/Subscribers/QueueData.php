@@ -60,14 +60,14 @@ class QueueData implements JsonSerializable
         $this->handled = true;
     }
 
-    public function isCompleted(): bool
-    {
-        return $this->dispatched && $this->handled;
-    }
-
     public function isNew(): bool
     {
         return ! $this->dispatched && ! $this->handled;
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->dispatched && $this->handled;
     }
 
     public function jsonSerialize(): array

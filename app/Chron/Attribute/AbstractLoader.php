@@ -49,7 +49,7 @@ abstract class AbstractLoader
     /**
      * @return Collection<ReflectionAttribute>
      */
-    private function attributesInClass(ReflectionClass $reflectionClass, string $attribute): Collection
+    protected function attributesInClass(ReflectionClass $reflectionClass, string $attribute): Collection
     {
         return collect($reflectionClass->getAttributes($attribute, ReflectionAttribute::IS_INSTANCEOF));
     }
@@ -57,7 +57,7 @@ abstract class AbstractLoader
     /**
      * @return Collection<array{0: ReflectionClass, 1: ReflectionMethod, 2: Collection<ReflectionAttribute|empty>}>
      */
-    private function attributesInMethods(ReflectionClass $reflectionClass, string $attribute): Collection
+    protected function attributesInMethods(ReflectionClass $reflectionClass, string $attribute): Collection
     {
         return collect($reflectionClass->getMethods())->map(
             fn (ReflectionMethod $reflectionMethod): array => [

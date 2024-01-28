@@ -30,9 +30,9 @@ class MapListenerCommand extends Command
     public function __invoke(): int
     {
         try {
-            $reporterId = $this->handleCompletionName();
-
-            $reporter = $this->getReporter($reporterId);
+            $reporter = $this->getReporter(
+                $this->handleCompletionName()
+            );
         } catch (Throwable $e) {
             $this->components->error($e->getMessage());
 
@@ -50,11 +50,6 @@ class MapListenerCommand extends Command
         $this->table(self::TABLE_HEADERS, $this->formatTableData($listeners));
 
         return self::SUCCESS;
-    }
-
-    protected function getReporter(string $reporterId): Reporter
-    {
-        return $this->laravel[$reporterId];
     }
 
     protected function formatTableData(Collection $listeners): array
@@ -98,6 +93,11 @@ class MapListenerCommand extends Command
     protected function findReporterIds(): array
     {
         return $this->kernel()->getReporterBindings();
+    }
+
+    protected function getReporter(string $reporterId): Reporter
+    {
+        return $this->laravel[$reporterId];
     }
 
     protected function kernel(): Kernel

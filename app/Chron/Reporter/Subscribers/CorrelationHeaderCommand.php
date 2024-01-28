@@ -24,13 +24,11 @@ class CorrelationHeaderCommand
         return function (MessageStory $story): void {
             $message = $story->message();
 
-            if ($message->has(EventHeader::EVENT_CAUSATION_ID) && $message->has(EventHeader::EVENT_CAUSATION_TYPE)) {
-                return;
+            if ($message->hasNot(EventHeader::EVENT_CAUSATION_ID) && $message->hasNot(EventHeader::EVENT_CAUSATION_TYPE)) {
+                $message = $message
+                    ->withHeader(EventHeader::EVENT_CAUSATION_ID, $message->header(Header::EVENT_ID))
+                    ->withHeader(EventHeader::EVENT_CAUSATION_TYPE, $message->name());
             }
-
-            $message = $message
-                ->withHeader(EventHeader::EVENT_CAUSATION_ID, $message->header(Header::EVENT_ID))
-                ->withHeader(EventHeader::EVENT_CAUSATION_TYPE, $message->name());
 
             $story->withMessage($message);
         };

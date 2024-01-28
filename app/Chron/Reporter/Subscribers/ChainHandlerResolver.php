@@ -42,14 +42,6 @@ class ChainHandlerResolver
     }
 
     /**
-     * Check if the queue is fully completed.
-     */
-    public function isCompleted(): bool
-    {
-        return $this->queues->every(fn (QueueData $queue): bool => $queue->isCompleted());
-    }
-
-    /**
      * Chain sequentially sync handlers and stop when the next message handler is async.
      *
      * @return $this
