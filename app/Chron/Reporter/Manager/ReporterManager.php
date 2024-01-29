@@ -12,7 +12,7 @@ use Storm\Contract\Reporter\Reporter;
 final class ReporterManager implements Manager
 {
     public function __construct(
-        protected Kernel $attributeContainer,
+        protected Kernel $kernel,
         protected Application $app
     ) {
     }
@@ -24,7 +24,7 @@ final class ReporterManager implements Manager
 
     public function relay(array|object $message, ?string $hint = null): ?PromiseInterface
     {
-        $reporter = $this->attributeContainer->getReporterByMessageName($message, $hint);
+        $reporter = $this->kernel->getReporterByMessageName($message, $hint);
 
         return $this->get($reporter)->relay($message);
     }

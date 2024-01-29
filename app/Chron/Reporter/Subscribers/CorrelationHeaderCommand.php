@@ -28,9 +28,9 @@ final class CorrelationHeaderCommand
                 $message = $message
                     ->withHeader(EventHeader::EVENT_CAUSATION_ID, $message->header(Header::EVENT_ID))
                     ->withHeader(EventHeader::EVENT_CAUSATION_TYPE, $message->name());
-            }
 
-            $story->withMessage($message);
+                $story->withMessage($message);
+            }
         };
     }
 }

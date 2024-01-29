@@ -31,6 +31,12 @@ class DeclaredQueue
 
     public function mergeIfNeeded(string $reporterId, null|string|array|object $queue): ?array
     {
+        $reporterQueue = $this->queues[$reporterId] ?? null;
+
+        if ($reporterQueue === null) {
+            return null;
+        }
+
         if (is_object($queue)) {
             $queue = $queue->jsonSerialize();
         }
@@ -39,7 +45,7 @@ class DeclaredQueue
             $queue = $this->container[$queue]->jsonSerialize();
         }
 
-        return $this->resolve($reporterId, $queue);
+        return $this->resolve($reporterQueue, $reporterId, $queue);
     }
 
     /**
@@ -55,10 +61,8 @@ class DeclaredQueue
         return $this->queues[$reporterId] ?? null;
     }
 
-    protected function resolve(string $reporterId, ?array $handlerQueue): ?array
+    protected function resolve(ReporterQueue $declared, string $reporterId, ?array $handlerQueue): ?array
     {
-        $declared = $this->queues[$reporterId];
-
         // force sync even for handler would have queue defined
         if ($declared->mode->isSync()) {
             return null;
