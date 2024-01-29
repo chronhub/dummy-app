@@ -13,7 +13,7 @@ use Storm\Reporter\HasConstructableReporter;
 #[AsReporter(
     id: 'reporter.event.notification',
     type: DomainType::EVENT,
-    enqueue: Mode::ASYNC,
+    mode: Mode::ASYNC,
     defaultQueue: QueueOption::class
 )]
 class ReportNotification implements Reporter

@@ -12,7 +12,7 @@ use Storm\Reporter\HasConstructableReporter;
 #[AsReporter(
     id: 'reporter.event.default',
     type: DomainType::EVENT,
-    enqueue: Mode::SYNC,
+    mode: Mode::SYNC,
 )]
 final class ReportEvent implements Reporter
 {

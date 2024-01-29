@@ -34,7 +34,7 @@ class AsReporter
      * When 'delegate', delegate behavior to the handler queue configuration, the default queue is not used
      * when 'delegate_merge_with_default', delegate behavior to the handler queue configuration, require the default queue
      */
-    public Mode $enqueue;
+    public Mode $mode;
 
     /**
      * Listeners to be registered to the reporter.
@@ -58,14 +58,14 @@ class AsReporter
     public function __construct(
         string $id,
         string|DomainType $type,
-        Mode $enqueue,
+        Mode $mode,
         array $listeners = [],
         ?string $defaultQueue = null,
         ?string $tracker = null,
     ) {
         $this->type = $type instanceof DomainType ? $type : DomainType::from($type);
         $this->id = $id;
-        $this->enqueue = $enqueue;
+        $this->mode = $mode;
         $this->listeners = $listeners;
         $this->defaultQueue = $defaultQueue;
         $this->tracker = $tracker;
@@ -77,7 +77,7 @@ class AsReporter
     protected function validateType(): void
     {
         if ($this->type === DomainType::QUERY) {
-            if ($this->enqueue !== Mode::SYNC) {
+            if ($this->mode !== Mode::SYNC) {
                 throw new InvalidArgumentException('Query reporter must be sync');
             }
 
@@ -89,7 +89,7 @@ class AsReporter
 
     protected function validateEnqueue(): void
     {
-        if ($this->enqueue === Mode::ASYNC || $this->enqueue === Mode::DELEGATE_MERGE) {
+        if ($this->mode === Mode::ASYNC || $this->mode === Mode::DELEGATE_MERGE) {
             if ($this->defaultQueue === null) {
                 throw new InvalidArgumentException('Async and delegate_merge_with_default reporter must have a default queue');
             }

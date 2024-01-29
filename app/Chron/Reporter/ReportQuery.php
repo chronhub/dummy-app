@@ -13,7 +13,7 @@ use Storm\Reporter\HasConstructableReporter;
 #[AsReporter(
     id: 'reporter.query.default',
     type: DomainType::QUERY,
-    enqueue: Mode::SYNC,
+    mode: Mode::SYNC,
 )]
 final class ReportQuery implements Reporter
 {

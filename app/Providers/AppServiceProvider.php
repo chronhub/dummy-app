@@ -26,8 +26,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->register(MessageServiceProvider::class);
         $this->app->register(ReporterServiceProvider::class);
 
+        // to message service provider
         $this->app->alias(MessageFactory::class, 'message.factory.default');
-
         $this->app->bind('message.decorator.chain.default', function (Application $app) {
             return new ChainMessageDecorator(
                 new EventId(),

@@ -52,7 +52,7 @@ class ReporterLoader extends AbstractLoader
                         $attribute->id,
                         $reflectionClass->getName(),
                         $attribute->type->value,
-                        $attribute->enqueue->value,
+                        $attribute->mode->value,
                         $attribute->listeners,
                         $attribute->defaultQueue,
                         $attribute->tracker,
