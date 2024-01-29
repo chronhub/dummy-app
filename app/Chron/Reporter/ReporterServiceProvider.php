@@ -7,6 +7,7 @@ namespace App\Chron\Reporter;
 use App\Chron\Reporter\Manager\Manager;
 use App\Chron\Reporter\Manager\ReporterManager;
 use App\Chron\Reporter\Router\MessageRouter;
+use App\Chron\Reporter\Router\Routable;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 use Storm\Contract\Message\MessageProducer;
@@ -30,7 +31,7 @@ class ReporterServiceProvider extends ServiceProvider implements DeferrableProvi
     {
         $this->mergeConfigFrom($this->configPath, 'reporter');
 
-        $this->app->bind(Router::class, MessageRouter::class);
+        $this->app->bind(Routable::class, MessageRouter::class);
         $this->app->bind(MessageProducer::class, AsyncMessageProducer::class);
 
         $this->app->singleton(Manager::class, ReporterManager::class);

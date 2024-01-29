@@ -26,7 +26,7 @@ class MessageMap
     protected DeclaredQueue $queueResolver;
 
     /**
-     * @var Collection{string, array<MessageAttribute}>
+     * @var Collection{string, array<MessageAttribute>}
      */
     protected Collection $entries;
 
@@ -117,7 +117,7 @@ class MessageMap
 
         $name = $this->formatName($attribute->handlerClass, $attribute->handlerMethod);
 
-        return new MessageHandler($name, $callback, $attribute->priority, $queue);
+        return new MessageHandler($attribute->reporterId, $name, $callback, $attribute->priority, $queue);
     }
 
     protected function makeCallback(MessageAttribute $attribute): callable

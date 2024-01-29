@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Chron\Reporter\Subscribers;
 
 use App\Chron\Attribute\Subscriber\AsReporterSubscriber;
+use App\Chron\Reporter\Router\Routable;
 use Closure;
 use RuntimeException;
 use Storm\Contract\Message\Header;
 use Storm\Contract\Reporter\Reporter;
 use Storm\Contract\Tracker\MessageStory;
-use Storm\Reporter\Routing;
 
 #[AsReporterSubscriber(
     supports: ['reporter.query.*'],
@@ -20,7 +20,7 @@ use Storm\Reporter\Routing;
 )]
 final readonly class QueryRouteMessage
 {
-    public function __construct(private Routing $routing)
+    public function __construct(private Routable $router)
     {
     }
 
@@ -33,7 +33,10 @@ final readonly class QueryRouteMessage
                 throw new RuntimeException("Message {$message->name()} already dispatched");
             }
 
-            $messageHandlers = $this->routing->route($message->name());
+            $messageHandlers = $this->router->route(
+                $message->header(Header::REPORTER_ID),
+                $message->name()
+            );
 
             $message = $message->withHeader(Header::EVENT_DISPATCHED, true);
 

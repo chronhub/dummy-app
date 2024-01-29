@@ -7,12 +7,12 @@ namespace App\Chron\Reporter\Subscribers;
 use App\Chron\Attribute\Messaging\MessageHandler;
 use App\Chron\Attribute\Subscriber\AsReporterSubscriber;
 use App\Chron\Reporter\Producer\IlluminateQueue;
+use App\Chron\Reporter\Router\Routable;
 use Closure;
 use Storm\Contract\Message\Header;
 use Storm\Contract\Reporter\Reporter;
 use Storm\Contract\Tracker\MessageStory;
 use Storm\Message\Message;
-use Storm\Reporter\Routing;
 
 #[AsReporterSubscriber(
     supports: ['reporter.command.*', 'reporter.event.*'],
@@ -23,7 +23,7 @@ use Storm\Reporter\Routing;
 final readonly class RouteMessage
 {
     public function __construct(
-        private Routing $routing,
+        private Routable $router,
         private IlluminateQueue $queueDispatcher,
     ) {
     }
@@ -49,7 +49,10 @@ final readonly class RouteMessage
 
     private function resolveQueue(Message $message): ChainHandlerResolver
     {
-        $messageHandlers = collect($this->routing->route($message->name()));
+        $messageHandlers = collect($this->router->route(
+            $message->header(Header::REPORTER_ID),
+            $message->name()
+        ));
 
         $alreadyDispatched = $message->header(Header::EVENT_DISPATCHED);
         $queue = $alreadyDispatched ? $message->header(Header::QUEUE) : [];

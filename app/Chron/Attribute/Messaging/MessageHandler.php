@@ -6,6 +6,8 @@ namespace App\Chron\Attribute\Messaging;
 
 class MessageHandler
 {
+    private string $reporterId;
+
     private string $name;
 
     /**
@@ -17,8 +19,14 @@ class MessageHandler
 
     private ?array $queue;
 
-    public function __construct(string $name, callable $handler, int $priority, ?array $queue)
-    {
+    public function __construct(
+        string $reporterId,
+        string $name,
+        callable $handler,
+        int $priority,
+        ?array $queue
+    ) {
+        $this->reporterId = $reporterId;
         $this->name = $name;
         $this->handler = $handler;
         $this->priority = $priority;
@@ -43,5 +51,10 @@ class MessageHandler
     public function name(): string
     {
         return $this->name;
+    }
+
+    public function reporterId(): string
+    {
+        return $this->reporterId;
     }
 }

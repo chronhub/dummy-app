@@ -5,19 +5,22 @@ declare(strict_types=1);
 namespace App\Chron\Reporter\Router;
 
 use App\Chron\Attribute\MessageServiceLocator;
-use Storm\Contract\Reporter\Router;
+use Storm\Reporter\Exception\MessageNotFound;
 
-final readonly class MessageRouter implements Router
+final readonly class MessageRouter implements Routable
 {
     public function __construct(private MessageServiceLocator $container)
     {
     }
 
-    public function get(string $name): ?array
+    public function route(string $reporterId, string $message): ?array
     {
-        // todo bring reporterId and check if all handlers match it
-        //  like this any message can be handled by any reporter
+        $handlers = $this->container->get($reporterId, $message);
 
-        return $this->container->get($name);
+        if ($handlers === null) {
+            throw MessageNotFound::withMessageName($message);
+        }
+
+        return $handlers;
     }
 }
