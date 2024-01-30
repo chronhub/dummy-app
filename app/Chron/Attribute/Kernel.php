@@ -29,11 +29,11 @@ class Kernel
 
         $this->reporters->load();
 
+        $this->messages->load($this->reporters->getDeclaredQueue());
+
         $this->subscribers->load(
             $this->reporters->getEntries()->keys()->toArray()
         );
-
-        $this->messages->load($this->reporters->getDeclaredQueue());
 
         self::$loaded = true;
     }

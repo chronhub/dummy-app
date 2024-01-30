@@ -33,7 +33,7 @@ final readonly class InMemoryStorage implements KernelStorage
         return $this->messages->find($messageName);
     }
 
-    public function getReporterByMessageName(array|object $message, ?string $messageClassName = null): string
+    public function getReporterByMessage(array|object $message, ?string $messageClassName = null): string
     {
         if (is_array($message) && $messageClassName === null) {
             throw new InvalidArgumentException('Message class name is required when message is an array');

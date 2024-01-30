@@ -22,7 +22,7 @@ class MapMessageCommand extends Command
 
     // todo filter headers / type
     // todo add a vertical table when message is requested
-    const TABLE_HEADERS = ['Reporter', 'Type', 'Message', 'Handler class', 'Handler method', 'Queue', 'Enqueue'];
+    const TABLE_HEADERS = ['Reporter', 'Type', 'Message', 'Handler class', 'Handler method', 'Queue', 'Mode'];
 
     protected $signature = 'reporter-message:map
                             { --message= : Message name either full or short class name }
@@ -81,7 +81,7 @@ class MapMessageCommand extends Command
             $this->shortClass($handler->handlerClass),
             $this->formatHandlerMethod($handler->handlerMethod, $handler->priority),
             $this->formatQueue($handler->queue),
-            $this->formatEnqueue($handler->reporterId),
+            $this->formatMode($handler->reporterId),
         ], $handlers);
     }
 
@@ -114,7 +114,7 @@ class MapMessageCommand extends Command
         return $async;
     }
 
-    protected function formatEnqueue(string $reporterId): string
+    protected function formatMode(string $reporterId): string
     {
         $config = $this->kernel()->getDeclaredQueues()->getQueueById($reporterId);
 

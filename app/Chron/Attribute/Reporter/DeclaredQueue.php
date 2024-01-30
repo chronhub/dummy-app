@@ -34,7 +34,7 @@ class DeclaredQueue
         $reporterQueue = $this->queues[$reporterId] ?? null;
 
         if ($reporterQueue === null) {
-            return null;
+            throw new RuntimeException(sprintf('Reporter queue configuration %s is not defined', $reporterId));
         }
 
         if (is_object($queue)) {

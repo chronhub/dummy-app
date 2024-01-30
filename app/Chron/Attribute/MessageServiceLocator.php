@@ -9,9 +9,12 @@ use Illuminate\Container\RewindableGenerator;
 use RuntimeException;
 
 use function iterator_to_array;
+use function sprintf;
 
 class MessageServiceLocator
 {
+    const UNPROCESSABLE_FOUND_MESSAGE = 'Message %s found but it belongs to %s reporter id and expected %s reporter id';
+
     public function __construct(protected KernelStorage $container)
     {
     }
@@ -21,19 +24,29 @@ class MessageServiceLocator
         $messageHandlers = $this->container->findMessage($messageName);
 
         if ($messageHandlers instanceof RewindableGenerator) {
-            /** @var array<MessageHandler> $messageHandlers */
             $messageHandlers = iterator_to_array($messageHandlers);
 
             // todo queue handling wip
             foreach ($messageHandlers as $messageHandler) {
-                if ($messageHandler->reporterId() !== $reporterId) {
-                    throw new RuntimeException('Message found but dispatch in a wrong reporter');
-                }
+                /** @phpstan-ignore-next-line */
+                $this->assertReporterCanProcessMessage($messageHandler, $reporterId);
             }
 
             return $messageHandlers;
         }
 
         return null;
+    }
+
+    protected function assertReporterCanProcessMessage(MessageHandler $messageHandler, string $reporterId): void
+    {
+        if ($messageHandler->reporterId() !== $reporterId) {
+            throw new RuntimeException(sprintf(
+                self::UNPROCESSABLE_FOUND_MESSAGE,
+                $messageHandler->name(),
+                $messageHandler->reporterId(),
+                $reporterId
+            ));
+        }
     }
 }

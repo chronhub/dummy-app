@@ -22,9 +22,6 @@ final class HomeController
 
     public function __invoke(Catalog $catalog): Response
     {
-
-        return new Response('ok');
-
         $command = $this->getRandomCommand();
 
         Report::relay($command);
