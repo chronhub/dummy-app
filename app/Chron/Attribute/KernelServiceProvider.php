@@ -29,7 +29,7 @@ class KernelServiceProvider extends ServiceProvider implements DeferrableProvide
 
     public function provides(): array
     {
-        return [Kernel::class, InMemoryStorage::class];
+        return [Kernel::class, KernelStorage::class];
     }
 
     protected function getKernel(): Kernel
