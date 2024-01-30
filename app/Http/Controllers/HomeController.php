@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Chron\Attribute\Catalog;
 use App\Chron\Domain\Command\MakeOrder;
 use App\Chron\Domain\Command\RegisterCustomer;
 use App\Chron\Domain\Command\UpdateCustomerEmail;
@@ -19,8 +20,11 @@ final class HomeController
 {
     use QueryPromiseTrait;
 
-    public function __invoke(): Response
+    public function __invoke(Catalog $catalog): Response
     {
+
+        return new Response('ok');
+
         $command = $this->getRandomCommand();
 
         Report::relay($command);

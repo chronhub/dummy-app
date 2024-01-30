@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Console;
 
-use App\Chron\Attribute\Kernel;
+use App\Chron\Attribute\KernelStorage;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
@@ -92,7 +92,7 @@ class MapListenerCommand extends Command
      */
     protected function findReporterIds(): array
     {
-        return $this->kernel()->getReporterBindings();
+        return $this->kernel()->getReporters()->keys()->toArray();
     }
 
     protected function getReporter(string $reporterId): Reporter
@@ -100,8 +100,8 @@ class MapListenerCommand extends Command
         return $this->laravel[$reporterId];
     }
 
-    protected function kernel(): Kernel
+    protected function kernel(): KernelStorage
     {
-        return $this->laravel[Kernel::class];
+        return $this->laravel[KernelStorage::class];
     }
 }

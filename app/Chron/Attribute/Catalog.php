@@ -6,6 +6,7 @@ namespace App\Chron\Attribute;
 
 use App\Chron\Domain\Command\MakeOrderHandler;
 use App\Chron\Domain\Command\RegisterCustomerHandler;
+use App\Chron\Domain\Command\SomeNakedCommandHandler;
 use App\Chron\Domain\Command\UpdateCustomerEmailHandler;
 use App\Chron\Domain\Event\OnEvent\SendEmailToRegisteredCustomer;
 use App\Chron\Domain\Event\OnEvent\WhenCustomerEmailUpdated;
@@ -47,6 +48,7 @@ class Catalog
         MakeOrderHandler::class,
         RegisterCustomerHandler::class,
         UpdateCustomerEmailHandler::class,
+        SomeNakedCommandHandler::class,
 
         // event handlers
         WhenCustomerRegistered::class,
@@ -72,6 +74,12 @@ class Catalog
         TransactionalCommand::class,
         CorrelationHeaderCommand::class,
     ];
+
+    public function find(): iterable
+    {
+        // todo auto discovery
+        return [];
+    }
 
     public function getReporterClasses(): Collection
     {

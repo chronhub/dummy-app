@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Console;
 
-use App\Chron\Attribute\Kernel;
+use App\Chron\Attribute\KernelStorage;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
@@ -106,8 +106,8 @@ abstract class AbstractExporterCommand extends Command
         }
     }
 
-    protected function kernel(): Kernel
+    protected function kernel(): KernelStorage
     {
-        return $this->laravel[Kernel::class];
+        return $this->laravel[KernelStorage::class];
     }
 }

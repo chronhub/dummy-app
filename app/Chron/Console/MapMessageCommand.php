@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Console;
 
-use App\Chron\Attribute\Kernel;
+use App\Chron\Attribute\KernelStorage;
 use App\Chron\Attribute\Messaging\MessageAttribute;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -18,7 +18,7 @@ use function array_map;
 )]
 class MapMessageCommand extends Command
 {
-    protected ?Kernel $attributeContainer = null;
+    protected ?KernelStorage $kernelStorage = null;
 
     // todo filter headers / type
     // todo add a vertical table when message is requested
@@ -31,7 +31,7 @@ class MapMessageCommand extends Command
 
     public function __invoke(): int
     {
-        $entries = $this->kernel()->messaging();
+        $entries = $this->kernel()->getMessages();
 
         $messageName = $this->requestMessageName($entries);
 
@@ -140,8 +140,8 @@ class MapMessageCommand extends Command
         return $messageName;
     }
 
-    protected function kernel(): Kernel
+    protected function kernel(): KernelStorage
     {
-        return $this->attributeContainer ??= $this->laravel[Kernel::class];
+        return $this->kernelStorage ??= $this->laravel[KernelStorage::class];
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Reporter\Manager;
 
-use App\Chron\Attribute\Kernel;
+use App\Chron\Attribute\KernelStorage;
 use Illuminate\Contracts\Foundation\Application;
 use React\Promise\PromiseInterface;
 use Storm\Contract\Reporter\Reporter;
@@ -12,7 +12,7 @@ use Storm\Contract\Reporter\Reporter;
 final class ReporterManager implements Manager
 {
     public function __construct(
-        protected Kernel $kernel,
+        protected KernelStorage $storage,
         protected Application $app
     ) {
     }
@@ -24,7 +24,7 @@ final class ReporterManager implements Manager
 
     public function relay(array|object $message, ?string $hint = null): ?PromiseInterface
     {
-        $reporter = $this->kernel->getReporterByMessageName($message, $hint);
+        $reporter = $this->storage->getReporterByMessageName($message, $hint);
 
         return $this->get($reporter)->relay($message);
     }

@@ -12,13 +12,13 @@ use function iterator_to_array;
 
 class MessageServiceLocator
 {
-    public function __construct(protected Kernel $container)
+    public function __construct(protected KernelStorage $container)
     {
     }
 
     public function get(string $reporterId, string $messageName): ?array
     {
-        $messageHandlers = $this->container->get($messageName);
+        $messageHandlers = $this->container->findMessage($messageName);
 
         if ($messageHandlers instanceof RewindableGenerator) {
             /** @var array<MessageHandler> $messageHandlers */

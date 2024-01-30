@@ -21,11 +21,15 @@ class KernelServiceProvider extends ServiceProvider implements DeferrableProvide
     public function register(): void
     {
         $this->app->singleton(Kernel::class);
+
+        $this->app->singleton(KernelStorage::class, function () {
+            return $this->getKernel()->getStorage();
+        });
     }
 
     public function provides(): array
     {
-        return [Kernel::class];
+        return [Kernel::class, InMemoryStorage::class];
     }
 
     protected function getKernel(): Kernel

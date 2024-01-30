@@ -56,17 +56,6 @@ class MessageMap
         return $this->app->tagged($tagName);
     }
 
-    public function findReporterOfMessage(string $messageName): array
-    {
-        return $this->entries
-            ->filter(fn (array $messageHandlers, string $message) => $message === $messageName)
-            ->values()
-            ->collapse()
-            ->pluck('reporterId')
-            ->unique()
-            ->toArray();
-    }
-
     public function getEntries(): Collection
     {
         return $this->entries;
@@ -74,9 +63,6 @@ class MessageMap
 
     protected function build(MessageAttribute $attribute): void
     {
-        // todo reporter id for each message handler must be the same
-        //  our strategy to dispatch can fit many reporters
-
         if (! $this->entries->has($attribute->handles)) {
             $this->entries->put($attribute->handles, [$attribute->priority => $attribute]);
 

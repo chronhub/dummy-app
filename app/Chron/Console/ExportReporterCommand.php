@@ -22,7 +22,7 @@ class ExportReporterCommand extends AbstractExporterCommand
     protected function buildMessageMap(): array
     {
         $entries = $this->kernel()
-            ->reporting()
+            ->getReporters()
             ->map(fn (ReporterAttribute $attribute): array => $attribute->jsonSerialize())->toArray();
 
         if ($entries === []) {
