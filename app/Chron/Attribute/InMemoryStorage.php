@@ -67,11 +67,6 @@ final readonly class InMemoryStorage implements KernelStorage
             ->toArray();
     }
 
-    public function getDeclaredQueues(): DeclaredQueue
-    {
-        return $this->reporters->getDeclaredQueue();
-    }
-
     public function getMessages(): Collection
     {
         return $this->messages->getEntries();
@@ -80,5 +75,10 @@ final readonly class InMemoryStorage implements KernelStorage
     public function getReporters(): Collection
     {
         return $this->reporters->getEntries();
+    }
+
+    public function getDeclaredQueues(): DeclaredQueue
+    {
+        return $this->reporters->getDeclaredQueue();
     }
 }
