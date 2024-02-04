@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace App\Chron\Attribute;
 
-use App\Chron\Domain\Command\MakeOrderHandler;
-use App\Chron\Domain\Command\RegisterCustomerHandler;
-use App\Chron\Domain\Command\SomeNakedCommandHandler;
-use App\Chron\Domain\Command\UpdateCustomerEmailHandler;
-use App\Chron\Domain\Event\OnEvent\SendEmailToRegisteredCustomer;
-use App\Chron\Domain\Event\OnEvent\WhenCustomerEmailUpdated;
-use App\Chron\Domain\Event\OnEvent\WhenCustomerRegistered;
-use App\Chron\Domain\Event\OnEvent\WhenOrderMade;
-use App\Chron\Domain\Query\GetOneRandomCustomerHandler;
+use App\Chron\Domain\Application\Customer\SendEmailToRegisteredCustomer;
+use App\Chron\Domain\Application\Customer\WhenCustomerEmailChanged;
+use App\Chron\Domain\Application\Customer\WhenCustomerRegistered;
+use App\Chron\Model\Customer\Command\ChangeCustomerEmailHandler;
+use App\Chron\Model\Customer\Command\RegisterCustomerHandler;
 use App\Chron\Reporter\ReportCommand;
 use App\Chron\Reporter\ReportEvent;
 use App\Chron\Reporter\ReportNotification;
@@ -45,19 +41,13 @@ class Catalog
      */
     protected array $messageHandlers = [
         // command handlers
-        MakeOrderHandler::class,
         RegisterCustomerHandler::class,
-        UpdateCustomerEmailHandler::class,
-        SomeNakedCommandHandler::class,
+        ChangeCustomerEmailHandler::class,
 
         // event handlers
         WhenCustomerRegistered::class,
         SendEmailToRegisteredCustomer::class,
-        WhenCustomerEmailUpdated::class,
-        WhenOrderMade::class,
-
-        // query handlers
-        GetOneRandomCustomerHandler::class,
+        WhenCustomerEmailChanged::class,
     ];
 
     /**
