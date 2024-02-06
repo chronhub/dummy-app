@@ -22,26 +22,32 @@ final class HomeController
 {
     use QueryPromiseTrait;
 
-    const CUSTOMER_ID = '11f6c9df-a2e2-3f56-a315-6d886c935a90';
+    const CUSTOMER_ID = '071e2415-7826-368a-b675-c17f80cdd225';
 
-    public function __invoke(Connection $connection): Response
+    public function __invoke(): Response
     {
-        $rand = [
-            fn () => $this->registerCustomer(),
-            fn () => $this->changeCustomerEmail(),
-            fn () => $this->completeOrder(),
-        ];
-
-        $rand[array_rand($rand)]();
+        //        $rand = [
+        //            fn () => $this->registerCustomer(),
+        //            fn () => $this->changeCustomerEmail(),
+        //            fn () => $this->completeOrder(),
+        //        ];
+        //
+        //        $rand[array_rand($rand)]();
 
         return new Response('ok');
     }
 
-    protected function findCustomer(Chronicler $chronicler): void
+    protected function findAggregateCustomer(): void
     {
+        /** @var Chronicler $chronicler */
+        $chronicler = app(Chronicler::class);
+
         $events = $chronicler->retrieveAll(new StreamName('customer'), CustomerId::fromString(self::CUSTOMER_ID));
 
-        dump($events->current());
+        foreach ($events as $event) {
+            dump($event);
+            //dump($event->toContent()['customer_email'] ?? $event->toContent()['customer_new_email']);
+        }
     }
 
     protected function registerCustomer(): void

@@ -9,11 +9,11 @@ use Illuminate\Contracts\Foundation\Application;
 use React\Promise\PromiseInterface;
 use Storm\Contract\Reporter\Reporter;
 
-final class ReporterManager implements Manager
+final readonly class ReporterManager implements Manager
 {
     public function __construct(
-        protected KernelStorage $storage,
-        protected Application $app
+        private KernelStorage $storage,
+        private Application $app
     ) {
     }
 

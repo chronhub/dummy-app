@@ -26,13 +26,13 @@ class ProvideEvents
 {
     protected static array $events = [
         [EventableChronicler::APPEND_STREAM_EVENT, AppendOnlyStream::class],
-        [EventableChronicler::DELETE_STREAM_EVENT,  DeleteStream::class],
-        [EventableChronicler::FILTER_CATEGORY_EVENT,  FilterCategories::class],
-        [EventableChronicler::FILTER_STREAM_EVENT,  FilterStreams::class],
-        [EventableChronicler::ALL_STREAM_EVENT,  RetrieveAllStream::class],
-        [EventableChronicler::ALL_BACKWARDS_STREAM_EVENT,  RetrieveAllBackwardStream::class],
-        [EventableChronicler::FILTERED_STREAM_EVENT,  RetrieveFilteredStream::class],
-        [EventableChronicler::HAS_STREAM_EVENT,  StreamExists::class],
+        [EventableChronicler::DELETE_STREAM_EVENT, DeleteStream::class],
+        [EventableChronicler::FILTER_CATEGORY_EVENT, FilterCategories::class],
+        [EventableChronicler::FILTER_STREAM_EVENT, FilterStreams::class],
+        [EventableChronicler::ALL_STREAM_EVENT, RetrieveAllStream::class],
+        [EventableChronicler::ALL_BACKWARDS_STREAM_EVENT, RetrieveAllBackwardStream::class],
+        [EventableChronicler::FILTERED_STREAM_EVENT, RetrieveFilteredStream::class],
+        [EventableChronicler::HAS_STREAM_EVENT, StreamExists::class],
     ];
 
     protected static array $transactionalEvents = [

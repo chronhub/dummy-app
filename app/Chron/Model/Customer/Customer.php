@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Model\Customer;
 
 use App\Chron\Aggregate\AggregateBehaviorTrait;
+use App\Chron\Aggregate\Contract\AggregateIdentity;
 use App\Chron\Aggregate\Contract\AggregateRoot;
 use App\Chron\Model\Customer\Event\CustomerEmailChanged;
 use App\Chron\Model\Customer\Event\CustomerRegistered;
@@ -37,7 +38,10 @@ class Customer implements AggregateRoot
 
     public function customerId(): CustomerId
     {
-        return $this->identity;
+        /** @var AggregateIdentity&CustomerId $identity */
+        $identity = $this->identity;
+
+        return $identity;
     }
 
     public function email(): CustomerEmail

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Chronicler;
 
+use App\Chron\Aggregate\AggregateEventReleaser;
 use App\Chron\Aggregate\GenericAggregateRepository;
 use App\Chron\Chronicler\Contracts\Chronicler;
 use App\Chron\Chronicler\Contracts\EventableChronicler;
@@ -75,26 +76,17 @@ class ChroniclerServiceProvider extends ServiceProvider implements DeferrablePro
 
     protected function registerAggregateRepositories(): void
     {
-        $this->app->bind(CustomerCollection::class, function (Application $app): CustomerCollection {
-            $repository = new GenericAggregateRepository(
-                $app[Chronicler::class],
-                new StreamName('customer'),
-                $app['event.decorator.chain.default']
-            );
+        $this->app->bind(CustomerCollection::class, function (): CustomerCollection {
+            $repository = $this->makeGenericAggregateRepository(new StreamName('customer'));
 
             return new CustomerChroniclerRepository($repository);
         });
 
-        $this->app->bind(OrderList::class, function (Application $app): OrderList {
-            $repository = new GenericAggregateRepository(
-                $app[Chronicler::class],
-                new StreamName('order'),
-                $app['event.decorator.chain.default']
-            );
+        $this->app->bind(OrderList::class, function (): OrderList {
+            $repository = $this->makeGenericAggregateRepository(new StreamName('order'));
 
             return new OrderAggregateRepository($repository);
         });
-
     }
 
     protected function makeRealChronicler(): Chronicler
@@ -104,7 +96,6 @@ class ChroniclerServiceProvider extends ServiceProvider implements DeferrablePro
             $this->app[Provider::class],
             $this->app[StreamPersistence::class],
             $this->app[CursorConnectionLoader::class],
-            //new DirectEventPublisher($this->app['reporter.event.default']),
         );
     }
 
@@ -162,6 +153,15 @@ class ChroniclerServiceProvider extends ServiceProvider implements DeferrablePro
         $this->app->bind(StreamPersistence::class, StandardStreamPersistence::class);
     }
 
+    private function makeGenericAggregateRepository(StreamName $streamName): GenericAggregateRepository
+    {
+        return new GenericAggregateRepository(
+            $this->app[Chronicler::class],
+            $streamName,
+            new AggregateEventReleaser($this->app['event.decorator.chain.default'])
+        );
+    }
+
     public function provides(): array
     {
         return [
@@ -171,6 +171,8 @@ class ChroniclerServiceProvider extends ServiceProvider implements DeferrablePro
             StreamPersistence::class,
             StreamEventSerializer::class,
             'event.decorator.chain.default',
+            CustomerCollection::class,
+            OrderList::class,
         ];
     }
 }

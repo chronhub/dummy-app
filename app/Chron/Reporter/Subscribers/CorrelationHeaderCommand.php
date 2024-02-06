@@ -65,7 +65,6 @@ final class CorrelationHeaderCommand
             $streamDecorator = $this->addCorrelationHeader($this->command);
 
             $story->decorate($streamDecorator);
-
         }, 100);
     }
 
@@ -84,8 +83,7 @@ final class CorrelationHeaderCommand
 
             public function decorate(Message $message): Message
             {
-                if ($message->has(EventHeader::EVENT_CAUSATION_ID)
-                    && $message->has(EventHeader::EVENT_CAUSATION_TYPE)) {
+                if ($message->has(EventHeader::EVENT_CAUSATION_ID) && $message->has(EventHeader::EVENT_CAUSATION_TYPE)) {
                     return $message;
                 }
 

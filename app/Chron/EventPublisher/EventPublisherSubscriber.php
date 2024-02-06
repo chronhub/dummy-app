@@ -18,43 +18,37 @@ final readonly class EventPublisherSubscriber
 
     public function __invoke(EventableChronicler|TransactionalEventableChronicler $chronicler): void
     {
-        $this->subscribeOnAppendOnlyStream($chronicler);
+        $this->onAppendOnlyStream($chronicler);
 
         if ($chronicler instanceof TransactionalEventableChronicler) {
-            $this->subscribeOnTransactionalStream($chronicler);
+            $this->onTransactionalStream($chronicler);
         }
     }
 
-    private function subscribeOnAppendOnlyStream(EventableChronicler $chronicler): void
+    private function onAppendOnlyStream(EventableChronicler $chronicler): void
     {
         $chronicler->subscribe(EventableChronicler::APPEND_STREAM_EVENT, function (StreamStory $story) use ($chronicler): void {
             $streamEvents = new Collection($story->promise()->events());
 
             if (! $this->inTransaction($chronicler)) {
-                logger('publish: not in transaction');
                 if (! $story->hasException()) {
                     $this->eventPublisher->publish(...$streamEvents);
                 }
             } else {
-                logger('record: in transaction');
                 $this->eventPublisher->record($streamEvents);
             }
         });
     }
 
-    private function subscribeOnTransactionalStream(TransactionalEventableChronicler $chronicler): void
+    private function onTransactionalStream(TransactionalEventableChronicler $chronicler): void
     {
         $chronicler->subscribe(TransactionalEventableChronicler::COMMIT_TRANSACTION_EVENT, function (): void {
             $pendingEvents = $this->eventPublisher->pull();
 
             $this->eventPublisher->publish(...$pendingEvents);
-            logger('commit');
-
         });
 
         $chronicler->subscribe(TransactionalEventableChronicler::ROLLBACK_TRANSACTION_EVENT, function (): void {
-            logger('rollback: flush');
-
             $this->eventPublisher->flush();
         });
     }

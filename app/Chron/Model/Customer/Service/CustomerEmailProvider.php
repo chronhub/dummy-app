@@ -17,7 +17,7 @@ final readonly class CustomerEmailProvider
 
     public function isUnique(CustomerEmail $email): bool
     {
-        return $this->query()->where('email', $email)->doesntExist();
+        return $this->query()->where('email', $email->value)->doesntExist();
     }
 
     public function insert(CustomerId $customerId, CustomerEmail $email): void

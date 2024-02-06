@@ -11,23 +11,16 @@ use App\Chron\Chronicler\Contracts\Chronicler;
 use App\Chron\Chronicler\Contracts\QueryFilter;
 use Generator;
 use Storm\Chronicler\Exceptions\StreamNotFound;
-use Storm\Contract\Message\DomainEvent;
 use Storm\Contract\Message\EventHeader;
-use Storm\Contract\Message\MessageDecorator;
-use Storm\Message\Message;
 use Storm\Stream\Stream;
 use Storm\Stream\StreamName;
-
-use function array_map;
-use function count;
-use function reset;
 
 final readonly class GenericAggregateRepository implements AggregateRepository
 {
     public function __construct(
         protected Chronicler $chronicler,
         protected StreamName $streamName,
-        protected MessageDecorator $messageDecorator,
+        protected AggregateEventReleaser $eventReleaser,
     ) {
     }
 
@@ -52,7 +45,7 @@ final readonly class GenericAggregateRepository implements AggregateRepository
 
     public function store(AggregateRoot $aggregateRoot): void
     {
-        $events = $this->releaseEvents($aggregateRoot);
+        $events = $this->eventReleaser->release($aggregateRoot);
 
         if ($events === []) {
             return;
@@ -72,47 +65,12 @@ final readonly class GenericAggregateRepository implements AggregateRepository
 
             $firstEvent = $history->current();
 
+            /** @var AggregateRoot $aggregateType */
             $aggregateType = $firstEvent->header(EventHeader::AGGREGATE_TYPE);
 
             return $aggregateType::reconstitute($aggregateId, $history);
         } catch (StreamNotFound) {
             return null;
         }
-    }
-
-    /**
-     * @return array<DomainEvent>|array
-     */
-    private function releaseEvents(AggregateRoot $aggregate): array
-    {
-        $events = $aggregate->releaseEvents();
-
-        if (! reset($events)) {
-            return [];
-        }
-
-        $version = $aggregate->version() - count($events);
-
-        return $this->decorateReleasedEvents($aggregate, $version, $events);
-    }
-
-    /**
-     * @param  array<DomainEvent> $events
-     * @param  positive-int       $version
-     * @return array<DomainEvent>
-     */
-    private function decorateReleasedEvents(AggregateRoot $aggregate, int $version, array $events): array
-    {
-        $headers = [
-            EventHeader::AGGREGATE_ID => $aggregate->identity()->toString(),
-            EventHeader::AGGREGATE_ID_TYPE => $aggregate->identity()::class,
-            EventHeader::AGGREGATE_TYPE => $aggregate::class,
-        ];
-
-        return array_map(function (DomainEvent $event) use ($headers, &$version) {
-            return $this->messageDecorator->decorate(
-                new Message($event, $headers + [EventHeader::AGGREGATE_VERSION => ++$version])
-            )->event();
-        }, $events);
     }
 }
