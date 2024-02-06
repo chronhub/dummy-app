@@ -9,9 +9,9 @@ use App\Chron\Model\Customer\Customer;
 use App\Chron\Model\Customer\CustomerEmail;
 use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Customer\CustomerName;
+use App\Chron\Model\Customer\Exception\CustomerAlreadyExists;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
-use App\Chron\Model\Customer\Service\UniqueCustomerEmail;
-use RuntimeException;
+use App\Chron\Model\Customer\Service\CustomerEmailProvider;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',
@@ -21,7 +21,7 @@ final readonly class RegisterCustomerHandler
 {
     public function __construct(
         private CustomerCollection $customers,
-        private UniqueCustomerEmail $uniqueCustomerEmail,
+        private CustomerEmailProvider $customerEmailProvider,
     ) {
     }
 
@@ -30,19 +30,23 @@ final readonly class RegisterCustomerHandler
         $customerId = CustomerId::fromString($command->content['id']);
 
         if ($this->customers->get($customerId) !== null) {
-            throw new RuntimeException('Customer already exists');
+            throw CustomerAlreadyExists::withId($customerId);
         }
 
-        if (! $this->uniqueCustomerEmail->isUnique(CustomerEmail::fromString($command->content['email']))) {
-            throw new RuntimeException('Email already exists');
+        $customerEmail = CustomerEmail::fromString($command->content['email']);
+
+        if (! $this->customerEmailProvider->isUnique($customerEmail)) {
+            throw CustomerAlreadyExists::withEmail($customerEmail);
         }
 
         $customer = Customer::register(
             $customerId,
-            CustomerEmail::fromString($command->content['email']),
+            $customerEmail,
             CustomerName::fromString($command->content['name'])
         );
 
         $this->customers->save($customer);
+
+        $this->customerEmailProvider->insert($customerId, $customerEmail);
     }
 }

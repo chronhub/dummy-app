@@ -24,7 +24,7 @@ final class HomeController
 
     const CUSTOMER_ID = '11f6c9df-a2e2-3f56-a315-6d886c935a90';
 
-    public function __invoke(): Response
+    public function __invoke(Connection $connection): Response
     {
         $rand = [
             fn () => $this->registerCustomer(),
