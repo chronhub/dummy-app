@@ -10,6 +10,7 @@ use App\Chron\Model\Customer\CustomerEmail;
 use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Customer\CustomerName;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
+use App\Chron\Model\Customer\Service\UniqueCustomerEmail;
 use RuntimeException;
 
 #[AsCommandHandler(
@@ -18,8 +19,10 @@ use RuntimeException;
 )]
 final readonly class RegisterCustomerHandler
 {
-    public function __construct(private CustomerCollection $customers)
-    {
+    public function __construct(
+        private CustomerCollection $customers,
+        private UniqueCustomerEmail $uniqueCustomerEmail,
+    ) {
     }
 
     public function __invoke(RegisterCustomer $command): void
@@ -28,6 +31,10 @@ final readonly class RegisterCustomerHandler
 
         if ($this->customers->get($customerId) !== null) {
             throw new RuntimeException('Customer already exists');
+        }
+
+        if (! $this->uniqueCustomerEmail->isUnique(CustomerEmail::fromString($command->content['email']))) {
+            throw new RuntimeException('Email already exists');
         }
 
         $customer = Customer::register(

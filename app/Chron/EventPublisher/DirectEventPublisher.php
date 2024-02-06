@@ -7,7 +7,7 @@ namespace App\Chron\EventPublisher;
 use App\Chron\Reporter\ReportEvent;
 use Storm\Contract\Message\DomainEvent;
 
-class StandardEventPublisher
+class DirectEventPublisher implements MarshallEventPublisher
 {
     public function __construct(protected ReportEvent $reporter)
     {

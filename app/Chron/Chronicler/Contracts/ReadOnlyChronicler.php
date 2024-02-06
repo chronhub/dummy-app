@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Chronicler\Contracts;
 
 use App\Chron\Aggregate\Contract\AggregateIdentity;
+use App\Chron\Chronicler\Direction;
 use Generator;
 use Storm\Chronicler\Exceptions\NoStreamEventReturn;
 use Storm\Chronicler\Exceptions\StreamNotFound;
@@ -16,9 +17,10 @@ interface ReadOnlyChronicler
     /**
      * @return Generator{DomainEvent}
      *
-     * @throws StreamNotFound|NoStreamEventReturn
+     * @throws StreamNotFound      when the stream does not exist
+     * @throws NoStreamEventReturn when no events are returned
      */
-    public function retrieveAll(StreamName $streamName, AggregateIdentity $aggregateId, string $direction = 'asc'): Generator;
+    public function retrieveAll(StreamName $streamName, AggregateIdentity $aggregateId, Direction $direction = Direction::FORWARD): Generator;
 
     /**
      * Retrieve events for the given stream using the given query filter.

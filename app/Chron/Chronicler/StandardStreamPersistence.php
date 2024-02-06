@@ -34,6 +34,7 @@ final readonly class StandardStreamPersistence implements StreamPersistence
     {
         $payload = $this->streamEventSerializer->serializeEvent($event);
 
+        // todo prefix with aggregate type, id, version
         return [
             'stream_name' => $streamName->name,
             'type' => $payload->headers[EventHeader::AGGREGATE_TYPE],

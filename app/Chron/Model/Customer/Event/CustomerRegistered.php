@@ -14,24 +14,24 @@ final class CustomerRegistered extends AbstractDomainEvent
     public static function fromData(CustomerId $id, CustomerEmail $email, CustomerName $name): self
     {
         return new self([
-            'id' => $id->toString(),
-            'email' => $email->value,
-            'name' => $name->value,
+            'customer_id' => $id->toString(),
+            'customer_email' => $email->value,
+            'customer_name' => $name->value,
         ]);
     }
 
-    public function id(): CustomerId
+    public function customerId(): CustomerId
     {
-        return CustomerId::fromString($this->content['id']);
+        return CustomerId::fromString($this->content['customer_id']);
     }
 
     public function email(): CustomerEmail
     {
-        return CustomerEmail::fromString($this->content['email']);
+        return CustomerEmail::fromString($this->content['customer_email']);
     }
 
     public function name(): CustomerName
     {
-        return CustomerName::fromString($this->content['name']);
+        return CustomerName::fromString($this->content['customer_name']);
     }
 }

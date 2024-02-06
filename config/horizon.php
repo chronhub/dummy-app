@@ -86,9 +86,9 @@ return [
     */
 
     'waits' => [
-        'redis:default' => 3600,
-        'rabbitmq:default' => 3600,
-        'rabbitmq-high:default' => 3600,
+        'redis:default' => 0,
+        'rabbitmq:default' => 0,
+        'rabbitmq-high:default' => 0,
     ],
 
     /*
@@ -184,33 +184,33 @@ return [
     */
 
     'defaults' => [
-        'supervisor-rb_default' => [
-            'connection' => 'rabbitmq',
-            'queue' => ['default'],
-            'balance' => 'auto',
-            'autoScalingStrategy' => 'time',
-            'maxProcesses' => 2,
-            'maxTime' => 0,
-            'maxJobs' => 500,
-            'memory' => 512,
-            'tries' => 0,
-            'timeout' => 10,
-            'nice' => 0,
-        ],
-
-        'supervisor-rb_high' => [
-            'connection' => 'rabbitmq-high',
-            'queue' => ['high'],
-            'balance' => 'auto',
-            'autoScalingStrategy' => 'time',
-            'maxProcesses' => 2,
-            'maxTime' => 0,
-            'maxJobs' => 500,
-            'memory' => 512,
-            'tries' => 0,
-            'timeout' => 10,
-            'nice' => 0,
-        ],
+        //        'supervisor-rb_default' => [
+        //            'connection' => 'rabbitmq',
+        //            'queue' => ['default'],
+        //            'balance' => 'auto',
+        //            'autoScalingStrategy' => 'time',
+        //            'maxProcesses' => 2,
+        //            'maxTime' => 0,
+        //            'maxJobs' => 500,
+        //            'memory' => 512,
+        //            'tries' => 0,
+        //            'timeout' => 10,
+        //            'nice' => 0,
+        //        ],
+        //
+        //        'supervisor-rb_high' => [
+        //            'connection' => 'rabbitmq-high',
+        //            'queue' => ['high'],
+        //            'balance' => 'auto',
+        //            'autoScalingStrategy' => 'time',
+        //            'maxProcesses' => 2,
+        //            'maxTime' => 0,
+        //            'maxJobs' => 500,
+        //            'memory' => 512,
+        //            'tries' => 0,
+        //            'timeout' => 10,
+        //            'nice' => 0,
+        //        ],
 
         'supervisor-redis_default' => [
             'connection' => 'redis',
@@ -237,9 +237,20 @@ return [
         ],
 
         'local' => [
-            'supervisor-rb_default' => [],
-            'supervisor-rb_high' => [],
-            'supervisor-redis_default' => [],
+            //            'supervisor-rb_default' => [
+            //                'balanceMaxShift' => 1,
+            //                'balanceCooldown' => 3,
+            //
+            //            ],
+            //            'supervisor-rb_high' => [
+            //                'balanceMaxShift' => 1,
+            //                'balanceCooldown' => 3,
+            //            ],
+            'supervisor-redis_default' => [
+                'maxProcesses' => 10,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
         ],
     ],
 ];

@@ -7,8 +7,12 @@ namespace App\Chron\Attribute;
 use App\Chron\Domain\Application\Customer\SendEmailToRegisteredCustomer;
 use App\Chron\Domain\Application\Customer\WhenCustomerEmailChanged;
 use App\Chron\Domain\Application\Customer\WhenCustomerRegistered;
+use App\Chron\Domain\Application\Order\WhenOrderCompleted;
+use App\Chron\Domain\Application\Order\WhenOrderCreated;
 use App\Chron\Model\Customer\Command\ChangeCustomerEmailHandler;
 use App\Chron\Model\Customer\Command\RegisterCustomerHandler;
+use App\Chron\Model\Order\Command\CompleteOrderHandler;
+use App\Chron\Model\Order\Command\CreateOrderHandler;
 use App\Chron\Reporter\ReportCommand;
 use App\Chron\Reporter\ReportEvent;
 use App\Chron\Reporter\ReportNotification;
@@ -43,11 +47,15 @@ class Catalog
         // command handlers
         RegisterCustomerHandler::class,
         ChangeCustomerEmailHandler::class,
+        CreateOrderHandler::class,
+        CompleteOrderHandler::class,
 
         // event handlers
         WhenCustomerRegistered::class,
         SendEmailToRegisteredCustomer::class,
         WhenCustomerEmailChanged::class,
+        WhenOrderCreated::class,
+        WhenOrderCompleted::class,
     ];
 
     /**

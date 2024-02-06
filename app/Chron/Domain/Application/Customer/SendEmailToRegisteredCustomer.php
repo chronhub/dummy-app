@@ -10,7 +10,7 @@ use App\Chron\Model\Customer\Event\CustomerRegistered;
 #[AsEventHandler(
     reporter: 'reporter.event.default',
     handles: CustomerRegistered::class,
-    priority: 2
+    priority: 1
 )]
 class SendEmailToRegisteredCustomer
 {

@@ -41,6 +41,7 @@ class CursorConnectionLoader
             $count = 0;
 
             foreach ($streamEvents as $streamEvent) {
+                // fixMe metadata first in args
                 $payload = new Payload(
                     $streamEvent->content,
                     $streamEvent->metadata,

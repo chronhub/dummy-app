@@ -20,33 +20,35 @@ final readonly class EventStreamProvider implements Provider
     {
         $eventStream = new EventStream($streamName, $streamTable, $category);
 
-        return $this->newQuery()->insert($eventStream->jsonSerialize());
+        return $this->connect()->insert($eventStream->jsonSerialize());
     }
 
     public function deleteStream(string $streamName): bool
     {
-        return $this->newQuery()->where('real_stream_name', $streamName)->delete() === 1;
+        return $this->connect()->where('real_stream_name', $streamName)->delete() === 1;
     }
 
-    public function filterByAscendantStreams(array $streamNames): array
+    // todo: change name to filterByStreams
+    public function filterByAscendantStreams(array $streams): array
     {
-        return $this->newQuery()
-            ->whereIn('real_stream_name', $streamNames)
+        return $this->connect()
+            ->whereIn('real_stream_name', $streams)
             ->pluck('real_stream_name')
             ->toArray();
     }
 
-    public function filterByAscendantCategories(array $categoryNames): array
+    // todo: change name to filterByCategories
+    public function filterByAscendantCategories(array $categories): array
     {
-        return $this->newQuery()
-            ->whereIn('category', $categoryNames)
+        return $this->connect()
+            ->whereIn('category', $categories)
             ->pluck('real_stream_name')
             ->toArray();
     }
 
     public function allWithoutInternal(): array
     {
-        return $this->newQuery()
+        return $this->connect()
             ->whereRaw("real_stream_name NOT LIKE '$%'")
             ->pluck('real_stream_name')
             ->toArray();
@@ -54,10 +56,10 @@ final readonly class EventStreamProvider implements Provider
 
     public function hasRealStreamName(string $streamName): bool
     {
-        return $this->newQuery()->where('real_stream_name', $streamName)->exists();
+        return $this->connect()->where('real_stream_name', $streamName)->exists();
     }
 
-    private function newQuery(): Builder
+    private function connect(): Builder
     {
         return $this->connection->table($this->tableName);
     }

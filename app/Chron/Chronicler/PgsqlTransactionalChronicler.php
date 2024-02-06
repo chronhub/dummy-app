@@ -10,7 +10,7 @@ use App\Chron\Chronicler\Contracts\StreamPersistence;
 use App\Chron\Chronicler\Contracts\TransactionalChronicler;
 use App\Chron\Chronicler\Exception\ConnectionConcurrencyFailure;
 use App\Chron\Chronicler\Exception\ConnectionQueryFailure;
-use App\Chron\EventPublisher\StandardEventPublisher;
+use App\Chron\EventPublisher\DirectEventPublisher;
 use Generator;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
@@ -21,7 +21,6 @@ use Storm\Stream\Stream;
 use Storm\Stream\StreamName;
 
 use function iterator_to_array;
-use function str_contains;
 
 final readonly class PgsqlTransactionalChronicler implements TransactionalChronicler
 {
@@ -32,7 +31,7 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
         protected EventStreamProvider $eventStreamProvider,
         protected StreamPersistence $streamPersistence,
         protected CursorConnectionLoader $streamEventLoader,
-        protected StandardEventPublisher $eventPublisher
+        //protected DirectEventPublisher $eventPublisher
     ) {
     }
 
@@ -47,9 +46,9 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
         }
 
         try {
-            $this->forWrite()->insert($streamEvents);
+            $this->writeQuery()->insert($streamEvents);
 
-            $this->eventPublisher->publish(...$events);
+            //$this->eventPublisher->publish(...$events);
         } catch (QueryException $exception) {
             $this->handleException($exception, $stream->name());
         }
@@ -78,18 +77,18 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
         }
     }
 
-    public function retrieveAll(StreamName $streamName, AggregateIdentity $aggregateId, string $direction = 'asc'): Generator
+    public function retrieveAll(StreamName $streamName, AggregateIdentity $aggregateId, Direction $direction = Direction::FORWARD): Generator
     {
-        $query = $this->forRead($streamName)
+        $query = $this->readQuery()
             ->where('id', $aggregateId->toString())
-            ->orderBy('position', $direction);
+            ->orderBy('position', $direction->value);
 
         return $this->streamEventLoader->load($query, $streamName);
     }
 
     public function retrieveFiltered(StreamName $streamName, QueryFilter $queryFilter): Generator
     {
-        $query = $this->forRead($streamName);
+        $query = $this->readQuery();
 
         $queryFilter->apply()($query);
 
@@ -116,21 +115,16 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
         match ($exception->getCode()) {
             '42P01' => throw StreamNotFound::withStreamName($streamName),
             '23000', '23505' => throw new ConnectionConcurrencyFailure($exception->getMessage(), (int) $exception->getCode(), $exception),
-            default => throw new ConnectionQueryFailure($exception->getMessage(), $exception->getCode(), $exception)
+            default => throw new ConnectionQueryFailure($exception->getMessage(), (int) $exception->getCode(), $exception)
         };
     }
 
-    private function forRead(?StreamName $streamName): Builder
+    private function readQuery(): Builder
     {
-        // probably need additional method to fetch partitioned stream
-        if ($streamName && ! str_contains($streamName->name, '-')) {
-            return $this->connection->table($streamName->name);
-        }
-
         return $this->connection->table('stream_event');
     }
 
-    private function forWrite(): Builder
+    private function writeQuery(): Builder
     {
         return $this->connection->table('stream_event')->useWritePdo();
     }

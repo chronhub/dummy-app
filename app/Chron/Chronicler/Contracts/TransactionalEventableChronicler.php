@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Chronicler\Contracts;
 
-interface TransactionalEventChronicler extends EventChronicler, TransactionalChronicler
+interface TransactionalEventableChronicler extends EventableChronicler, TransactionalChronicler
 {
     /**
      * @var string

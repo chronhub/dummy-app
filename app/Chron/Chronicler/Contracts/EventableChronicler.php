@@ -6,13 +6,8 @@ namespace App\Chron\Chronicler\Contracts;
 
 use Storm\Contract\Tracker\Listener;
 
-interface EventChronicler extends ChroniclerDecorator
+interface EventableChronicler extends ChroniclerDecorator
 {
-    /**
-     * @var string
-     */
-    public const FIRST_COMMIT_EVENT = 'first_commit_stream';
-
     /**
      * @var string
      */
@@ -31,7 +26,7 @@ interface EventChronicler extends ChroniclerDecorator
     /**
      * @var string
      */
-    public const ALL_REVERSED_STREAM_EVENT = 'all_reversed_stream';
+    public const ALL_BACKWARDS_STREAM_EVENT = 'all_backwards_stream';
 
     /**
      * @var string
@@ -41,12 +36,12 @@ interface EventChronicler extends ChroniclerDecorator
     /**
      * @var string
      */
-    public const FILTER_STREAM_EVENT = 'filter_stream_names';
+    public const FILTER_STREAM_EVENT = 'filter_streams';
 
     /**
      * @var string
      */
-    public const FILTER_CATEGORY_EVENT = 'filter_category_names';
+    public const FILTER_CATEGORY_EVENT = 'filter_categories';
 
     /**
      * @var string

@@ -4,22 +4,36 @@ declare(strict_types=1);
 
 namespace App\Chron\Chronicler;
 
+use Storm\Chronicler\Exceptions\TransactionAlreadyStarted;
+use Storm\Chronicler\Exceptions\TransactionNotStarted;
 use Throwable;
 
 trait TransactionalStoreTrait
 {
     public function beginTransaction(): void
     {
+        if ($this->inTransaction()) {
+            throw new TransactionAlreadyStarted('Transaction already started');
+        }
+
         $this->connection->beginTransaction();
     }
 
     public function commitTransaction(): void
     {
+        if (! $this->inTransaction()) {
+            throw new TransactionNotStarted('Transaction not started');
+        }
+
         $this->connection->commit();
     }
 
     public function rollbackTransaction(): void
     {
+        if (! $this->inTransaction()) {
+            throw new TransactionNotStarted('Transaction not started');
+        }
+
         $this->connection->rollBack();
     }
 
