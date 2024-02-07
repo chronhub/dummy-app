@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Chron\Chronicler\Contracts\Chronicler;
-use App\Chron\Model\Customer\Command\ChangeCustomerEmail;
-use App\Chron\Model\Customer\Command\RegisterCustomer;
+use App\Chron\Application\Command\Customer\ChangeCustomerEmail;
+use App\Chron\Application\Command\Customer\RegisterCustomer;
+use App\Chron\Application\Command\Order\CompleteOrder;
 use App\Chron\Model\Customer\CustomerId;
-use App\Chron\Model\Order\Command\CompleteOrder;
-use App\Chron\Reporter\Report;
+use App\Chron\Package\Chronicler\Contracts\Chronicler;
+use App\Chron\Package\Reporter\Report;
 use Illuminate\Database\Connection;
 use Storm\Stream\StreamName;
 use Storm\Support\QueryPromiseTrait;
 use Symfony\Component\HttpFoundation\Response;
 
-use function array_rand;
 use function json_decode;
 
 final class HomeController

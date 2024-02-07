@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Chron\Attribute\KernelServiceProvider;
-use App\Chron\Chronicler\ChroniclerServiceProvider;
-use App\Chron\Reporter\ClockServiceProvider;
-use App\Chron\Reporter\Decorator\ChainMessageDecorator;
-use App\Chron\Reporter\Decorator\EventDispatched;
-use App\Chron\Reporter\Decorator\EventId;
-use App\Chron\Reporter\Decorator\EventTime;
-use App\Chron\Reporter\Decorator\EventType;
-use App\Chron\Reporter\ReporterServiceProvider;
+use App\Chron\Package\Attribute\KernelServiceProvider;
+use App\Chron\Package\Chronicler\ChroniclerServiceProvider;
+use App\Chron\Package\Reporter\ClockServiceProvider;
+use App\Chron\Package\Reporter\Decorator\ChainMessageDecorator;
+use App\Chron\Package\Reporter\Decorator\EventDispatched;
+use App\Chron\Package\Reporter\Decorator\EventId;
+use App\Chron\Package\Reporter\Decorator\EventTime;
+use App\Chron\Package\Reporter\Decorator\EventType;
+use App\Chron\Package\Reporter\ReporterServiceProvider;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
-use Storm\Contract\Chronicler\EventStreamProvider as Provider;
 use Storm\Contract\Message\MessageFactory;
 use Storm\Message\MessageServiceProvider;
 

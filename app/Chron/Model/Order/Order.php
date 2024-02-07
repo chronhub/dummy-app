@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order;
 
-use App\Chron\Aggregate\AggregateBehaviorTrait;
-use App\Chron\Aggregate\Contract\AggregateIdentity;
-use App\Chron\Aggregate\Contract\AggregateRoot;
 use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Order\Event\OrderCompleted;
 use App\Chron\Model\Order\Event\OrderCreated;
+use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
+use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
+use App\Chron\Package\Aggregate\Contract\AggregateRoot;
 
 final class Order implements AggregateRoot
 {

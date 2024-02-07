@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Chron\Console;
 
-use App\Chron\Attribute\KernelStorage;
-use App\Chron\Attribute\Messaging\MessageAttribute;
+use App\Chron\Package\Attribute\KernelStorage;
+use App\Chron\Package\Attribute\Messaging\MessageAttribute;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Symfony\Component\Console\Attribute\AsCommand;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Console;
 
-use App\Chron\Attribute\KernelStorage;
+use App\Chron\Package\Attribute\KernelStorage;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 

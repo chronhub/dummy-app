@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Console;
 
-use App\Chron\Attribute\Messaging\MessageAttribute;
+use App\Chron\Package\Attribute\Messaging\MessageAttribute;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 use function array_map;

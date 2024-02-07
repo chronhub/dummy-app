@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\Chron\Attribute\Messaging\MessageHandler;
-use App\Chron\Reporter\Subscribers\ChainHandlerResolver;
+use App\Chron\Package\Attribute\Messaging\MessageHandler;
+use App\Chron\Package\Reporter\Subscribers\ChainHandlerResolver;
 use RuntimeException;
 
 it('resolve sync and dispatch async handler one by one', function (): void {

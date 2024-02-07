@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Customer;
 
-use App\Chron\Aggregate\AggregateBehaviorTrait;
-use App\Chron\Aggregate\Contract\AggregateIdentity;
-use App\Chron\Aggregate\Contract\AggregateRoot;
 use App\Chron\Model\Customer\Event\CustomerEmailChanged;
 use App\Chron\Model\Customer\Event\CustomerRegistered;
+use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
+use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
+use App\Chron\Package\Aggregate\Contract\AggregateRoot;
 
 class Customer implements AggregateRoot
 {

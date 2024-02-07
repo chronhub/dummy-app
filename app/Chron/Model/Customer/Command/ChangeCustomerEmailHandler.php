@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Customer\Command;
 
-use App\Chron\Attribute\Messaging\AsCommandHandler;
+use App\Chron\Application\Command\Customer\ChangeCustomerEmail;
+use App\Chron\Infrastructure\Service\CustomerEmailProvider;
 use App\Chron\Model\Customer\Customer;
 use App\Chron\Model\Customer\CustomerEmail;
 use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Customer\Exception\CustomerAlreadyExists;
 use App\Chron\Model\Customer\Exception\CustomerNotFound;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
-use App\Chron\Model\Customer\Service\CustomerEmailProvider;
+use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',

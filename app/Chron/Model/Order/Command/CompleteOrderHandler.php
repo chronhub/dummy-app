@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order\Command;
 
-use App\Chron\Attribute\Messaging\AsCommandHandler;
+use App\Chron\Application\Command\Order\CompleteOrder;
 use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Customer\Exception\CustomerNotFound;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
 use App\Chron\Model\Order\Exception\OrderNotFound;
 use App\Chron\Model\Order\OrderId;
 use App\Chron\Model\Order\Repository\OrderList;
+use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',
