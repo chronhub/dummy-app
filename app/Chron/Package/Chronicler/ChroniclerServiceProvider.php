@@ -92,7 +92,7 @@ class ChroniclerServiceProvider extends ServiceProvider implements DeferrablePro
     protected function makeRealChronicler(): Chronicler
     {
         return new PgsqlTransactionalChronicler(
-            $this->app['db.connection'],
+            $this->app['db']->connection('pgsql'),
             $this->app[Provider::class],
             $this->app[StreamPersistence::class],
             $this->app[CursorConnectionLoader::class],

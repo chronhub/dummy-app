@@ -16,6 +16,7 @@ final readonly class EventStreamProvider implements Provider
     ) {
     }
 
+    // todo change category to partition in contract
     public function createStream(string $streamName, ?string $streamTable, ?string $category = null): bool
     {
         $eventStream = new EventStream($streamName, $streamTable, $category);

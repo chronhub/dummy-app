@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Chron\Application\Command\Customer\ChangeCustomerEmail;
-use App\Chron\Application\Command\Customer\RegisterCustomer;
-use App\Chron\Application\Command\Order\CompleteOrder;
+use App\Chron\Application\Messaging\Command\Customer\ChangeCustomerEmail;
+use App\Chron\Application\Messaging\Command\Customer\RegisterCustomer;
+use App\Chron\Application\Messaging\Command\Order\CompleteOrder;
 use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Package\Chronicler\Contracts\Chronicler;
 use App\Chron\Package\Reporter\Report;
@@ -15,6 +15,7 @@ use Storm\Stream\StreamName;
 use Storm\Support\QueryPromiseTrait;
 use Symfony\Component\HttpFoundation\Response;
 
+use function array_rand;
 use function json_decode;
 
 final class HomeController
@@ -25,13 +26,13 @@ final class HomeController
 
     public function __invoke(): Response
     {
-        //        $rand = [
-        //            fn () => $this->registerCustomer(),
-        //            fn () => $this->changeCustomerEmail(),
-        //            fn () => $this->completeOrder(),
-        //        ];
-        //
-        //        $rand[array_rand($rand)]();
+        $rand = [
+            fn () => $this->registerCustomer(),
+            fn () => $this->changeCustomerEmail(),
+            fn () => $this->completeOrder(),
+        ];
+
+        $rand[array_rand($rand)]();
 
         return new Response('ok');
     }

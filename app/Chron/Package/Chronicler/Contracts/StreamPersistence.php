@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Chron\Package\Chronicler\Contracts;
 
-use Storm\Contract\Message\DomainEvent;
-use Storm\Stream\StreamName;
+use Storm\Stream\Stream;
 
 interface StreamPersistence
 {
-    public function serialize(StreamName $streamName, DomainEvent ...$streamEvents): array;
+    public function serialize(Stream $stream): array;
 }

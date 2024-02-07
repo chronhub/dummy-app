@@ -6,6 +6,7 @@ namespace App\Chron\Package\Chronicler\Subscribers;
 
 use App\Chron\Package\Chronicler\Contracts\Chronicler;
 use Closure;
+use LogicException;
 use Storm\Chronicler\Exceptions\ConcurrencyException;
 use Storm\Chronicler\Exceptions\StreamAlreadyExists;
 use Storm\Chronicler\Exceptions\StreamNotFound;
@@ -15,9 +16,9 @@ final class AppendStream
 {
     public function __invoke(Chronicler $chronicler): Closure
     {
-        return static function (StreamStory $story) use ($chronicler): void {
+        return static function (StreamStory $story): void {
             try {
-                $chronicler->append($story->promise());
+                throw new LogicException('Not implemented');
             } catch (StreamAlreadyExists|StreamNotFound|ConcurrencyException $exception) {
                 $story->withRaisedException($exception);
             }

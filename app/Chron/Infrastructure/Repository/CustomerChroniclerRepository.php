@@ -9,7 +9,13 @@ use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
 use App\Chron\Package\Aggregate\Contract\AggregateRepository;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
+use App\Chron\Package\Attribute\AggregateRepository\AsAggregateRepository;
 
+#[AsAggregateRepository(
+    chronicler: 'chronicler.event.transactional.standard.pgsql',
+    streamName: 'customer',
+    aggregateRoot: Customer::class
+)]
 final readonly class CustomerChroniclerRepository implements CustomerCollection
 {
     public function __construct(private AggregateRepository $repository)

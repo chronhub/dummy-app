@@ -9,7 +9,11 @@ use App\Chron\Package\Serializer\StreamEventSerializer;
 use Storm\Contract\Clock\SystemClock;
 use Storm\Contract\Message\DomainEvent;
 use Storm\Contract\Message\EventHeader;
+use Storm\Stream\Stream;
 use Storm\Stream\StreamName;
+
+use function array_map;
+use function iterator_to_array;
 
 final readonly class StandardStreamPersistence implements StreamPersistence
 {
@@ -19,15 +23,14 @@ final readonly class StandardStreamPersistence implements StreamPersistence
     ) {
     }
 
-    public function serialize(StreamName $streamName, DomainEvent ...$streamEvents): array
+    public function serialize(Stream $stream): array
     {
-        $events = [];
+        $streamName = $stream->name();
 
-        foreach ($streamEvents as $streamEvent) {
-            $events[] = $this->serializeEvent($streamEvent, $streamName);
-        }
-
-        return $events;
+        return array_map(
+            fn (DomainEvent $event) => $this->serializeEvent($event, $streamName),
+            iterator_to_array($stream->events())
+        );
     }
 
     protected function serializeEvent(DomainEvent $event, StreamName $streamName): array

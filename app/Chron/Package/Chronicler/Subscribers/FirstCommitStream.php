@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Chron\Package\Chronicler\Subscribers;
 
-use _PHPStan_3d4486d07\Symfony\Component\Console\Exception\LogicException;
 use App\Chron\Package\Chronicler\Contracts\Chronicler;
 use Closure;
+use LogicException;
 use Storm\Chronicler\Exceptions\StreamAlreadyExists;
 use Storm\Contract\Tracker\StreamStory;
 

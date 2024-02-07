@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Chron\Package\Chronicler\Subscribers;
 
+use App\Chron\Package\Attribute\StreamSubscriber\AsStreamSubscriber;
 use App\Chron\Package\Chronicler\Contracts\TransactionalChronicler;
 use Closure;
 use Storm\Chronicler\Exceptions\TransactionNotStarted;
 use Storm\Contract\Tracker\StreamStory;
 use Storm\Contract\Tracker\TransactionalStreamStory;
 
+#[AsStreamSubscriber(
+    chronicler: 'chronicler.event.transactional.*'
+)]
 final class RollbackTransaction
 {
     public function __invoke(TransactionalChronicler $chronicler): Closure

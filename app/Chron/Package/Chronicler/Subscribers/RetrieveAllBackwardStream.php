@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Package\Chronicler\Subscribers;
 
+use App\Chron\Package\Attribute\StreamSubscriber\AsStreamSubscriber;
 use App\Chron\Package\Chronicler\Contracts\Chronicler;
 use App\Chron\Package\Chronicler\Direction;
 use Closure;
@@ -12,6 +13,9 @@ use Storm\Chronicler\Exceptions\StreamNotFound;
 use Storm\Contract\Tracker\StreamStory;
 use Storm\Stream\Stream;
 
+#[AsStreamSubscriber(
+    chronicler: 'chronicler.event.*'
+)]
 final class RetrieveAllBackwardStream
 {
     public function __invoke(Chronicler $chronicler): Closure

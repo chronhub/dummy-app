@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Package\Chronicler;
 
+use Illuminate\Database\Connection;
 use Storm\Chronicler\Exceptions\TransactionAlreadyStarted;
 use Storm\Chronicler\Exceptions\TransactionNotStarted;
 use Throwable;
@@ -56,6 +57,8 @@ trait TransactionalStoreTrait
 
     public function inTransaction(): bool
     {
-        return $this->connection->transactionLevel() > 0;
+        return $this->connection()->transactionLevel() > 0;
     }
+
+    abstract protected function connection(): Connection;
 }

@@ -9,7 +9,7 @@ final readonly class EventStream
     public function __construct(
         private string $streamName,
         private string $tableName,
-        private ?string $category = null
+        private ?string $partition = null
     ) {
     }
 
@@ -23,9 +23,9 @@ final readonly class EventStream
         return $this->tableName;
     }
 
-    public function category(): ?string
+    public function partition(): ?string
     {
-        return $this->category;
+        return $this->partition;
     }
 
     public function jsonSerialize(): array
@@ -33,7 +33,7 @@ final readonly class EventStream
         return [
             'real_stream_name' => $this->streamName,
             'stream_name' => $this->tableName,
-            'category' => $this->category,
+            'partition' => $this->partition,
         ];
     }
 }

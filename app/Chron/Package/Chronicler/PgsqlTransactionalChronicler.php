@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Package\Chronicler;
 
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
+use App\Chron\Package\Attribute\Chronicler\AsChronicler;
 use App\Chron\Package\Chronicler\Contracts\QueryFilter;
 use App\Chron\Package\Chronicler\Contracts\StreamPersistence;
 use App\Chron\Package\Chronicler\Contracts\TransactionalChronicler;
@@ -19,8 +20,10 @@ use Storm\Contract\Chronicler\EventStreamProvider;
 use Storm\Stream\Stream;
 use Storm\Stream\StreamName;
 
-use function iterator_to_array;
-
+#[AsChronicler(
+    connection: 'pgsql',
+    abstract: 'chronicler.event.transactional.standard.pgsql'
+)]
 final readonly class PgsqlTransactionalChronicler implements TransactionalChronicler
 {
     use TransactionalStoreTrait;
@@ -30,24 +33,21 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
         protected EventStreamProvider $eventStreamProvider,
         protected StreamPersistence $streamPersistence,
         protected CursorConnectionLoader $streamEventLoader,
-        //protected DirectEventPublisher $eventPublisher
+        protected string $masterTable = 'stream_event',
     ) {
+        // todo assert event stream provider is a laravel connection
     }
 
     public function append(Stream $stream): void
     {
-        $events = iterator_to_array($stream->events());
-
-        $streamEvents = $this->streamPersistence->serialize($stream->name(), ...$events);
+        $streamEvents = $this->streamPersistence->serialize($stream);
 
         if ($streamEvents === []) {
             return;
         }
 
         try {
-            $this->writeQuery()->insert($streamEvents);
-
-            //$this->eventPublisher->publish(...$events);
+            $this->write()->insert($streamEvents);
         } catch (QueryException $exception) {
             $this->handleException($exception, $stream->name());
         }
@@ -78,7 +78,8 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
 
     public function retrieveAll(StreamName $streamName, AggregateIdentity $aggregateId, Direction $direction = Direction::FORWARD): Generator
     {
-        $query = $this->readQuery()
+        $query = $this
+            ->read()
             ->where('id', $aggregateId->toString())
             ->orderBy('position', $direction->value);
 
@@ -87,7 +88,7 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
 
     public function retrieveFiltered(StreamName $streamName, QueryFilter $queryFilter): Generator
     {
-        $query = $this->readQuery();
+        $query = $this->read();
 
         $queryFilter->apply()($query);
 
@@ -111,6 +112,7 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
 
     private function handleException(QueryException $exception, StreamName $streamName): void
     {
+        // todo all exceptions must be caught by the rollback transaction
         match ($exception->getCode()) {
             '42P01' => throw StreamNotFound::withStreamName($streamName),
             '23000', '23505' => throw new ConnectionConcurrencyFailure($exception->getMessage(), (int) $exception->getCode(), $exception),
@@ -118,13 +120,18 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
         };
     }
 
-    private function readQuery(): Builder
+    protected function connection(): Connection
     {
-        return $this->connection->table('stream_event');
+        return $this->connection;
     }
 
-    private function writeQuery(): Builder
+    private function read(): Builder
     {
-        return $this->connection->table('stream_event')->useWritePdo();
+        return $this->connection->table($this->masterTable);
+    }
+
+    private function write(): Builder
+    {
+        return $this->connection->table($this->masterTable)->useWritePdo();
     }
 }

@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Chron\Package\Attribute;
 
-use App\Chron\Application\Event\Customer\SendEmailToRegisteredCustomer;
-use App\Chron\Application\Event\Customer\WhenCustomerEmailChanged;
-use App\Chron\Application\Event\Customer\WhenCustomerRegistered;
-use App\Chron\Application\Event\Order\WhenOrderCompleted;
-use App\Chron\Application\Event\Order\WhenOrderCreated;
-use App\Chron\Model\Customer\Command\ChangeCustomerEmailHandler;
-use App\Chron\Model\Customer\Command\RegisterCustomerHandler;
-use App\Chron\Model\Order\Command\CompleteOrderHandler;
-use App\Chron\Model\Order\Command\CreateOrderHandler;
+use App\Chron\Application\Messaging\Event\Customer\SendEmailToRegisteredCustomer;
+use App\Chron\Application\Messaging\Event\Customer\WhenCustomerEmailChanged;
+use App\Chron\Application\Messaging\Event\Customer\WhenCustomerRegistered;
+use App\Chron\Application\Messaging\Event\Order\WhenOrderCompleted;
+use App\Chron\Application\Messaging\Event\Order\WhenOrderCreated;
+use App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler;
+use App\Chron\Model\Customer\Handler\RegisterCustomerHandler;
+use App\Chron\Model\Order\Handler\CompleteOrderHandler;
+use App\Chron\Model\Order\Handler\CreateOrderHandler;
 use App\Chron\Package\Reporter\ReportCommand;
 use App\Chron\Package\Reporter\ReportEvent;
 use App\Chron\Package\Reporter\ReportNotification;

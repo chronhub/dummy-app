@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Chron\Console\ExportMessageCommand;
-use App\Chron\Console\MapListenerCommand;
-use App\Chron\Console\MapMessageCommand;
+use App\Chron\Application\Console\ExportMessageCommand;
+use App\Chron\Application\Console\MapListenerCommand;
+use App\Chron\Application\Console\MapMessageCommand;
 
 return [
 
