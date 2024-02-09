@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order\Handler;
 
 use App\Chron\Application\Messaging\Command\Order\CancelOrder;
+use App\Chron\Infrastructure\Service\CustomerOrderProvider;
 use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Customer\Exception\CustomerNotFound;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
@@ -22,6 +23,7 @@ final readonly class CancelOrderHandler
     public function __construct(
         private OrderList $orders,
         private CustomerCollection $customers,
+        private CustomerOrderProvider $readModel,
     ) {
     }
 
@@ -44,5 +46,7 @@ final readonly class CancelOrderHandler
         $order->cancel();
 
         $this->orders->save($order);
+
+        $this->readModel->update($order->customerId(), $order->orderId(), $order->status());
     }
 }

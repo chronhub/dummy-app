@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order\Handler;
 
 use App\Chron\Application\Messaging\Command\Order\PayOrder;
+use App\Chron\Infrastructure\Service\CustomerOrderProvider;
 use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Customer\Exception\CustomerNotFound;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
@@ -22,6 +23,7 @@ final readonly class PayOrderHandler
     public function __construct(
         private OrderList $orders,
         private CustomerCollection $customers,
+        private CustomerOrderProvider $readModel,
         // todo PaymentGateway $paymentGateway
     ) {
     }
@@ -45,5 +47,7 @@ final readonly class PayOrderHandler
         $order->pay($orderId, $customerId);
 
         $this->orders->save($order);
+
+        $this->readModel->update($order->customerId(), $order->orderId(), $order->status());
     }
 }

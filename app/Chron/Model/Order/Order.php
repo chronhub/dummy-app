@@ -37,11 +37,11 @@ final class Order implements AggregateRoot
 
     public function modify(): void
     {
-        if ($this->status->isPending()) {
-            $this->recordThat(OrderModified::forCustomer($this->orderId(), $this->customerId, OrderStatus::MODIFIED));
+        if (! $this->status->isPending()) {
+            throw InvalidOrderOperation::withStatus($this->orderId(), 'modify', $this->status);
         }
 
-        throw InvalidOrderOperation::withStatus($this->orderId(), 'modify', $this->status);
+        $this->recordThat(OrderModified::forCustomer($this->orderId(), $this->customerId, OrderStatus::MODIFIED));
     }
 
     // bring a stub payment service
