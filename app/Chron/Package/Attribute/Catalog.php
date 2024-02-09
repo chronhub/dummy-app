@@ -12,9 +12,18 @@ use App\Chron\Application\Messaging\Event\Order\WhenOrderCreated;
 use App\Chron\Infrastructure\Repository\CustomerAggregateRepository;
 use App\Chron\Infrastructure\Repository\OrderAggregateRepository;
 use App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler;
+use App\Chron\Model\Customer\Handler\QueryRandomCustomerHandler;
 use App\Chron\Model\Customer\Handler\RegisterCustomerHandler;
+use App\Chron\Model\Order\Handler\CancelOrderHandler;
 use App\Chron\Model\Order\Handler\CompleteOrderHandler;
 use App\Chron\Model\Order\Handler\CreateOrderHandler;
+use App\Chron\Model\Order\Handler\DeliverOrderHandler;
+use App\Chron\Model\Order\Handler\ModifyOrderHandler;
+use App\Chron\Model\Order\Handler\PayOrderHandler;
+use App\Chron\Model\Order\Handler\QueryRandomPendingOrderHandler;
+use App\Chron\Model\Order\Handler\RefundOrderHandler;
+use App\Chron\Model\Order\Handler\ReturnOrderHandler;
+use App\Chron\Model\Order\Handler\ShipOrderHandler;
 use App\Chron\Package\Chronicler\PgsqlTransactionalChronicler;
 use App\Chron\Package\Chronicler\Subscribers\AppendOnlyStream;
 use App\Chron\Package\Chronicler\Subscribers\BeginTransaction;
@@ -64,6 +73,13 @@ class Catalog
         ChangeCustomerEmailHandler::class,
         CreateOrderHandler::class,
         CompleteOrderHandler::class,
+        ModifyOrderHandler::class,
+        CancelOrderHandler::class,
+        PayOrderHandler::class,
+        ShipOrderHandler::class,
+        DeliverOrderHandler::class,
+        ReturnOrderHandler::class,
+        RefundOrderHandler::class,
 
         // event handlers
         WhenCustomerRegistered::class,
@@ -71,6 +87,10 @@ class Catalog
         WhenCustomerEmailChanged::class,
         WhenOrderCreated::class,
         WhenOrderCompleted::class,
+
+        // query handlers
+        QueryRandomPendingOrderHandler::class,
+        QueryRandomCustomerHandler::class,
     ];
 
     /**

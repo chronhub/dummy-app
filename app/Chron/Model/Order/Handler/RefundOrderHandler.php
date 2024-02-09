@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order\Handler;
 
-use App\Chron\Application\Messaging\Command\Order\CompleteOrder;
+use App\Chron\Application\Messaging\Command\Order\RefundOrder;
 use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Customer\Exception\CustomerNotFound;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
@@ -15,9 +15,9 @@ use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',
-    handles: CompleteOrder::class,
+    handles: RefundOrder::class,
 )]
-final readonly class CompleteOrderHandler
+final readonly class RefundOrderHandler
 {
     public function __construct(
         private OrderList $orders,
@@ -25,7 +25,7 @@ final readonly class CompleteOrderHandler
     ) {
     }
 
-    public function __invoke(CompleteOrder $command): void
+    public function __invoke(RefundOrder $command): void
     {
         $customerId = CustomerId::fromString($command->content['customer_id']);
 
@@ -41,7 +41,7 @@ final readonly class CompleteOrderHandler
             throw OrderNotFound::withId($orderId);
         }
 
-        $order->complete();
+        $order->refund($orderId, $customerId);
 
         $this->orders->save($order);
     }

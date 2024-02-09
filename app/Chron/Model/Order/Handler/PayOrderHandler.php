@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order\Handler;
 
-use App\Chron\Application\Messaging\Command\Order\CompleteOrder;
+use App\Chron\Application\Messaging\Command\Order\PayOrder;
 use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Customer\Exception\CustomerNotFound;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
@@ -15,17 +15,18 @@ use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',
-    handles: CompleteOrder::class,
+    handles: PayOrder::class,
 )]
-final readonly class CompleteOrderHandler
+final readonly class PayOrderHandler
 {
     public function __construct(
         private OrderList $orders,
         private CustomerCollection $customers,
+        // todo PaymentGateway $paymentGateway
     ) {
     }
 
-    public function __invoke(CompleteOrder $command): void
+    public function __invoke(PayOrder $command): void
     {
         $customerId = CustomerId::fromString($command->content['customer_id']);
 
@@ -41,7 +42,7 @@ final readonly class CompleteOrderHandler
             throw OrderNotFound::withId($orderId);
         }
 
-        $order->complete();
+        $order->pay($orderId, $customerId);
 
         $this->orders->save($order);
     }

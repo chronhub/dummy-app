@@ -6,17 +6,21 @@ namespace App\Chron\Model\Customer;
 
 use App\Chron\Application\Messaging\Command\Customer\ChangeCustomerEmail;
 use App\Chron\Application\Messaging\Command\Customer\RegisterCustomer;
+use App\Chron\Application\Messaging\Query\QueryRandomCustomer;
 use App\Chron\Package\Reporter\Report;
-use Illuminate\Database\Connection;
 use Illuminate\Support\Str;
+use RuntimeException;
+use Storm\Support\QueryPromiseTrait;
 
 class CustomerService
 {
+    use QueryPromiseTrait;
+
     public function registerCustomer(): void
     {
         $command = RegisterCustomer::withData(
             fake()->uuid,
-            Str::random(32).'@'.fake()->domainName,
+            $this->ensureUniqueEmail(),
             fake()->name
         );
 
@@ -27,18 +31,24 @@ class CustomerService
     {
         $customerId = $this->findRandomCustomer();
 
-        $command = ChangeCustomerEmail::withCustomer($customerId, fake()->email);
+        $command = ChangeCustomerEmail::withCustomer($customerId, $this->ensureUniqueEmail());
 
         Report::relay($command);
     }
 
     protected function findRandomCustomer(): string
     {
-        /** @var Connection $connection */
-        $connection = app('db.connection');
+        $customer = $this->handlePromise(Report::relay(new QueryRandomCustomer()));
 
-        $customer = $connection->table('customer')->inRandomOrder()->first();
+        if ($customer === null) {
+            throw new RuntimeException('No customer found');
+        }
 
         return $customer->id;
+    }
+
+    protected function ensureUniqueEmail(): string
+    {
+        return Str::random(32).'@'.fake()->domainName;
     }
 }

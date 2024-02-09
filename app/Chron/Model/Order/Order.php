@@ -5,8 +5,16 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order;
 
 use App\Chron\Model\Customer\CustomerId;
+use App\Chron\Model\Order\Event\OrderCanceled;
 use App\Chron\Model\Order\Event\OrderCompleted;
 use App\Chron\Model\Order\Event\OrderCreated;
+use App\Chron\Model\Order\Event\OrderDelivered;
+use App\Chron\Model\Order\Event\OrderModified;
+use App\Chron\Model\Order\Event\OrderPaid;
+use App\Chron\Model\Order\Event\OrderRefunded;
+use App\Chron\Model\Order\Event\OrderReturned;
+use App\Chron\Model\Order\Event\OrderShipped;
+use App\Chron\Model\Order\Exception\InvalidOrderOperation;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
@@ -25,6 +33,71 @@ final class Order implements AggregateRoot
         $order->recordThat(OrderCreated::forCustomer($orderId, $customerId, OrderStatus::CREATED));
 
         return $order;
+    }
+
+    public function modify(): void
+    {
+        if ($this->status->isPending()) {
+            $this->recordThat(OrderModified::forCustomer($this->orderId(), $this->customerId, OrderStatus::MODIFIED));
+        }
+
+        throw InvalidOrderOperation::withStatus($this->orderId(), 'modify', $this->status);
+    }
+
+    // bring a stub payment service
+    // add a stub amount
+    public function pay(): void
+    {
+        if ($this->status->isPending()) {
+            $this->recordThat(OrderPaid::forCustomer($this->orderId(), $this->customerId, OrderStatus::PAID));
+        }
+
+        throw InvalidOrderOperation::withStatus($this->orderId(), 'pay', $this->status);
+    }
+
+    public function cancel(): void
+    {
+        if ($this->status->isPending()) {
+            $this->recordThat(OrderCanceled::forCustomer($this->orderId(), $this->customerId, OrderStatus::CANCELLED));
+        }
+
+        throw InvalidOrderOperation::withStatus($this->orderId(), 'cancel', $this->status);
+    }
+
+    public function deliver(): void
+    {
+        if ($this->status === OrderStatus::PAID) {
+            $this->recordThat(OrderDelivered::forCustomer($this->orderId(), $this->customerId, OrderStatus::DELIVERED));
+        }
+
+        throw InvalidOrderOperation::withStatus($this->orderId(), 'deliver', $this->status);
+    }
+
+    public function ship(): void
+    {
+        if ($this->status === OrderStatus::DELIVERED) {
+            $this->recordThat(OrderShipped::forCustomer($this->orderId(), $this->customerId, OrderStatus::SHIPPED));
+        }
+
+        throw InvalidOrderOperation::withStatus($this->orderId(), 'ship', $this->status);
+    }
+
+    public function return(): void
+    {
+        if ($this->status === OrderStatus::SHIPPED) {
+            $this->recordThat(OrderReturned::forCustomer($this->orderId(), $this->customerId, OrderStatus::RETURNED));
+        }
+
+        throw InvalidOrderOperation::withStatus($this->orderId(), 'return', $this->status);
+    }
+
+    public function refund(): void
+    {
+        if ($this->status === OrderStatus::RETURNED) {
+            $this->recordThat(OrderRefunded::forCustomer($this->orderId(), $this->customerId, OrderStatus::REFUNDED));
+        }
+
+        throw InvalidOrderOperation::withStatus($this->orderId(), 'refund', $this->status);
     }
 
     public function complete(): void
@@ -62,6 +135,36 @@ final class Order implements AggregateRoot
     }
 
     protected function applyOrderCompleted(OrderCompleted $event): void
+    {
+        $this->status = $event->status();
+    }
+
+    protected function applyOrderModified(OrderModified $event): void
+    {
+        $this->status = $event->status();
+    }
+
+    protected function applyOrderPaid(OrderPaid $event): void
+    {
+        $this->status = $event->status();
+    }
+
+    protected function applyOrderDelivered(OrderDelivered $event): void
+    {
+        $this->status = $event->status();
+    }
+
+    protected function applyOrderReturned(OrderReturned $event): void
+    {
+        $this->status = $event->status();
+    }
+
+    protected function applyOrderRefunded(OrderRefunded $event): void
+    {
+        $this->status = $event->status();
+    }
+
+    protected function applyOrderCancelled(OrderCanceled $event): void
     {
         $this->status = $event->status();
     }

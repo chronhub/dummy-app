@@ -6,16 +6,13 @@ namespace App\Chron\Application\Messaging\Command\Order;
 
 use Storm\Message\AbstractDomainCommand;
 
-/**
- * @deprecated
- */
-final class CompleteOrder extends AbstractDomainCommand
+final class ShipOrder extends AbstractDomainCommand
 {
-    public static function forCustomer(string $orderId, string $customerId): self
+    public static function forCustomer(string $customerId, string $orderId): self
     {
         return new self([
-            'order_id' => $orderId,
             'customer_id' => $customerId,
+            'order_id' => $orderId,
         ]);
     }
 }
