@@ -11,7 +11,12 @@ use App\Chron\Model\Customer\Repository\CustomerCollection;
 use App\Chron\Model\Order\Exception\OrderNotFound;
 use App\Chron\Model\Order\OrderId;
 use App\Chron\Model\Order\Repository\OrderList;
+use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
+#[AsCommandHandler(
+    reporter: 'reporter.command.default',
+    handles: CancelOrder::class,
+)]
 final readonly class CancelOrderHandler
 {
     public function __construct(

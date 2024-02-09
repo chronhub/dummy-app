@@ -48,58 +48,61 @@ final class Order implements AggregateRoot
     // add a stub amount
     public function pay(): void
     {
-        if ($this->status->isPending()) {
-            $this->recordThat(OrderPaid::forCustomer($this->orderId(), $this->customerId, OrderStatus::PAID));
+        if (! $this->status->isPending()) {
+            throw InvalidOrderOperation::withStatus($this->orderId(), 'pay', $this->status);
         }
 
-        throw InvalidOrderOperation::withStatus($this->orderId(), 'pay', $this->status);
+        $this->recordThat(OrderPaid::forCustomer($this->orderId(), $this->customerId, OrderStatus::PAID));
     }
 
     public function cancel(): void
     {
-        if ($this->status->isPending()) {
-            $this->recordThat(OrderCanceled::forCustomer($this->orderId(), $this->customerId, OrderStatus::CANCELLED));
+        if (! $this->status->isPending()) {
+            throw InvalidOrderOperation::withStatus($this->orderId(), 'cancel', $this->status);
         }
 
-        throw InvalidOrderOperation::withStatus($this->orderId(), 'cancel', $this->status);
+        $this->recordThat(OrderCanceled::forCustomer($this->orderId(), $this->customerId, OrderStatus::CANCELLED));
     }
 
     public function deliver(): void
     {
-        if ($this->status === OrderStatus::PAID) {
-            $this->recordThat(OrderDelivered::forCustomer($this->orderId(), $this->customerId, OrderStatus::DELIVERED));
+        if ($this->status !== OrderStatus::PAID) {
+            throw InvalidOrderOperation::withStatus($this->orderId(), 'deliver', $this->status);
         }
 
-        throw InvalidOrderOperation::withStatus($this->orderId(), 'deliver', $this->status);
+        $this->recordThat(OrderDelivered::forCustomer($this->orderId(), $this->customerId, OrderStatus::DELIVERED));
     }
 
     public function ship(): void
     {
-        if ($this->status === OrderStatus::DELIVERED) {
-            $this->recordThat(OrderShipped::forCustomer($this->orderId(), $this->customerId, OrderStatus::SHIPPED));
+        if ($this->status !== OrderStatus::DELIVERED) {
+            throw InvalidOrderOperation::withStatus($this->orderId(), 'ship', $this->status);
         }
 
-        throw InvalidOrderOperation::withStatus($this->orderId(), 'ship', $this->status);
+        $this->recordThat(OrderShipped::forCustomer($this->orderId(), $this->customerId, OrderStatus::SHIPPED));
     }
 
     public function return(): void
     {
-        if ($this->status === OrderStatus::SHIPPED) {
-            $this->recordThat(OrderReturned::forCustomer($this->orderId(), $this->customerId, OrderStatus::RETURNED));
+        if ($this->status !== OrderStatus::SHIPPED) {
+            throw InvalidOrderOperation::withStatus($this->orderId(), 'return', $this->status);
         }
 
-        throw InvalidOrderOperation::withStatus($this->orderId(), 'return', $this->status);
+        $this->recordThat(OrderReturned::forCustomer($this->orderId(), $this->customerId, OrderStatus::RETURNED));
     }
 
     public function refund(): void
     {
-        if ($this->status === OrderStatus::RETURNED) {
-            $this->recordThat(OrderRefunded::forCustomer($this->orderId(), $this->customerId, OrderStatus::REFUNDED));
+        if ($this->status !== OrderStatus::RETURNED) {
+            throw InvalidOrderOperation::withStatus($this->orderId(), 'refund', $this->status);
         }
 
-        throw InvalidOrderOperation::withStatus($this->orderId(), 'refund', $this->status);
+        $this->recordThat(OrderRefunded::forCustomer($this->orderId(), $this->customerId, OrderStatus::REFUNDED));
     }
 
+    /**
+     * @deprecated
+     */
     public function complete(): void
     {
         if ($this->status === OrderStatus::COMPLETED) {

@@ -41,7 +41,7 @@ final readonly class ReturnOrderHandler
             throw OrderNotFound::withId($orderId);
         }
 
-        $order->return($orderId, $customerId);
+        $order->return();
 
         $this->orders->save($order);
     }
