@@ -11,6 +11,7 @@ use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Package\Chronicler\Contracts\Chronicler;
 use App\Chron\Package\Reporter\Report;
 use Illuminate\Database\Connection;
+use Illuminate\Support\Str;
 use Storm\Stream\StreamName;
 use Storm\Support\QueryPromiseTrait;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,7 +55,7 @@ final class HomeController
     {
         $command = RegisterCustomer::withData(
             fake()->uuid,
-            fake()->email,
+            Str::random(32).'@'.fake()->domainName,
             fake()->name
         );
 

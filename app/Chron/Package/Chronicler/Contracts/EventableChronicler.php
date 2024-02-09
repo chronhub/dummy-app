@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Package\Chronicler\Contracts;
 
 use Storm\Contract\Tracker\Listener;
+use Storm\Contract\Tracker\StreamTracker;
 
 interface EventableChronicler extends ChroniclerDecorator
 {
@@ -51,4 +52,6 @@ interface EventableChronicler extends ChroniclerDecorator
     public function subscribe(string $eventName, callable $streamContext, int $priority = 0): Listener;
 
     public function unsubscribe(Listener ...$eventSubscribers): void;
+
+    public function getStreamTracker(): StreamTracker;
 }

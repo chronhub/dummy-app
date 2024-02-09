@@ -10,13 +10,6 @@ use App\Chron\Model\Customer\Repository\CustomerCollection;
 use App\Chron\Model\Order\Repository\OrderList;
 use App\Chron\Package\Aggregate\AggregateEventReleaser;
 use App\Chron\Package\Aggregate\GenericAggregateRepository;
-use App\Chron\Package\Chronicler\Contracts\Chronicler;
-use App\Chron\Package\Chronicler\Contracts\EventableChronicler;
-use App\Chron\Package\Chronicler\Contracts\StreamPersistence;
-use App\Chron\Package\Chronicler\Decorator\EventChronicler;
-use App\Chron\Package\Chronicler\Decorator\TransactionalEventChronicler;
-use App\Chron\Package\EventPublisher\EventPublisher;
-use App\Chron\Package\EventPublisher\EventPublisherSubscriber;
 use App\Chron\Package\EventPublisher\InMemoryEventPublisher;
 use App\Chron\Package\Reporter\Decorator\ChainMessageDecorator;
 use App\Chron\Package\Reporter\Decorator\EventId;
@@ -28,9 +21,6 @@ use App\Chron\Package\Serializer\StreamEventSerializer;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
-use Storm\Chronicler\TrackStream;
-use Storm\Chronicler\TrackTransactionalStream;
-use Storm\Contract\Chronicler\EventStreamProvider as Provider;
 use Storm\Serializer\JsonSerializer;
 use Storm\Serializer\MessageContentSerializer;
 use Storm\Stream\StreamName;
@@ -39,21 +29,6 @@ class ChroniclerServiceProvider extends ServiceProvider implements DeferrablePro
 {
     public function boot(): void
     {
-        // does not work with resolving
-        $this->app->extend(Chronicler::class, function (Chronicler $chronicler): Chronicler {
-            // event publisher
-            $publisher = $this->app[EventPublisherSubscriber::class];
-            $publisher($chronicler);
-
-            // correlation header
-            if ($chronicler instanceof EventableChronicler) {
-                /** @var CorrelationHeaderCommand $correlation */
-                $correlation = $this->app[CorrelationHeaderCommand::class];
-                $correlation->attachToChronicler($chronicler);
-            }
-
-            return $chronicler;
-        });
     }
 
     public function register(): void
@@ -61,17 +36,9 @@ class ChroniclerServiceProvider extends ServiceProvider implements DeferrablePro
         $this->registerEventDecorators();
         $this->registerStreamEventSerializer();
         $this->registerEventPublisher();
-        $this->registerEventStreamProvider();
-        $this->registerStreamPersistence();
         $this->registerAggregateRepositories();
-        $this->registerDefaultEventStore();
 
         $this->app->singleton(CorrelationHeaderCommand::class);
-    }
-
-    protected function registerDefaultEventStore(): void
-    {
-        $this->app->singleton(Chronicler::class, fn (): Chronicler => $this->makeTransactionalEventChronicler());
     }
 
     protected function registerAggregateRepositories(): void
@@ -87,32 +54,6 @@ class ChroniclerServiceProvider extends ServiceProvider implements DeferrablePro
 
             return new OrderAggregateRepository($repository);
         });
-    }
-
-    protected function makeRealChronicler(): Chronicler
-    {
-        return new PgsqlTransactionalChronicler(
-            $this->app['db']->connection('pgsql'),
-            $this->app[Provider::class],
-            $this->app[StreamPersistence::class],
-            $this->app[CursorConnectionLoader::class],
-        );
-    }
-
-    protected function makeEventChronicler(): EventableChronicler
-    {
-        $chronicler = $this->makeRealChronicler();
-
-        return new EventChronicler($chronicler, new TrackStream());
-    }
-
-    protected function makeTransactionalEventChronicler(): TransactionalEventChronicler
-    {
-        $chronicler = $this->makeRealChronicler();
-
-        $streamTracker = new TrackTransactionalStream();
-
-        return new TransactionalEventChronicler($chronicler, $streamTracker);
     }
 
     private function registerEventDecorators(): void
@@ -140,23 +81,13 @@ class ChroniclerServiceProvider extends ServiceProvider implements DeferrablePro
     {
         // fixMe: can not use $app['reporter.event.default]
         //  subscribers are not attached
-        $this->app->singleton(EventPublisher::class, fn () => new InMemoryEventPublisher());
-    }
-
-    private function registerEventStreamProvider(): void
-    {
-        $this->app->bind(Provider::class, EventStreamProvider::class);
-    }
-
-    private function registerStreamPersistence(): void
-    {
-        $this->app->bind(StreamPersistence::class, StandardStreamPersistence::class);
+        $this->app->singleton('event.publisher.in_memory', fn () => new InMemoryEventPublisher());
     }
 
     private function makeGenericAggregateRepository(StreamName $streamName): GenericAggregateRepository
     {
         return new GenericAggregateRepository(
-            $this->app[Chronicler::class],
+            $this->app['chronicler.event.transactional.standard.pgsql'],
             $streamName,
             new AggregateEventReleaser($this->app['event.decorator.chain.default'])
         );
@@ -165,10 +96,7 @@ class ChroniclerServiceProvider extends ServiceProvider implements DeferrablePro
     public function provides(): array
     {
         return [
-            Chronicler::class,
-            EventPublisher::class,
-            Provider::class,
-            StreamPersistence::class,
+            'event.publisher.in_memory',
             StreamEventSerializer::class,
             'event.decorator.chain.default',
             CustomerCollection::class,

@@ -57,7 +57,7 @@ final readonly class TransactionalEventChronicler extends EventChronicler implem
 
             $this->commitTransaction();
 
-            return $result;
+            return $result === null ? true : $result;
         } catch (Throwable $exception) {
             $this->rollbackTransaction();
 
@@ -67,10 +67,10 @@ final readonly class TransactionalEventChronicler extends EventChronicler implem
 
     public function inTransaction(): bool
     {
-        if (! $this->innerChronicler() instanceof TransactionalChronicler) {
-            throw new LogicException('Inner chronicler is not a transactional chronicler');
+        if ($this->innerChronicler() instanceof TransactionalChronicler) {
+            return $this->innerChronicler()->inTransaction();
         }
 
-        return $this->innerChronicler()->inTransaction();
+        throw new LogicException('Inner chronicler is not a transactional chronicler');
     }
 }

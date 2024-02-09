@@ -66,9 +66,7 @@ class SubscriberMap
 
         $instance = $this->app->make($attribute->className, ...$parameters);
 
-        $instance = ($attribute->method === '__invoke') ? $instance : $instance->{$attribute->method}(...);
-
-        return new GenericListener($attribute->event, $instance, $attribute->priority);
+        return new GenericListener($attribute->event, $instance->{$attribute->method}(...), $attribute->priority);
     }
 
     protected function whenResolveReporter(array $reporterIds): void

@@ -13,7 +13,6 @@ use App\Chron\Package\Chronicler\Exception\ConnectionConcurrencyFailure;
 use App\Chron\Package\Chronicler\Exception\ConnectionQueryFailure;
 use Generator;
 use Illuminate\Database\Connection;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Database\QueryException;
 use Storm\Chronicler\Exceptions\StreamNotFound;
 use Storm\Contract\Chronicler\EventStreamProvider;
@@ -47,7 +46,7 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
         }
 
         try {
-            $this->write()->insert($streamEvents);
+            $this->connection->table($this->masterTable)->useWritePdo()->insert($streamEvents);
         } catch (QueryException $exception) {
             $this->handleException($exception, $stream->name());
         }
@@ -78,8 +77,7 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
 
     public function retrieveAll(StreamName $streamName, AggregateIdentity $aggregateId, Direction $direction = Direction::FORWARD): Generator
     {
-        $query = $this
-            ->read()
+        $query = $this->connection->table($this->masterTable)
             ->where('id', $aggregateId->toString())
             ->orderBy('position', $direction->value);
 
@@ -88,7 +86,7 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
 
     public function retrieveFiltered(StreamName $streamName, QueryFilter $queryFilter): Generator
     {
-        $query = $this->read();
+        $query = $this->connection->table($this->masterTable);
 
         $queryFilter->apply()($query);
 
@@ -123,15 +121,5 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
     protected function connection(): Connection
     {
         return $this->connection;
-    }
-
-    private function read(): Builder
-    {
-        return $this->connection->table($this->masterTable);
-    }
-
-    private function write(): Builder
-    {
-        return $this->connection->table($this->masterTable)->useWritePdo();
     }
 }

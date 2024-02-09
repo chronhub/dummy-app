@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Package\Reporter\Subscribers;
 
+use App\Chron\Package\Attribute\Reference\Reference;
 use App\Chron\Package\Attribute\Subscriber\AsReporterSubscriber;
 use App\Chron\Package\Chronicler\Contracts\Chronicler;
 use App\Chron\Package\Chronicler\Contracts\TransactionalEventableChronicler;
@@ -13,7 +14,7 @@ use Storm\Contract\Tracker\MessageStory;
 
 final readonly class TransactionalCommand
 {
-    public function __construct(private Chronicler $chronicler)
+    public function __construct(#[Reference('chronicler.event.transactional.standard.pgsql')] private Chronicler $chronicler)
     {
     }
 

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Chron\Package\Attribute;
 
+use App\Chron\Package\Attribute\Chronicler\ChroniclerMap;
 use App\Chron\Package\Attribute\Messaging\MessageMap;
 use App\Chron\Package\Attribute\Reporter\ReporterMap;
+use App\Chron\Package\Attribute\StreamSubscriber\StreamSubscriberMap;
 use App\Chron\Package\Attribute\Subscriber\SubscriberMap;
 use Illuminate\Contracts\Foundation\Application;
 
@@ -17,6 +19,8 @@ class Kernel
         protected ReporterMap $reporters,
         protected SubscriberMap $subscribers,
         protected MessageMap $messages,
+        protected ChroniclerMap $chroniclers,
+        protected StreamSubscriberMap $streamSubscribers,
         protected Application $app
     ) {
     }
@@ -26,6 +30,12 @@ class Kernel
         if (self::$loaded === true) {
             return;
         }
+
+        $this->chroniclers->load();
+
+        $this->streamSubscribers->load(
+            $this->chroniclers->getEntries()->keys()->toArray()
+        );
 
         $this->reporters->load();
 
@@ -44,6 +54,8 @@ class Kernel
             $this->reporters,
             $this->subscribers,
             $this->messages,
+            $this->chroniclers,
+            $this->streamSubscribers,
             $this->app
         );
     }

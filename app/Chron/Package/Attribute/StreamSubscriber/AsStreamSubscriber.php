@@ -10,9 +10,10 @@ use Attribute;
 class AsStreamSubscriber
 {
     public function __construct(
+        public string $event,
         public string|array $chronicler,
         public ?string $method = null,
-        public bool $autoWire = true,
+        public bool $autowire = true,
         public int $priority = 0
     ) {
     }

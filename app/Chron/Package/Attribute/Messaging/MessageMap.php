@@ -112,7 +112,7 @@ class MessageMap
 
         $instance = $this->app->make($attribute->handlerClass, ...$parameters);
 
-        return ($attribute->handlerMethod === '__invoke') ? $instance : $instance->{$attribute->handlerMethod}(...);
+        return $instance->{$attribute->handlerMethod}(...);
     }
 
     protected function tagMessageHandlers(): void

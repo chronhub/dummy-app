@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Package\Reporter\Subscribers;
 
+use App\Chron\Package\Attribute\StreamSubscriber\AsStreamSubscriber;
 use App\Chron\Package\Attribute\Subscriber\AsReporterSubscriber;
 use App\Chron\Package\Chronicler\Contracts\EventableChronicler;
 use Closure;
@@ -31,9 +32,7 @@ final class CorrelationHeaderCommand
         return function (MessageStory $story): void {
             $command = $story->message()->event();
 
-            logger('Correlation header attached to command:'.$command::class);
             if ($command instanceof DomainCommand) {
-                logger('Correlation header attached to command');
                 $this->command = $command;
             }
         };
@@ -48,24 +47,26 @@ final class CorrelationHeaderCommand
     public function eraseCommand(): Closure
     {
         return function (): void {
-            logger('Correlation header erased from command');
             $this->command = null;
         };
     }
 
-    public function attachToChronicler(EventableChronicler $chronicler): void
+    #[AsStreamSubscriber(
+        event: EventableChronicler::APPEND_STREAM_EVENT,
+        chronicler: 'chronicler.event.*',
+        priority: 100
+    )]
+    public function onAppendStream(): Closure
     {
-        $chronicler->subscribe(EventableChronicler::APPEND_STREAM_EVENT, function (StreamStory $story): void {
+        return function (StreamStory $story): void {
             if ($this->command === null) {
-                logger('Correlation header not attached to null command');
-
                 return;
             }
 
             $streamDecorator = $this->addCorrelationHeader($this->command);
 
             $story->decorate($streamDecorator);
-        }, 100);
+        };
     }
 
     private function addCorrelationHeader(DomainCommand $command): MessageDecorator

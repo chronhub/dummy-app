@@ -6,12 +6,14 @@ namespace App\Chron\Package\Chronicler\Subscribers;
 
 use App\Chron\Package\Attribute\StreamSubscriber\AsStreamSubscriber;
 use App\Chron\Package\Chronicler\Contracts\TransactionalChronicler;
+use App\Chron\Package\Chronicler\Contracts\TransactionalEventableChronicler;
 use Closure;
 use Storm\Chronicler\Exceptions\TransactionNotStarted;
 use Storm\Contract\Tracker\StreamStory;
 use Storm\Contract\Tracker\TransactionalStreamStory;
 
 #[AsStreamSubscriber(
+    event: TransactionalEventableChronicler::ROLLBACK_TRANSACTION_EVENT,
     chronicler: 'chronicler.event.transactional.*'
 )]
 final class RollbackTransaction

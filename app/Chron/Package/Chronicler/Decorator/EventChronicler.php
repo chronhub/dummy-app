@@ -10,7 +10,6 @@ use App\Chron\Package\Chronicler\Contracts\EventableChronicler;
 use App\Chron\Package\Chronicler\Contracts\QueryFilter;
 use App\Chron\Package\Chronicler\Contracts\TransactionalChronicler;
 use App\Chron\Package\Chronicler\Direction;
-use App\Chron\Package\Chronicler\ProvideEvents;
 use App\Chron\Package\Chronicler\StreamListener;
 use Generator;
 use Storm\Contract\Tracker\Listener;
@@ -25,7 +24,6 @@ readonly class EventChronicler implements EventableChronicler
         protected Chronicler|TransactionalChronicler $chronicler,
         protected StreamTracker|TransactionalStreamTracker $streamTracker
     ) {
-        ProvideEvents::withEvent($this->chronicler, $this->streamTracker);
     }
 
     public function append(Stream $stream): void
@@ -138,6 +136,11 @@ readonly class EventChronicler implements EventableChronicler
         foreach ($eventSubscribers as $eventSubscriber) {
             $this->streamTracker->forget($eventSubscriber);
         }
+    }
+
+    public function getStreamTracker(): StreamTracker
+    {
+        return $this->streamTracker;
     }
 
     public function innerChronicler(): Chronicler

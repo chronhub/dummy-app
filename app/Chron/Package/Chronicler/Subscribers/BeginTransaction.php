@@ -6,11 +6,13 @@ namespace App\Chron\Package\Chronicler\Subscribers;
 
 use App\Chron\Package\Attribute\StreamSubscriber\AsStreamSubscriber;
 use App\Chron\Package\Chronicler\Contracts\TransactionalChronicler;
+use App\Chron\Package\Chronicler\Contracts\TransactionalEventableChronicler;
 use Closure;
 use Storm\Chronicler\Exceptions\TransactionAlreadyStarted;
 use Storm\Contract\Tracker\TransactionalStreamStory;
 
 #[AsStreamSubscriber(
+    event: TransactionalEventableChronicler::BEGIN_TRANSACTION_EVENT,
     chronicler: 'chronicler.event.transactional.*'
 )]
 final class BeginTransaction

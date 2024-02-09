@@ -49,7 +49,8 @@ class ReferenceBuilder
             foreach ($attributes as $attribute) {
                 $instance = $attribute->newInstance();
 
-                $this->assertReferenceExistsInContainer($instance->name, $reflectionClass->getName());
+                // fixMe add deferred check
+                //$this->assertReferenceExistsInContainer($instance->name, $reflectionClass->getName());
 
                 $references[] = [$parameter->getName(), $instance->name];
             }

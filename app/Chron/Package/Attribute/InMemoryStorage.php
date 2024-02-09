@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Chron\Package\Attribute;
 
+use App\Chron\Package\Attribute\Chronicler\ChroniclerMap;
 use App\Chron\Package\Attribute\Messaging\MessageMap;
 use App\Chron\Package\Attribute\Reporter\DeclaredQueue;
 use App\Chron\Package\Attribute\Reporter\ReporterMap;
+use App\Chron\Package\Attribute\StreamSubscriber\StreamSubscriberMap;
 use App\Chron\Package\Attribute\Subscriber\SubscriberMap;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
@@ -24,6 +26,8 @@ final readonly class InMemoryStorage implements KernelStorage
         protected ReporterMap $reporters,
         protected SubscriberMap $subscribers,
         protected MessageMap $messages,
+        protected ChroniclerMap $chroniclers,
+        protected StreamSubscriberMap $streamSubscribers,
         protected Application $app
     ) {
     }
@@ -75,6 +79,16 @@ final readonly class InMemoryStorage implements KernelStorage
     public function getReporters(): Collection
     {
         return $this->reporters->getEntries();
+    }
+
+    public function getChroniclers(): Collection
+    {
+        return $this->chroniclers->getEntries();
+    }
+
+    public function getStreamSubscribers(): Collection
+    {
+        return $this->streamSubscribers->getEntries();
     }
 
     public function getDeclaredQueues(): DeclaredQueue

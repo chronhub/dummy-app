@@ -13,6 +13,19 @@ use App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler;
 use App\Chron\Model\Customer\Handler\RegisterCustomerHandler;
 use App\Chron\Model\Order\Handler\CompleteOrderHandler;
 use App\Chron\Model\Order\Handler\CreateOrderHandler;
+use App\Chron\Package\Chronicler\PgsqlTransactionalChronicler;
+use App\Chron\Package\Chronicler\Subscribers\AppendOnlyStream;
+use App\Chron\Package\Chronicler\Subscribers\BeginTransaction;
+use App\Chron\Package\Chronicler\Subscribers\CommitTransaction;
+use App\Chron\Package\Chronicler\Subscribers\DeleteStream;
+use App\Chron\Package\Chronicler\Subscribers\FilterCategories;
+use App\Chron\Package\Chronicler\Subscribers\FilterStreams;
+use App\Chron\Package\Chronicler\Subscribers\RetrieveAllBackwardStream;
+use App\Chron\Package\Chronicler\Subscribers\RetrieveAllStream;
+use App\Chron\Package\Chronicler\Subscribers\RetrieveFilteredStream;
+use App\Chron\Package\Chronicler\Subscribers\RollbackTransaction;
+use App\Chron\Package\Chronicler\Subscribers\StreamExists;
+use App\Chron\Package\EventPublisher\EventPublisherSubscriber;
 use App\Chron\Package\Reporter\ReportCommand;
 use App\Chron\Package\Reporter\ReportEvent;
 use App\Chron\Package\Reporter\ReportNotification;
@@ -73,6 +86,30 @@ class Catalog
         CorrelationHeaderCommand::class,
     ];
 
+    /**
+     * @var array<class-string>
+     */
+    protected array $streamSubscribers = [
+        AppendOnlyStream::class,
+        DeleteStream::class,
+        FilterCategories::class,
+        FilterStreams::class,
+        RetrieveAllStream::class,
+        RetrieveAllBackwardStream::class,
+        RetrieveFilteredStream::class,
+        StreamExists::class,
+        BeginTransaction::class,
+        CommitTransaction::class,
+        RollbackTransaction::class,
+
+        EventPublisherSubscriber::class,
+        CorrelationHeaderCommand::class,
+    ];
+
+    protected array $chroniclers = [
+        PgsqlTransactionalChronicler::class,
+    ];
+
     public function find(): iterable
     {
         // todo auto discovery
@@ -92,5 +129,15 @@ class Catalog
     public function getSubscriberClasses(): Collection
     {
         return collect($this->subscribers);
+    }
+
+    public function getChroniclerClasses(): Collection
+    {
+        return collect($this->chroniclers);
+    }
+
+    public function getStreamSubscriberClasses(): Collection
+    {
+        return collect($this->streamSubscribers);
     }
 }
