@@ -9,6 +9,8 @@ use App\Chron\Application\Messaging\Event\Customer\WhenCustomerEmailChanged;
 use App\Chron\Application\Messaging\Event\Customer\WhenCustomerRegistered;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCompleted;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCreated;
+use App\Chron\Infrastructure\Repository\CustomerAggregateRepository;
+use App\Chron\Infrastructure\Repository\OrderAggregateRepository;
 use App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler;
 use App\Chron\Model\Customer\Handler\RegisterCustomerHandler;
 use App\Chron\Model\Order\Handler\CompleteOrderHandler;
@@ -110,6 +112,11 @@ class Catalog
         PgsqlTransactionalChronicler::class,
     ];
 
+    protected array $aggregateRepositories = [
+        CustomerAggregateRepository::class,
+        OrderAggregateRepository::class,
+    ];
+
     public function find(): iterable
     {
         // todo auto discovery
@@ -139,5 +146,10 @@ class Catalog
     public function getStreamSubscriberClasses(): Collection
     {
         return collect($this->streamSubscribers);
+    }
+
+    public function getAggregateRepositoryClasses(): Collection
+    {
+        return collect($this->aggregateRepositories);
     }
 }

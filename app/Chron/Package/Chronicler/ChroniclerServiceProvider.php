@@ -4,12 +4,6 @@ declare(strict_types=1);
 
 namespace App\Chron\Package\Chronicler;
 
-use App\Chron\Infrastructure\Repository\CustomerChroniclerRepository;
-use App\Chron\Infrastructure\Repository\OrderAggregateRepository;
-use App\Chron\Model\Customer\Repository\CustomerCollection;
-use App\Chron\Model\Order\Repository\OrderList;
-use App\Chron\Package\Aggregate\AggregateEventReleaser;
-use App\Chron\Package\Aggregate\GenericAggregateRepository;
 use App\Chron\Package\EventPublisher\InMemoryEventPublisher;
 use App\Chron\Package\Reporter\Decorator\ChainMessageDecorator;
 use App\Chron\Package\Reporter\Decorator\EventId;
@@ -23,7 +17,6 @@ use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 use Storm\Serializer\JsonSerializer;
 use Storm\Serializer\MessageContentSerializer;
-use Storm\Stream\StreamName;
 
 class ChroniclerServiceProvider extends ServiceProvider implements DeferrableProvider
 {
@@ -36,24 +29,9 @@ class ChroniclerServiceProvider extends ServiceProvider implements DeferrablePro
         $this->registerEventDecorators();
         $this->registerStreamEventSerializer();
         $this->registerEventPublisher();
-        $this->registerAggregateRepositories();
 
+        // fixMe: should be handled by a share attribute in stream subscriber
         $this->app->singleton(CorrelationHeaderCommand::class);
-    }
-
-    protected function registerAggregateRepositories(): void
-    {
-        $this->app->bind(CustomerCollection::class, function (): CustomerCollection {
-            $repository = $this->makeGenericAggregateRepository(new StreamName('customer'));
-
-            return new CustomerChroniclerRepository($repository);
-        });
-
-        $this->app->bind(OrderList::class, function (): OrderList {
-            $repository = $this->makeGenericAggregateRepository(new StreamName('order'));
-
-            return new OrderAggregateRepository($repository);
-        });
     }
 
     private function registerEventDecorators(): void
@@ -84,23 +62,12 @@ class ChroniclerServiceProvider extends ServiceProvider implements DeferrablePro
         $this->app->singleton('event.publisher.in_memory', fn () => new InMemoryEventPublisher());
     }
 
-    private function makeGenericAggregateRepository(StreamName $streamName): GenericAggregateRepository
-    {
-        return new GenericAggregateRepository(
-            $this->app['chronicler.event.transactional.standard.pgsql'],
-            $streamName,
-            new AggregateEventReleaser($this->app['event.decorator.chain.default'])
-        );
-    }
-
     public function provides(): array
     {
         return [
             'event.publisher.in_memory',
             StreamEventSerializer::class,
             'event.decorator.chain.default',
-            CustomerCollection::class,
-            OrderList::class,
         ];
     }
 }

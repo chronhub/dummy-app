@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Package\Attribute;
 
+use App\Chron\Package\Attribute\AggregateRepository\AggregateRepositoryMap;
 use App\Chron\Package\Attribute\Chronicler\ChroniclerMap;
 use App\Chron\Package\Attribute\Messaging\MessageMap;
 use App\Chron\Package\Attribute\Reporter\ReporterMap;
@@ -21,6 +22,7 @@ class Kernel
         protected MessageMap $messages,
         protected ChroniclerMap $chroniclers,
         protected StreamSubscriberMap $streamSubscribers,
+        protected AggregateRepositoryMap $aggregateRepositories,
         protected Application $app
     ) {
     }
@@ -32,6 +34,8 @@ class Kernel
         }
 
         $this->chroniclers->load();
+
+        $this->aggregateRepositories->load();
 
         $this->streamSubscribers->load(
             $this->chroniclers->getEntries()->keys()->toArray()

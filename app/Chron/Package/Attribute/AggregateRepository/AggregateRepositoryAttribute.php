@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace App\Chron\Package\Attribute\AggregateRepository;
 
-use Attribute;
-
-#[Attribute(Attribute::TARGET_CLASS)]
-class AsAggregateRepository
+class AggregateRepositoryAttribute
 {
     public function __construct(
+        public string $repository,
+        public string $abstract,
         public string $chronicler,
         public string $streamName,
-        public string|array $aggregateRoot,
+        public array $aggregateRoot,
         public string $messageDecorator,
-        public ?string $abstract = null,
-        public string $factory = AggregateRepositoryFactory::class,
+        public string $factory,
+        public array $references,
     ) {
     }
 }

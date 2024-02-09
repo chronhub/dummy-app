@@ -14,9 +14,10 @@ use App\Chron\Package\Attribute\AggregateRepository\AsAggregateRepository;
 #[AsAggregateRepository(
     chronicler: 'chronicler.event.transactional.standard.pgsql',
     streamName: 'customer',
-    aggregateRoot: Customer::class
+    aggregateRoot: Customer::class,
+    messageDecorator: 'event.decorator.chain.default'
 )]
-final readonly class CustomerChroniclerRepository implements CustomerCollection
+final readonly class CustomerAggregateRepository implements CustomerCollection
 {
     public function __construct(private AggregateRepository $repository)
     {

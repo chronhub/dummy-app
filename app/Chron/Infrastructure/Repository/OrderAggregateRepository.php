@@ -14,7 +14,8 @@ use App\Chron\Package\Attribute\AggregateRepository\AsAggregateRepository;
 #[AsAggregateRepository(
     chronicler: 'chronicler.event.transactional.standard.pgsql',
     streamName: 'order',
-    aggregateRoot: Order::class
+    aggregateRoot: Order::class,
+    messageDecorator: 'event.decorator.chain.default'
 )]
 final readonly class OrderAggregateRepository implements OrderList
 {
