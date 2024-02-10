@@ -14,8 +14,6 @@ final class HomeController
 {
     public function __invoke(CustomerService $customerService, OrderSagaManagement $saga): Response
     {
-        //$this->batchOrders($saga);
-
         $rand = [
             fn () => $customerService->registerCustomer(),
             //fn () => $customerService->changeCustomerEmail(),
@@ -25,13 +23,5 @@ final class HomeController
         $rand[array_rand($rand)]();
 
         return new Response('ok');
-    }
-
-    private function batchOrders(OrderSagaManagement $saga): void
-    {
-        $saga->shipPaidOrders();
-        $saga->deliverShippedOrders();
-        $saga->returnDeliveredOrders();
-        $saga->refundReturnedOrders();
     }
 }

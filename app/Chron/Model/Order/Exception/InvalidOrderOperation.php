@@ -13,7 +13,7 @@ use function sprintf;
 
 class InvalidOrderOperation extends DomainException
 {
-    public static function withStatus(OrderId $orderId, string $operation, OrderStatus $currentStatus): self
+    public static function withInvalidStatus(OrderId $orderId, string $operation, OrderStatus $currentStatus): self
     {
         return new self(sprintf(
             'Invalid order operation for order %s: cannot %s when status is %s',
@@ -23,13 +23,29 @@ class InvalidOrderOperation extends DomainException
         ));
     }
 
-    public static function withBalance(OrderId $orderId, string $operation, Balance $balance): self
+    public static function withInvalidBalance(OrderId $orderId, string $operation, Balance $balance): self
     {
         return new self(sprintf(
             'Invalid order operation for order %s: cannot %s when balance is %s',
             $orderId->toString(),
             $operation,
             $balance->value()
+        ));
+    }
+
+    public static function returnOrderDisallowByPolicy(OrderId $orderId): self
+    {
+        return new self(sprintf(
+            'Invalid order operation for order %s: cannot return order as policy is not met',
+            $orderId->toString()
+        ));
+    }
+
+    public static function completeOrderDisallowByPolicy(OrderId $orderId): self
+    {
+        return new self(sprintf(
+            'Invalid order operation for order %s: cannot complete order as policy is not met',
+            $orderId->toString()
         ));
     }
 }

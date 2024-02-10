@@ -8,15 +8,19 @@ use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Order\Balance;
 use App\Chron\Model\Order\OrderId;
 use App\Chron\Model\Order\OrderStatus;
+use DateInterval;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Collection;
+use Illuminate\Support\LazyCollection;
 use stdClass;
+use Storm\Contract\Clock\SystemClock;
 
 final readonly class CustomerOrderProvider
 {
-    public function __construct(private Connection $connection)
-    {
+    public function __construct(
+        private Connection $connection,
+        private SystemClock $clock
+    ) {
     }
 
     public function insert(CustomerId $customerId, OrderId $orderId, OrderStatus $status): void
@@ -30,9 +34,7 @@ final readonly class CustomerOrderProvider
 
     public function update(CustomerId $customerId, OrderId $orderId, OrderStatus $status, ?Balance $balance = null): void
     {
-        $update = [
-            'order_status' => $status->value,
-        ];
+        $update = ['order_status' => $status->value];
 
         if ($balance !== null) {
             $update['balance'] = $balance->value();
@@ -41,7 +43,21 @@ final readonly class CustomerOrderProvider
         $this->query()
             ->where('customer_id', $customerId->toString())
             ->where('order_id', $orderId->toString())
+            ->where('closed', 0)
             ->update($update);
+    }
+
+    public function close(CustomerId $customerId, OrderId $orderId, OrderStatus $status, string $reason): void
+    {
+        $this->query()
+            ->where('customer_id', $customerId->toString())
+            ->where('order_id', $orderId->toString())
+            ->update([
+                'order_status' => $status->value,
+                'closed' => 1,
+                'closed_at' => $this->clock->generate(),
+                'reason' => $reason,
+            ]);
     }
 
     public function findCurrentOrderOfCustomer(string $customerId): ?stdClass
@@ -49,15 +65,43 @@ final readonly class CustomerOrderProvider
         return $this->query()
             ->where('customer_id', $customerId)
             ->orderBy('created_at', 'desc')
+            ->where('closed', 0)
             ->first();
     }
 
-    public function findOrdersByStatus(OrderStatus $status, int $limit = 100): Collection
+    public function findOrderOfCustomer(string $customerId, string $orderId): ?stdClass
+    {
+        return $this->query()
+            ->where('customer_id', $customerId)
+            ->where('order_id', $orderId)
+            ->where('closed', 0)
+            ->first();
+    }
+
+    public function findOrdersByStatus(OrderStatus $status, int $limit = 500): LazyCollection
     {
         return $this->query()
             ->where('order_status', $status->value)
+            ->where('closed', 0)
             ->limit($limit)
-            ->get();
+            ->cursor();
+    }
+
+    public function findCancelledOrRefundedOrders(): LazyCollection
+    {
+        return $this->query()
+            ->whereIn('order_status', [OrderStatus::CANCELLED->value, OrderStatus::REFUNDED->value])
+            ->where('closed', 0)
+            ->cursor();
+    }
+
+    public function findOverdueDeliveredOrders(): LazyCollection
+    {
+        return $this->query()
+            ->where('order_status', OrderStatus::DELIVERED->value)
+            ->where('closed', 0)
+            ->where('updated_at', '<', $this->clock->now()->sub(new DateInterval('PT1M')))
+            ->cursor();
     }
 
     private function query(): Builder

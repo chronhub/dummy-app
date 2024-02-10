@@ -27,9 +27,9 @@ class IlluminateQueue
 
         $messageJob = new MessageJob($payload->jsonSerialize(), $currentQueue);
 
-        logger('dispatching to queue', [
-            'message' => $message->name(), 'queue' => $currentQueue,
-        ]);
+        //        logger('dispatching to queue', [
+        //            'message' => $message->name(), 'queue' => $currentQueue,
+        //        ]);
 
         $this->dispatcher->dispatchToQueue($messageJob);
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order\Handler;
 
-use App\Chron\Application\Messaging\Command\Order\ReturnOrder;
+use App\Chron\Application\Messaging\Command\Order\CloseOrder;
 use App\Chron\Infrastructure\Service\CustomerOrderProvider;
 use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Customer\Exception\CustomerNotFound;
@@ -17,19 +17,19 @@ use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',
-    handles: ReturnOrder::class,
+    handles: CloseOrder::class,
 )]
-final readonly class ReturnOrderHandler
+final readonly class CloseOrderHandler
 {
     public function __construct(
         private OrderList $orders,
         private CustomerCollection $customers,
         private CustomerOrderProvider $readModel,
-        private CanReturnOrder $canReturnOrder
+        private CanReturnOrder $canReturnOrder,
     ) {
     }
 
-    public function __invoke(ReturnOrder $command): void
+    public function __invoke(CloseOrder $command): void
     {
         $customerId = CustomerId::fromString($command->content['customer_id']);
 
@@ -45,10 +45,10 @@ final readonly class ReturnOrderHandler
             throw OrderNotFound::withId($orderId);
         }
 
-        $order->return($this->canReturnOrder);
+        $order->close($this->canReturnOrder);
 
         $this->orders->save($order);
 
-        $this->readModel->update($order->customerId(), $order->orderId(), $order->status());
+        $this->readModel->close($order->customerId(), $order->orderId(), $order->status(), $order->closedReason());
     }
 }

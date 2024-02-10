@@ -6,13 +6,15 @@ namespace App\Chron\Model\Order;
 
 use InvalidArgumentException;
 
+use function number_format;
+
 final class Balance
 {
     private string $value;
 
     private function __construct(string $value)
     {
-        $this->value = $value;
+        $this->value = $this->formatValue($value);
 
         if ($this->toFloat() < 0) {
             throw new InvalidArgumentException('Balance must a positive number.');
@@ -31,7 +33,7 @@ final class Balance
 
     public function add(Amount $amount): void
     {
-        $this->value = (string) ((float) $this->value + $amount->toFloat());
+        $this->value = number_format($this->toFloat() + $amount->toFloat(), 2, '.', '');
     }
 
     public function toFloat(): float
@@ -42,5 +44,15 @@ final class Balance
     public function value(): string
     {
         return $this->value;
+    }
+
+    public function sameValueAs(Balance $balance): bool
+    {
+        return $balance instanceof $this && $this->value === $balance->value();
+    }
+
+    private function formatValue(string $value): string
+    {
+        return number_format((float) $value, 2, '.', '');
     }
 }

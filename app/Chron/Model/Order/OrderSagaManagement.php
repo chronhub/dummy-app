@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order;
 
 use App\Chron\Application\Messaging\Command\Order\CancelOrder;
+use App\Chron\Application\Messaging\Command\Order\CloseOrder;
 use App\Chron\Application\Messaging\Command\Order\CreateOrder;
 use App\Chron\Application\Messaging\Command\Order\DeliverOrder;
 use App\Chron\Application\Messaging\Command\Order\ModifyOrder;
@@ -49,9 +50,12 @@ final readonly class OrderSagaManagement
 
                     break;
                 case $lottery < 20:
-                    $this->payOrder($customerId, $orderId);
+                    if ($orderStatus === OrderStatus::MODIFIED) {
+                        $this->payOrder($customerId, $orderId);
 
-                    break;
+                        break;
+                    }
+
                 default:
                     $this->modifyOrder($customerId, $orderId);
 
@@ -81,54 +85,67 @@ final readonly class OrderSagaManagement
                 break;
             case OrderStatus::REFUNDED:
             case OrderStatus::CANCELLED:
+            case OrderStatus::CLOSED:
                 break;
             default:
                 throw new RuntimeException(sprintf('Unknown order status: %s', $orderStatus->value));
         }
     }
 
-    public function shipPaidOrders(): void
+    public function shipPaidOrders(): int
     {
         $orders = $this->customerOrderProvider->findOrdersByStatus(OrderStatus::PAID);
-
-        logger('batch ship paid orders: '.$orders->count());
 
         foreach ($orders as $order) {
             $this->shipOrder($order->customer_id, $order->order_id);
         }
+
+        return $orders->count();
     }
 
-    public function deliverShippedOrders(): void
+    public function deliverShippedOrders(): int
     {
-        $orders = $this->customerOrderProvider->findOrdersByStatus(OrderStatus::SHIPPED);
+        $orders = $this->customerOrderProvider
+            ->findOrdersByStatus(OrderStatus::SHIPPED)
+            ->each(fn (stdClass $order) => $this->deliverOrder($order->customer_id, $order->order_id));
 
-        logger('batch delivered shipped orders: '.$orders->count());
-
-        foreach ($orders as $order) {
-            $this->deliverOrder($order->customer_id, $order->order_id);
-        }
+        return $orders->count();
     }
 
-    public function returnDeliveredOrders(): void
+    public function returnDeliveredOrders(): int
     {
-        $orders = $this->customerOrderProvider->findOrdersByStatus(OrderStatus::DELIVERED);
+        $orders = $this->customerOrderProvider
+            ->findOrdersByStatus(OrderStatus::DELIVERED)
+            ->each(fn (stdClass $order) => $this->returnOrder($order->customer_id, $order->order_id));
 
-        logger('batch return delivered orders: '.$orders->count());
-
-        foreach ($orders as $order) {
-            $this->returnOrder($order->customer_id, $order->order_id);
-        }
+        return $orders->count();
     }
 
-    public function refundReturnedOrders(): void
+    public function refundReturnedOrders(): int
     {
-        $orders = $this->customerOrderProvider->findOrdersByStatus(OrderStatus::RETURNED);
+        $orders = $this->customerOrderProvider
+            ->findOrdersByStatus(OrderStatus::RETURNED)
+            ->each(fn (stdClass $order) => $this->refundOrder($order->customer_id, $order->order_id));
 
-        logger('batch refund returned orders: '.$orders->count());
+        return $orders->count();
+    }
 
-        foreach ($orders as $order) {
-            $this->refundOrder($order->customer_id, $order->order_id);
-        }
+    public function closeCancelledOrRefundedOrders(): int
+    {
+        $orders = $this->customerOrderProvider
+            ->findCancelledOrRefundedOrders()
+            ->each(fn (stdClass $order) => $this->closeOrder($order->customer_id, $order->order_id));
+
+        return $orders->count();
+    }
+
+    public function closeOverdueDeliveredOrder(): int
+    {
+        $orders = $this->customerOrderProvider
+            ->findOverdueDeliveredOrders()
+            ->each(fn (stdClass $order) => $this->closeOrder($order->customer_id, $order->order_id));
+
+        return $orders->count();
     }
 
     private function createOrder(string $customerId): void
@@ -173,6 +190,11 @@ final readonly class OrderSagaManagement
     private function payOrder(string $customerId, string $orderId): void
     {
         Report::relay(PayOrder::forCustomer($customerId, $orderId));
+    }
+
+    private function closeOrder(string $customerId, string $orderId): void
+    {
+        Report::relay(CloseOrder::forCustomer($customerId, $orderId));
     }
 
     private function findCurrentOrderOfCustomer(string $customerId): ?stdClass

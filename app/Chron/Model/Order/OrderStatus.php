@@ -10,7 +10,7 @@ enum OrderStatus: string
 
     case MODIFIED = 'modified';
 
-    case COMPLETED = 'completed'; // remove
+    case CLOSED = 'closed';
 
     case CANCELLED = 'cancelled';
 
@@ -35,6 +35,7 @@ enum OrderStatus: string
             self::DELIVERED->value,
             self::RETURNED->value,
             self::REFUNDED->value,
+            self::CLOSED->value,
         ];
     }
 }

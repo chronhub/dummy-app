@@ -17,8 +17,11 @@ return new class extends Migration
             $table->uuid('order_id');
             $table->enum('order_status', OrderStatus::toStrings());
             $table->string('balance')->default('0.00');
+            $table->boolean('closed')->default(0);
+            $table->string('reason')->nullable();
             $table->timestampTz('created_at', 6)->useCurrent();
             $table->timestampTz('updated_at', 6)->nullable()->useCurrent();
+            $table->timestampTz('closed_at', 6)->nullable();
 
             $table->unique(['customer_id', 'order_id']);
         });

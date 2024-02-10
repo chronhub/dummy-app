@@ -8,6 +8,7 @@ use App\Chron\Application\Messaging\Event\Customer\SendEmailToRegisteredCustomer
 use App\Chron\Application\Messaging\Event\Customer\WhenCustomerEmailChanged;
 use App\Chron\Application\Messaging\Event\Customer\WhenCustomerRegistered;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCanceled;
+use App\Chron\Application\Messaging\Event\Order\WhenOrderClosed;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCreated;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderDelivered;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderModified;
@@ -21,6 +22,7 @@ use App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler;
 use App\Chron\Model\Customer\Handler\QueryRandomCustomerHandler;
 use App\Chron\Model\Customer\Handler\RegisterCustomerHandler;
 use App\Chron\Model\Order\Handler\CancelOrderHandler;
+use App\Chron\Model\Order\Handler\CloseOrderHandler;
 use App\Chron\Model\Order\Handler\CreateOrderHandler;
 use App\Chron\Model\Order\Handler\DeliverOrderHandler;
 use App\Chron\Model\Order\Handler\ModifyOrderHandler;
@@ -84,6 +86,7 @@ class Catalog
         DeliverOrderHandler::class,
         ReturnOrderHandler::class,
         RefundOrderHandler::class,
+        CloseOrderHandler::class,
 
         // event handlers
         WhenCustomerRegistered::class,
@@ -97,6 +100,7 @@ class Catalog
         WhenOrderDelivered::class,
         WhenOrderReturned::class,
         WhenOrderRefunded::class,
+        WhenOrderClosed::class,
 
         // query handlers
         QueryRandomPendingOrderHandler::class,

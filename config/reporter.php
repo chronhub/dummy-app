@@ -29,6 +29,7 @@ return [
             MapListenerCommand::class,
             ExportMessageCommand::class,
             ExportReporterCommand::class,
+            \App\Chron\Application\Console\Domain\BatchOrderCommand::class,
         ],
     ],
 ];

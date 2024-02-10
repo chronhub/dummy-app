@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order;
 
 use App\Chron\Model\Customer\CustomerId;
+use App\Chron\Model\Customer\Service\CanReturnOrder;
 use App\Chron\Model\Order\Event\OrderCanceled;
+use App\Chron\Model\Order\Event\OrderClosed;
 use App\Chron\Model\Order\Event\OrderCreated;
 use App\Chron\Model\Order\Event\OrderDelivered;
 use App\Chron\Model\Order\Event\OrderModified;
@@ -17,6 +19,7 @@ use App\Chron\Model\Order\Exception\InvalidOrderOperation;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
+use RuntimeException;
 
 final class Order implements AggregateRoot
 {
@@ -27,6 +30,8 @@ final class Order implements AggregateRoot
     private OrderStatus $status;
 
     private Balance $balance;
+
+    private ?string $closedReason = null;
 
     public static function create(OrderId $orderId, CustomerId $customerId): self
     {
@@ -39,7 +44,7 @@ final class Order implements AggregateRoot
     public function modify(Amount $amount): void
     {
         if (! $this->isOrderPending()) {
-            throw InvalidOrderOperation::withStatus($this->orderId(), 'modify', $this->status);
+            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'modify', $this->status);
         }
 
         $this->recordThat(OrderModified::forCustomer($this->orderId(), $this->customerId, OrderStatus::MODIFIED, clone $amount));
@@ -47,12 +52,12 @@ final class Order implements AggregateRoot
 
     public function pay(): void
     {
-        if (! $this->isOrderPending()) {
-            throw InvalidOrderOperation::withStatus($this->orderId(), 'pay', $this->status);
+        if ($this->status !== OrderStatus::MODIFIED) {
+            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'pay', $this->status);
         }
 
         if ($this->balance->toFloat() < 0) {
-            throw InvalidOrderOperation::withBalance($this->orderId(), 'pay', $this->balance());
+            throw InvalidOrderOperation::withInvalidBalance($this->orderId(), 'pay', $this->balance());
         }
 
         $this->recordThat(OrderPaid::forCustomer($this->orderId(), $this->customerId, OrderStatus::PAID));
@@ -61,7 +66,7 @@ final class Order implements AggregateRoot
     public function ship(): void
     {
         if ($this->status !== OrderStatus::PAID) {
-            throw InvalidOrderOperation::withStatus($this->orderId(), 'ship', $this->status);
+            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'ship', $this->status);
         }
 
         $this->recordThat(OrderShipped::forCustomer($this->orderId(), $this->customerId, OrderStatus::SHIPPED));
@@ -70,16 +75,20 @@ final class Order implements AggregateRoot
     public function deliver(): void
     {
         if ($this->status !== OrderStatus::SHIPPED) {
-            throw InvalidOrderOperation::withStatus($this->orderId(), 'deliver', $this->status);
+            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'deliver', $this->status);
         }
 
         $this->recordThat(OrderDelivered::forCustomer($this->orderId(), $this->customerId, OrderStatus::DELIVERED));
     }
 
-    public function return(): void
+    public function return(CanReturnOrder $allowReturn): void
     {
         if ($this->status !== OrderStatus::DELIVERED) {
-            throw InvalidOrderOperation::withStatus($this->orderId(), 'return', $this->status);
+            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'return', $this->status);
+        }
+
+        if (! $allowReturn($this->orderId(), $this->customerId)) {
+            throw InvalidOrderOperation::returnOrderDisallowByPolicy($this->orderId());
         }
 
         $this->recordThat(OrderReturned::forCustomer($this->orderId(), $this->customerId, OrderStatus::RETURNED));
@@ -88,7 +97,7 @@ final class Order implements AggregateRoot
     public function refund(): void
     {
         if ($this->status !== OrderStatus::RETURNED) {
-            throw InvalidOrderOperation::withStatus($this->orderId(), 'refund', $this->status);
+            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'refund', $this->status);
         }
 
         $this->recordThat(OrderRefunded::forCustomer($this->orderId(), $this->customerId, OrderStatus::REFUNDED, $this->balance()));
@@ -97,10 +106,30 @@ final class Order implements AggregateRoot
     public function cancel(): void
     {
         if (! $this->isOrderPending()) {
-            throw InvalidOrderOperation::withStatus($this->orderId(), 'cancel', $this->status);
+            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'cancel', $this->status);
         }
 
         $this->recordThat(OrderCanceled::forCustomer($this->orderId(), $this->customerId, OrderStatus::CANCELLED));
+    }
+
+    public function close(CanReturnOrder $allowReturn): void
+    {
+        if (! $this->canCloseOrder()) {
+            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'close', $this->status);
+        }
+
+        if ($allowReturn($this->orderId(), $this->customerId)) {
+            throw InvalidOrderOperation::completeOrderDisallowByPolicy($this->orderId());
+        }
+
+        $reason = match ($this->status) {
+            OrderStatus::DELIVERED => 'Order returned is overdue',
+            OrderStatus::REFUNDED => 'Order refunded',
+            OrderStatus::CANCELLED => 'Order cancelled',
+            default => throw new RuntimeException('Close order operation does not support status: '.$this->status->value),
+        };
+
+        $this->recordThat(OrderClosed::forCustomer($this->orderId(), $this->customerId, OrderStatus::CLOSED, $reason));
     }
 
     public function orderId(): OrderId
@@ -125,6 +154,11 @@ final class Order implements AggregateRoot
     public function balance(): Balance
     {
         return clone $this->balance;
+    }
+
+    public function closedReason(): ?string
+    {
+        return $this->closedReason;
     }
 
     protected function applyOrderCreated(OrderCreated $event): void
@@ -171,8 +205,21 @@ final class Order implements AggregateRoot
         $this->status = $event->orderStatus();
     }
 
+    protected function applyOrderClosed(OrderClosed $event): void
+    {
+        $this->status = $event->orderStatus();
+        $this->closedReason = $event->reason();
+    }
+
     private function isOrderPending(): bool
     {
         return $this->status === OrderStatus::CREATED || $this->status === OrderStatus::MODIFIED;
+    }
+
+    private function canCloseOrder(): bool
+    {
+        return $this->status === OrderStatus::DELIVERED
+            || $this->status === OrderStatus::REFUNDED
+            || $this->status === OrderStatus::CANCELLED;
     }
 }

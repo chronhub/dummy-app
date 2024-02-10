@@ -15,7 +15,8 @@
         "laravel/tinker": "^2.9",
         "spiral/roadrunner-cli": "^2.6.0",
         "spiral/roadrunner-http": "^3.4",
-        "vladimir-yuldashev/laravel-queue-rabbitmq": "^13.3"
+        "vladimir-yuldashev/laravel-queue-rabbitmq": "^13.3",
+        "ext-pcntl": "*"
     },
     "require-dev": {
         "doctrine/dbal": "^3.7",
