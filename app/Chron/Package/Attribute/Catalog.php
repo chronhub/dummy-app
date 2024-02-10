@@ -6,7 +6,6 @@ namespace App\Chron\Package\Attribute;
 
 use App\Chron\Application\Messaging\Event\Customer\SendEmailToRegisteredCustomer;
 use App\Chron\Application\Messaging\Event\Customer\WhenCustomerEmailChanged;
-use App\Chron\Application\Messaging\Event\Customer\WhenCustomerRegistered;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCanceled;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderClosed;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCreated;
@@ -89,7 +88,6 @@ class Catalog
         CloseOrderHandler::class,
 
         // event handlers
-        WhenCustomerRegistered::class,
         SendEmailToRegisteredCustomer::class,
         WhenCustomerEmailChanged::class,
         WhenOrderCreated::class,

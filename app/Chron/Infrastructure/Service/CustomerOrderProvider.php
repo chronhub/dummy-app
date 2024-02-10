@@ -100,7 +100,7 @@ final readonly class CustomerOrderProvider
         return $this->query()
             ->where('order_status', OrderStatus::DELIVERED->value)
             ->where('closed', 0)
-            ->where('updated_at', '<', $this->clock->now()->sub(new DateInterval('PT1M')))
+            ->where('created_at', '<', $this->clock->now()->sub(new DateInterval('PT10M')))
             ->cursor();
     }
 

@@ -28,7 +28,7 @@ final readonly class OrderSagaManagement
     {
     }
 
-    public function processLastOrder(string $customerId): void
+    public function processOrder(string $customerId): void
     {
         $currentOrder = $this->findCurrentOrderOfCustomer($customerId);
 
@@ -40,55 +40,11 @@ final readonly class OrderSagaManagement
 
         $orderStatus = OrderStatus::from($currentOrder->order_status);
         $orderId = $currentOrder->order_id;
-        $customerId = $currentOrder->customer_id;
 
         if ($orderStatus === OrderStatus::CREATED || $orderStatus === OrderStatus::MODIFIED) {
-            switch ($lottery = $this->randomInt()) {
-                case $lottery < 5:
-                    $this->cancelOrder($customerId, $orderId);
-                    $this->createOrder($customerId);
-
-                    break;
-                case $lottery < 20:
-                    if ($orderStatus === OrderStatus::MODIFIED) {
-                        $this->payOrder($customerId, $orderId);
-
-                        break;
-                    }
-
-                default:
-                    $this->modifyOrder($customerId, $orderId);
-
-                    break;
-            }
-
-            return;
-        }
-
-        switch ($orderStatus) {
-            case OrderStatus::PAID:
-                $this->shipOrder($customerId, $orderId);
-                $this->createOrder($customerId);
-
-                break;
-            case OrderStatus::SHIPPED:
-                $this->deliverOrder($customerId, $orderId);
-
-                break;
-            case OrderStatus::DELIVERED:
-                $this->returnOrder($customerId, $orderId);
-
-                break;
-            case OrderStatus::RETURNED:
-                $this->refundOrder($customerId, $orderId);
-
-                break;
-            case OrderStatus::REFUNDED:
-            case OrderStatus::CANCELLED:
-            case OrderStatus::CLOSED:
-                break;
-            default:
-                throw new RuntimeException(sprintf('Unknown order status: %s', $orderStatus->value));
+            $this->processPendingOrders($customerId, $orderId, $orderStatus);
+        } else {
+            $this->processCompletingOrders($customerId, $orderId, $orderStatus);
         }
     }
 
@@ -148,6 +104,51 @@ final readonly class OrderSagaManagement
         return $orders->count();
     }
 
+    private function processPendingOrders(string $customerId, string $orderId, OrderStatus $orderStatus): void
+    {
+        $lottery = $this->randomInt();
+
+        if ($lottery < 5) {
+            if ($orderStatus === OrderStatus::MODIFIED) {
+                $this->cancelOrder($customerId, $orderId);
+                $this->createOrder($customerId);
+            }
+        } elseif ($lottery < 20 && $orderStatus === OrderStatus::MODIFIED) {
+            $this->payOrder($customerId, $orderId);
+        } else {
+            $this->modifyOrder($customerId, $orderId);
+        }
+    }
+
+    private function processCompletingOrders(string $customerId, string $orderId, OrderStatus $orderStatus): void
+    {
+        switch ($orderStatus) {
+            case OrderStatus::PAID:
+                $this->shipOrder($customerId, $orderId);
+                $this->createOrder($customerId);
+
+                break;
+            case OrderStatus::SHIPPED:
+                $this->deliverOrder($customerId, $orderId);
+
+                break;
+            case OrderStatus::DELIVERED:
+                $this->returnOrder($customerId, $orderId);
+
+                break;
+            case OrderStatus::RETURNED:
+                $this->refundOrder($customerId, $orderId);
+
+                break;
+            case OrderStatus::REFUNDED:
+            case OrderStatus::CANCELLED:
+            case OrderStatus::CLOSED:
+                break;
+            default:
+                throw new RuntimeException(sprintf('Unknown order status: %s', $orderStatus->value));
+        }
+    }
+
     private function createOrder(string $customerId): void
     {
         Report::relay(CreateOrder::forCustomer($customerId, Uuid::v4()->jsonSerialize()));
@@ -165,11 +166,9 @@ final readonly class OrderSagaManagement
 
     private function returnOrder(string $customerId, string $orderId): void
     {
-        if ($this->randomInt() < 95) {
-            return;
+        if ($this->randomInt() > 98) {
+            Report::relay(ReturnOrder::forCustomer($customerId, $orderId));
         }
-
-        Report::relay(ReturnOrder::forCustomer($customerId, $orderId));
     }
 
     private function refundOrder(string $customerId, string $orderId): void

@@ -27,13 +27,13 @@ class BatchOrderCommand extends Command implements SignalableCommandInterface
     {
         pcntl_async_signals(true);
 
-        $this->info('Processing batch order...');
+        $this->info('Processing batch orders...');
 
         while (! $this->shouldQuit) {
             foreach ($this->batchOperation($orderSagaManagement) as $operation => $result) {
-                $this->info(sprintf('%s order for %s orders', $operation, $result));
+                $this->components->info(sprintf('%s order for %s orders', $operation, $result));
 
-                sleep(10);
+                sleep(20);
             }
         }
 

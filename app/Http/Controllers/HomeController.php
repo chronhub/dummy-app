@@ -17,7 +17,7 @@ final class HomeController
         $rand = [
             fn () => $customerService->registerCustomer(),
             //fn () => $customerService->changeCustomerEmail(),
-            fn () => $saga->processLastOrder($customerService->findRandomCustomer()),
+            fn () => $saga->processOrder($customerService->findRandomCustomer()),
         ];
 
         $rand[array_rand($rand)]();
