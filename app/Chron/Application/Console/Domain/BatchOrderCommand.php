@@ -31,9 +31,9 @@ class BatchOrderCommand extends Command implements SignalableCommandInterface
 
         while (! $this->shouldQuit) {
             foreach ($this->batchOperation($orderSagaManagement) as $operation => $result) {
-                $this->components->info(sprintf('%s order for %s orders', $operation, $result));
+                $this->components->info(sprintf('%s %s orders', $operation, $result));
 
-                sleep(20);
+                sleep(5);
             }
         }
 

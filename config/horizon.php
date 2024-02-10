@@ -247,7 +247,7 @@ return [
             //                'balanceCooldown' => 3,
             //            ],
             'supervisor-redis_default' => [
-                'maxProcesses' => 20,
+                'maxProcesses' => 10,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],

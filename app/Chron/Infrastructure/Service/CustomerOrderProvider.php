@@ -60,6 +60,14 @@ final readonly class CustomerOrderProvider
             ]);
     }
 
+    public function findPendingOrders(): LazyCollection
+    {
+        return $this->query()
+            ->whereIn('order_status', [OrderStatus::CREATED->value, OrderStatus::MODIFIED])
+            ->where('closed', 0)
+            ->cursor();
+    }
+
     public function findCurrentOrderOfCustomer(string $customerId): ?stdClass
     {
         return $this->query()
@@ -100,7 +108,7 @@ final readonly class CustomerOrderProvider
         return $this->query()
             ->where('order_status', OrderStatus::DELIVERED->value)
             ->where('closed', 0)
-            ->where('created_at', '<', $this->clock->now()->sub(new DateInterval('PT10M')))
+            ->where('created_at', '>', $this->clock->now()->sub(new DateInterval('PT5M')))
             ->cursor();
     }
 

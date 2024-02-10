@@ -56,7 +56,7 @@ final class Order implements AggregateRoot
             throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'pay', $this->status);
         }
 
-        if ($this->balance->toFloat() < 0) {
+        if ($this->balance->toFloat() <= 0) {
             throw InvalidOrderOperation::withInvalidBalance($this->orderId(), 'pay', $this->balance());
         }
 
@@ -87,6 +87,7 @@ final class Order implements AggregateRoot
             throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'return', $this->status);
         }
 
+        //fixMe never refund
         if (! $allowReturn($this->orderId(), $this->customerId)) {
             throw InvalidOrderOperation::returnOrderDisallowByPolicy($this->orderId());
         }

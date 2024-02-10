@@ -29,7 +29,6 @@ final readonly class CanReturnOrder
 
         $deliveredTime = $this->clock->toDateTimeImmutable($order->created_at);
 
-        // diff 1 minute
-        return $deliveredTime > $this->clock->now()->sub(new DateInterval('PT10M'));
+        return $deliveredTime > $this->clock->now()->sub(new DateInterval('PT5M'));
     }
 }
