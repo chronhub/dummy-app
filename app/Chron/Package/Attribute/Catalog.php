@@ -7,15 +7,20 @@ namespace App\Chron\Package\Attribute;
 use App\Chron\Application\Messaging\Event\Customer\SendEmailToRegisteredCustomer;
 use App\Chron\Application\Messaging\Event\Customer\WhenCustomerEmailChanged;
 use App\Chron\Application\Messaging\Event\Customer\WhenCustomerRegistered;
-use App\Chron\Application\Messaging\Event\Order\WhenOrderCompleted;
+use App\Chron\Application\Messaging\Event\Order\WhenOrderCanceled;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCreated;
+use App\Chron\Application\Messaging\Event\Order\WhenOrderDelivered;
+use App\Chron\Application\Messaging\Event\Order\WhenOrderModified;
+use App\Chron\Application\Messaging\Event\Order\WhenOrderPaid;
+use App\Chron\Application\Messaging\Event\Order\WhenOrderRefunded;
+use App\Chron\Application\Messaging\Event\Order\WhenOrderReturned;
+use App\Chron\Application\Messaging\Event\Order\WhenOrderShipped;
 use App\Chron\Infrastructure\Repository\CustomerAggregateRepository;
 use App\Chron\Infrastructure\Repository\OrderAggregateRepository;
 use App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler;
 use App\Chron\Model\Customer\Handler\QueryRandomCustomerHandler;
 use App\Chron\Model\Customer\Handler\RegisterCustomerHandler;
 use App\Chron\Model\Order\Handler\CancelOrderHandler;
-use App\Chron\Model\Order\Handler\CompleteOrderHandler;
 use App\Chron\Model\Order\Handler\CreateOrderHandler;
 use App\Chron\Model\Order\Handler\DeliverOrderHandler;
 use App\Chron\Model\Order\Handler\ModifyOrderHandler;
@@ -72,7 +77,6 @@ class Catalog
         RegisterCustomerHandler::class,
         ChangeCustomerEmailHandler::class,
         CreateOrderHandler::class,
-        CompleteOrderHandler::class,
         ModifyOrderHandler::class,
         CancelOrderHandler::class,
         PayOrderHandler::class,
@@ -86,7 +90,13 @@ class Catalog
         SendEmailToRegisteredCustomer::class,
         WhenCustomerEmailChanged::class,
         WhenOrderCreated::class,
-        WhenOrderCompleted::class,
+        WhenOrderModified::class,
+        WhenOrderPaid::class,
+        WhenOrderCanceled::class,
+        WhenOrderShipped::class,
+        WhenOrderDelivered::class,
+        WhenOrderReturned::class,
+        WhenOrderRefunded::class,
 
         // query handlers
         QueryRandomPendingOrderHandler::class,

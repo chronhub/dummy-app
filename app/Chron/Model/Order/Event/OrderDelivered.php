@@ -20,17 +20,17 @@ final class OrderDelivered extends AbstractDomainEvent
         ]);
     }
 
-    public function orderId(): string
+    public function orderId(): OrderId
     {
-        return $this->content['order_id'];
+        return OrderId::fromString($this->content['order_id']);
     }
 
-    public function customerId(): string
+    public function customerId(): CustomerId
     {
-        return $this->content['customer_id'];
+        return CustomerId::fromString($this->content['customer_id']);
     }
 
-    public function status(): OrderStatus
+    public function orderStatus(): OrderStatus
     {
         return OrderStatus::from($this->content['order_status']);
     }

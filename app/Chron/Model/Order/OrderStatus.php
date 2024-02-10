@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order;
 
-use function in_array;
-
 enum OrderStatus: string
 {
     case CREATED = 'created';
@@ -26,28 +24,17 @@ enum OrderStatus: string
 
     case REFUNDED = 'refunded';
 
-    public function isPending(): bool
-    {
-        return in_array($this, [self::CREATED, self::MODIFIED]);
-    }
-
-    public function isCompleted(): bool
-    {
-        return in_array($this, [self::COMPLETED, self::CANCELLED, self::REFUNDED]);
-    }
-
     public static function toStrings(): array
     {
         return [
-            self::CREATED,
-            self::MODIFIED,
-            self::COMPLETED,
-            self::CANCELLED,
-            self::PAID,
-            self::SHIPPED,
-            self::DELIVERED,
-            self::RETURNED,
-            self::REFUNDED,
+            self::CREATED->value,
+            self::MODIFIED->value,
+            self::CANCELLED->value,
+            self::PAID->value,
+            self::SHIPPED->value,
+            self::DELIVERED->value,
+            self::RETURNED->value,
+            self::REFUNDED->value,
         ];
     }
 }

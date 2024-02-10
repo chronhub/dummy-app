@@ -27,7 +27,7 @@ final readonly class OrderSagaManagement
     {
     }
 
-    public function process(string $customerId): void
+    public function processLastOrder(string $customerId): void
     {
         $currentOrder = $this->findCurrentOrderOfCustomer($customerId);
 
@@ -41,12 +41,12 @@ final readonly class OrderSagaManagement
         $orderId = $currentOrder->order_id;
         $customerId = $currentOrder->customer_id;
 
-        if ($orderStatus->isPending()) {
+        if ($orderStatus === OrderStatus::CREATED || $orderStatus === OrderStatus::MODIFIED) {
             switch ($lottery = $this->randomInt()) {
-                case $lottery < 10:
+                case $lottery < 5:
                     $this->cancelOrder($customerId, $orderId);
+                    $this->createOrder($customerId);
 
-                    // create new order
                     break;
                 case $lottery < 20:
                     $this->payOrder($customerId, $orderId);
@@ -57,11 +57,14 @@ final readonly class OrderSagaManagement
 
                     break;
             }
+
+            return;
         }
 
         switch ($orderStatus) {
             case OrderStatus::PAID:
                 $this->shipOrder($customerId, $orderId);
+                $this->createOrder($customerId);
 
                 break;
             case OrderStatus::SHIPPED:
@@ -81,6 +84,50 @@ final readonly class OrderSagaManagement
                 break;
             default:
                 throw new RuntimeException(sprintf('Unknown order status: %s', $orderStatus->value));
+        }
+    }
+
+    public function shipPaidOrders(): void
+    {
+        $orders = $this->customerOrderProvider->findOrdersByStatus(OrderStatus::PAID);
+
+        logger('batch ship paid orders: '.$orders->count());
+
+        foreach ($orders as $order) {
+            $this->shipOrder($order->customer_id, $order->order_id);
+        }
+    }
+
+    public function deliverShippedOrders(): void
+    {
+        $orders = $this->customerOrderProvider->findOrdersByStatus(OrderStatus::SHIPPED);
+
+        logger('batch delivered shipped orders: '.$orders->count());
+
+        foreach ($orders as $order) {
+            $this->deliverOrder($order->customer_id, $order->order_id);
+        }
+    }
+
+    public function returnDeliveredOrders(): void
+    {
+        $orders = $this->customerOrderProvider->findOrdersByStatus(OrderStatus::DELIVERED);
+
+        logger('batch return delivered orders: '.$orders->count());
+
+        foreach ($orders as $order) {
+            $this->returnOrder($order->customer_id, $order->order_id);
+        }
+    }
+
+    public function refundReturnedOrders(): void
+    {
+        $orders = $this->customerOrderProvider->findOrdersByStatus(OrderStatus::RETURNED);
+
+        logger('batch refund returned orders: '.$orders->count());
+
+        foreach ($orders as $order) {
+            $this->refundOrder($order->customer_id, $order->order_id);
         }
     }
 
@@ -120,7 +167,7 @@ final readonly class OrderSagaManagement
 
     private function modifyOrder(string $customerId, string $orderId): void
     {
-        Report::relay(ModifyOrder::forCustomer($customerId, $orderId));
+        Report::relay(ModifyOrder::forCustomer($customerId, $orderId, $this->randomAmount()));
     }
 
     private function payOrder(string $customerId, string $orderId): void
@@ -136,5 +183,10 @@ final readonly class OrderSagaManagement
     private function randomInt(): int
     {
         return random_int(1, 100);
+    }
+
+    private function randomAmount(): string
+    {
+        return (string) fake()->randomFloat(2, 10, 3000);
     }
 }

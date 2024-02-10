@@ -86,9 +86,9 @@ return [
     */
 
     'waits' => [
-        'redis:default' => 0,
-        'rabbitmq:default' => 0,
-        'rabbitmq-high:default' => 0,
+        'redis:default' => 60 * 60,
+        'rabbitmq:default' => 60 * 60,
+        'rabbitmq-high:default' => 60 * 60,
     ],
 
     /*
@@ -247,7 +247,7 @@ return [
             //                'balanceCooldown' => 3,
             //            ],
             'supervisor-redis_default' => [
-                'maxProcesses' => 10,
+                'maxProcesses' => 20,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],

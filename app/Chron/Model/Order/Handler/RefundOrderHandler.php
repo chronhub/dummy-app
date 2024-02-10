@@ -43,10 +43,10 @@ final readonly class RefundOrderHandler
             throw OrderNotFound::withId($orderId);
         }
 
-        $order->refund($orderId, $customerId);
+        $order->refund();
 
         $this->orders->save($order);
 
-        $this->readModel->update($order->customerId(), $order->orderId(), $order->status());
+        $this->readModel->update($order->customerId(), $order->orderId(), $order->status(), $order->balance());
     }
 }

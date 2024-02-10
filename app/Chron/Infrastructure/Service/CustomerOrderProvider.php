@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Chron\Infrastructure\Service;
 
 use App\Chron\Model\Customer\CustomerId;
+use App\Chron\Model\Order\Balance;
 use App\Chron\Model\Order\OrderId;
 use App\Chron\Model\Order\OrderStatus;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Collection;
 use stdClass;
 
 final readonly class CustomerOrderProvider
@@ -26,14 +28,20 @@ final readonly class CustomerOrderProvider
         ]);
     }
 
-    public function update(CustomerId $customerId, OrderId $orderId, OrderStatus $status): void
+    public function update(CustomerId $customerId, OrderId $orderId, OrderStatus $status, ?Balance $balance = null): void
     {
+        $update = [
+            'order_status' => $status->value,
+        ];
+
+        if ($balance !== null) {
+            $update['balance'] = $balance->value();
+        }
+
         $this->query()
             ->where('customer_id', $customerId->toString())
             ->where('order_id', $orderId->toString())
-            ->update([
-                'order_status' => $status->value,
-            ]);
+            ->update($update);
     }
 
     public function findCurrentOrderOfCustomer(string $customerId): ?stdClass
@@ -44,13 +52,12 @@ final readonly class CustomerOrderProvider
             ->first();
     }
 
-    public function findRandomCustomerWithPendingOrder(): ?stdClass
+    public function findOrdersByStatus(OrderStatus $status, int $limit = 100): Collection
     {
         return $this->query()
-            ->inRandomOrder()
-            ->whereIn('order_status', [OrderStatus::CREATED, OrderStatus::MODIFIED], 'or')
-            ->orderBy('created_at', 'desc')
-            ->first();
+            ->where('order_status', $status->value)
+            ->limit($limit)
+            ->get();
     }
 
     private function query(): Builder

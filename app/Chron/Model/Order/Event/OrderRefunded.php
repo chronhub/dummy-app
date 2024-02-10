@@ -5,33 +5,40 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order\Event;
 
 use App\Chron\Model\Customer\CustomerId;
+use App\Chron\Model\Order\Balance;
 use App\Chron\Model\Order\OrderId;
 use App\Chron\Model\Order\OrderStatus;
 use Storm\Message\AbstractDomainEvent;
 
 final class OrderRefunded extends AbstractDomainEvent
 {
-    public static function forCustomer(OrderId $orderId, CustomerId $customerId, OrderStatus $orderStatus): self
+    public static function forCustomer(OrderId $orderId, CustomerId $customerId, OrderStatus $orderStatus, Balance $balance): self
     {
         return new self([
             'order_id' => $orderId->toString(),
             'customer_id' => $customerId->toString(),
             'order_status' => $orderStatus->value,
+            'balance' => $balance->value(),
         ]);
     }
 
-    public function orderId(): string
+    public function orderId(): OrderId
     {
-        return $this->content['order_id'];
+        return OrderId::fromString($this->content['order_id']);
     }
 
-    public function customerId(): string
+    public function customerId(): CustomerId
     {
-        return $this->content['customer_id'];
+        return CustomerId::fromString($this->content['customer_id']);
     }
 
-    public function status(): OrderStatus
+    public function orderStatus(): OrderStatus
     {
         return OrderStatus::from($this->content['order_status']);
+    }
+
+    public function balance(): Balance
+    {
+        return Balance::fromString($this->content['balance']);
     }
 }

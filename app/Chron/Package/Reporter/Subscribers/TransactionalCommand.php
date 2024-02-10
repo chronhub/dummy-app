@@ -33,7 +33,7 @@ final readonly class TransactionalCommand
 
                 $this->chronicler->beginTransaction();
 
-                logger('Start transactional for command: '.$message->name());
+                //logger('Start transactional for command: '.$message->name());
             }
         };
     }
@@ -57,11 +57,11 @@ final readonly class TransactionalCommand
             if ($story->hasException()) {
                 $this->chronicler->rollbackTransaction();
 
-                logger('Rollback transactional for command: '.$message->name(), ['exception' => $story->exception()->getMessage()]);
+                //logger('Rollback transactional for command: '.$message->name(), ['exception' => $story->exception()->getMessage()]);
             } else {
                 $this->chronicler->commitTransaction();
 
-                logger('Commit transactional for command: '.$message->name());
+                //logger('Commit transactional for command: '.$message->name());
             }
         };
     }

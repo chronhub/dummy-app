@@ -43,7 +43,7 @@ final readonly class ShipOrderHandler
             throw OrderNotFound::withId($orderId);
         }
 
-        $order->ship($orderId, $customerId);
+        $order->ship();
 
         $this->orders->save($order);
 

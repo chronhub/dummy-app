@@ -44,7 +44,7 @@ final readonly class PayOrderHandler
             throw OrderNotFound::withId($orderId);
         }
 
-        $order->pay($orderId, $customerId);
+        $order->pay();
 
         $this->orders->save($order);
 

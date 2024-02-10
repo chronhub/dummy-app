@@ -36,7 +36,7 @@ class CustomerService
         Report::relay($command);
     }
 
-    protected function findRandomCustomer(): string
+    public function findRandomCustomer(): string
     {
         $customer = $this->handlePromise(Report::relay(new QueryRandomCustomer()));
 
