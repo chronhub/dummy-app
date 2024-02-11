@@ -9,10 +9,10 @@ use App\Chron\Infrastructure\Service\CustomerOrderProvider;
 use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Customer\Exception\CustomerNotFound;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
-use App\Chron\Model\Customer\Service\CanReturnOrder;
 use App\Chron\Model\Order\Exception\OrderNotFound;
 use App\Chron\Model\Order\OrderId;
 use App\Chron\Model\Order\Repository\OrderList;
+use App\Chron\Model\Order\Service\CanReturnOrder;
 use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(

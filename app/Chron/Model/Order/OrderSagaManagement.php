@@ -40,11 +40,9 @@ final readonly class OrderSagaManagement
 
     public function shipPaidOrders(): int
     {
-        $orders = $this->customerOrderProvider->findOrdersByStatus(OrderStatus::PAID);
-
-        foreach ($orders as $order) {
-            $this->orderService->shipOrder($order->customer_id, $order->order_id);
-        }
+        $orders = $this->customerOrderProvider
+            ->findOrdersByStatus(OrderStatus::PAID)
+            ->each(fn (stdClass $order) => $this->orderService->shipOrder($order->customer_id, $order->order_id));
 
         return $orders->count();
     }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Model\Customer\Service;
+namespace App\Chron\Model\Order\Service;
 
 use App\Chron\Infrastructure\Service\CustomerOrderProvider;
 use App\Chron\Model\Customer\CustomerId;

@@ -41,7 +41,7 @@ class InvalidOrderOperation extends DomainException
         ));
     }
 
-    public static function completeOrderDisallowByPolicy(OrderId $orderId): self
+    public static function closeOrderDisallowByPolicy(OrderId $orderId): self
     {
         return new self(sprintf(
             'Invalid order operation for order %s: cannot complete order as policy is not met',

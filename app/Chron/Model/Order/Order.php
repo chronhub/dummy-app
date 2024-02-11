@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order;
 
 use App\Chron\Model\Customer\CustomerId;
-use App\Chron\Model\Customer\Service\CanReturnOrder;
 use App\Chron\Model\Order\Event\OrderCanceled;
 use App\Chron\Model\Order\Event\OrderClosed;
 use App\Chron\Model\Order\Event\OrderCreated;
@@ -16,6 +15,7 @@ use App\Chron\Model\Order\Event\OrderRefunded;
 use App\Chron\Model\Order\Event\OrderReturned;
 use App\Chron\Model\Order\Event\OrderShipped;
 use App\Chron\Model\Order\Exception\InvalidOrderOperation;
+use App\Chron\Model\Order\Service\CanReturnOrder;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
@@ -120,7 +120,7 @@ final class Order implements AggregateRoot
         }
 
         if ($allowReturn($this->orderId(), $this->customerId)) {
-            throw InvalidOrderOperation::completeOrderDisallowByPolicy($this->orderId());
+            throw InvalidOrderOperation::closeOrderDisallowByPolicy($this->orderId());
         }
 
         $reason = match ($this->status) {

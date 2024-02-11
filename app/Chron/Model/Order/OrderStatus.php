@@ -10,8 +10,6 @@ enum OrderStatus: string
 
     case MODIFIED = 'modified';
 
-    case CLOSED = 'closed';
-
     case CANCELLED = 'cancelled';
 
     case PAID = 'paid';
@@ -23,6 +21,8 @@ enum OrderStatus: string
     case RETURNED = 'returned';
 
     case REFUNDED = 'refunded';
+
+    case CLOSED = 'closed';
 
     public static function toStrings(): array
     {
