@@ -7,9 +7,11 @@ namespace App\Chron\Model\Inventory\Handler;
 use App\Chron\Application\Messaging\Command\Inventory\AddInventoryItem;
 use App\Chron\Model\Inventory\Exception\InventoryItemAlreadyExists;
 use App\Chron\Model\Inventory\Inventory;
+use App\Chron\Model\Inventory\InventoryItemId;
 use App\Chron\Model\Inventory\Repository\InventoryList;
-use App\Chron\Model\Inventory\SkuFactory;
-use App\Chron\Model\Inventory\SkuId;
+use App\Chron\Model\Inventory\Stock;
+use App\Chron\Model\Inventory\UnitPrice;
+use App\Chron\Model\Product\SkuId;
 use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
@@ -30,9 +32,12 @@ final readonly class AddInventoryItemHandler
             throw InventoryItemAlreadyExists::withId($skuId);
         }
 
-        $sku = SkuFactory::createFromCommand($skuId, $command);
-
-        $inventory = Inventory::add($skuId, $sku);
+        $inventory = Inventory::add(
+            $skuId,
+            InventoryItemId::fromString($command->content['product_id']),
+            Stock::create($command->content['stock']),
+            UnitPrice::create($command->content['unit_price'])
+        );
 
         $this->inventoryList->save($inventory);
     }

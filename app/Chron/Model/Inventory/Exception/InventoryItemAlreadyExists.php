@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Model\Inventory\Exception;
 
 use App\Chron\Model\DomainException;
-use App\Chron\Model\Inventory\SkuId;
+use App\Chron\Model\Product\SkuId;
 
 use function sprintf;
 

@@ -14,20 +14,34 @@ final class Product implements AggregateRoot
 
     private ProductInfo $info;
 
+    private Sku $sku;
+
     private ProductStatus $status;
 
-    public static function create(ProductId $productId, ProductInfo $productInfo): self
+    public static function create(ProductId $productId, SkuId $skuId, ProductInfo $productInfo): self
     {
         $self = new self($productId);
 
-        $self->recordThat(ProductCreated::forProduct($productId, $productInfo, ProductStatus::AVAILABLE));
+        $sku = new Sku($skuId, $productId, $productInfo);
+
+        $self->recordThat(ProductCreated::forProduct($productId, $sku, $productInfo, ProductStatus::AVAILABLE));
 
         return $self;
+    }
+
+    public function sku(): Sku
+    {
+        return $this->sku;
     }
 
     public function info(): ProductInfo
     {
         return $this->info;
+    }
+
+    public function status(): ProductStatus
+    {
+        return $this->status;
     }
 
     protected function applyProductCreated(ProductCreated $event): void

@@ -10,6 +10,7 @@ use App\Chron\Model\Product\Product;
 use App\Chron\Model\Product\ProductId;
 use App\Chron\Model\Product\ProductInfo;
 use App\Chron\Model\Product\Repository\ProductList;
+use App\Chron\Model\Product\SkuId;
 use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
@@ -30,7 +31,10 @@ final readonly class CreateProductHandler
             throw ProductAlreadyExists::withId($productId);
         }
 
-        $product = Product::create($productId, ProductInfo::fromArray($command->content['product_info']));
+        //wip
+        $skuId = SkuId::create();
+
+        $product = Product::create($productId, $skuId, ProductInfo::fromArray($command->content['product_info']));
 
         $this->products->save($product);
     }

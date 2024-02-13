@@ -15,13 +15,14 @@ final readonly class ProductReadModel
         private Connection $connection,
         private SystemClock $clock
     ) {
-
     }
 
-    public function insert(string $productId, array $info, string $status): void
+    public function insert(string $productId, string $skuId, string $skuCode, array $info, string $status): void
     {
         $this->connection->table(self::TABLE)->insert([
             'id' => $productId,
+            'sku_id' => $skuId,
+            'sku_code' => $skuCode,
             'name' => $info['name'],
             'description' => $info['description'],
             'category' => $info['category'],

@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('read_product', function (Blueprint $table) {
             $table->uuid('id');
+            $table->uuid('sku_id');
+            $table->text('sku_code')->unique();
             $table->string('name');
             $table->string('description');
             $table->string('category');

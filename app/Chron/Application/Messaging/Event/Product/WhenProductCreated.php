@@ -9,7 +9,6 @@ use App\Chron\Model\Product\Event\ProductCreated;
 use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Package\Reporter\Report;
 use App\Chron\Projection\ReadModel\ProductReadModel;
-use Symfony\Component\Uid\Uuid;
 
 final readonly class WhenProductCreated
 {
@@ -22,12 +21,16 @@ final readonly class WhenProductCreated
         handles: ProductCreated::class,
         priority: 0
     )]
-    public function toReadModel(ProductCreated $event): void
+    public function storeNewProduct(ProductCreated $event): void
     {
+        $sku = $event->sku();
+
         $this->readModel->insert(
-            $event->aggregateId()->toString(),
-            $event->productInfo()->toArray(),
-            $event->productStatus()->value,
+            $sku->productId->toString(),
+            $sku->skuId->toString(),
+            $event->skuCode(),
+            $sku->productInfo->toArray(),
+            $event->productStatus()->value
         );
     }
 
@@ -36,13 +39,12 @@ final readonly class WhenProductCreated
         handles: ProductCreated::class,
         priority: 1
     )]
-    public function reportToInventory(ProductCreated $event): void
+    public function reportNewProductToInventory(ProductCreated $event): void
     {
         Report::relay(
             AddInventoryItem::withItem(
-                Uuid::v4()->jsonSerialize(),
+                $event->skuId()->toString(),
                 $event->aggregateId()->toString(),
-                $event->productInfo()->toArray(),
                 fake()->numberBetween(1000, 10000),
                 (string) fake()->randomFloat(2, 10, 4000),
             )
