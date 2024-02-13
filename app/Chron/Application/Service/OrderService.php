@@ -65,6 +65,7 @@ final readonly class OrderService
             $item->sku_id,
             $item->item_id,
             $order->customer_id,
+            $order->read_order_item->unit_price,
             fake()->numberBetween(1, 10)
         ));
     }

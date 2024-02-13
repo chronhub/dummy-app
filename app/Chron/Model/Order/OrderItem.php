@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order;
 
+use App\Chron\Model\Inventory\UnitPrice;
 use App\Chron\Model\Product\ProductId;
 use App\Chron\Model\Product\SkuId;
 
@@ -13,6 +14,7 @@ final readonly class OrderItem
         public OrderItemId $orderItemId,
         public SkuId $skuId,
         public ProductId $productId,
+        public UnitPrice $unitPrice,
         public Quantity $quantity,
     ) {
     }
@@ -23,6 +25,7 @@ final readonly class OrderItem
             OrderItemId::fromString($item['order_item_id']),
             SkuId::fromString($item['sku_id']),
             ProductId::fromString($item['product_id']),
+            UnitPrice::create($item['unit_price']),
             Quantity::create($item['quantity']),
         );
     }
@@ -33,6 +36,7 @@ final readonly class OrderItem
             $this->orderItemId,
             $this->skuId,
             $this->productId,
+            $this->unitPrice,
             Quantity::create($quantity->value),
         );
     }
@@ -43,6 +47,7 @@ final readonly class OrderItem
             'id' => $this->orderItemId->toString(),
             'sku_id' => $this->skuId->toString(),
             'product_id' => $this->productId->toString(),
+            'unit_price' => $this->unitPrice->value,
             'quantity' => $this->quantity->value,
         ];
     }
