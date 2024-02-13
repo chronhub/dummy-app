@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestampTz('updated_at', 6)->nullable();
         });
 
-        // add constraint to unit_price, stock, reserved
+        // todo add constraint to unit_price, stock, reserved
     }
 
     public function down(): void
