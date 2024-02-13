@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->register(MessageServiceProvider::class);
         $this->app->register(ReporterServiceProvider::class);
         $this->app->register(ChroniclerServiceProvider::class);
+        $this->app->register(ShopServiceProvider::class);
 
         // to message service provider
         $this->app->alias(MessageFactory::class, 'message.factory.default');

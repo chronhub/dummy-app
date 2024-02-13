@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Model\Customer\Service;
+namespace App\Chron\Application\Service;
 
-use App\Chron\Infrastructure\Service\CustomerEmailProvider;
 use App\Chron\Model\Customer\CustomerEmail;
+use App\Chron\Model\Customer\Service\UniqueEmail;
+use App\Chron\Projection\Provider\CustomerEmailProvider;
 
-final readonly class UniqueCustomerEmail
+final readonly class UniqueCustomerEmail implements UniqueEmail
 {
     public function __construct(private CustomerEmailProvider $provider)
     {

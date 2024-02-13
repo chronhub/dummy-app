@@ -19,7 +19,7 @@ final class CustomerEmailChanged extends AbstractDomainEvent
         ]);
     }
 
-    public function id(): CustomerId
+    public function aggregateId(): CustomerId
     {
         return CustomerId::fromString($this->content['customer_id']);
     }

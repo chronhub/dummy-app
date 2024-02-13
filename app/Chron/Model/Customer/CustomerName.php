@@ -15,7 +15,7 @@ final readonly class CustomerName
         return new self($name);
     }
 
-    public function equalsTo(CustomerName $email): bool
+    public function sameValueAs(CustomerName $email): bool
     {
         return $this->value === $email->value;
     }

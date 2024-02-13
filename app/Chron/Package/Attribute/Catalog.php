@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Chron\Package\Attribute;
 
-use App\Chron\Application\Messaging\Event\Customer\SendEmailToRegisteredCustomer;
 use App\Chron\Application\Messaging\Event\Customer\WhenCustomerEmailChanged;
+use App\Chron\Application\Messaging\Event\Customer\WhenCustomerRegistered;
+use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemAdded;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCanceled;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderClosed;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCreated;
@@ -15,11 +16,15 @@ use App\Chron\Application\Messaging\Event\Order\WhenOrderPaid;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderRefunded;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderReturned;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderShipped;
+use App\Chron\Application\Messaging\Event\Product\WhenProductCreated;
 use App\Chron\Infrastructure\Repository\CustomerAggregateRepository;
+use App\Chron\Infrastructure\Repository\InventoryAggregateRepository;
 use App\Chron\Infrastructure\Repository\OrderAggregateRepository;
+use App\Chron\Infrastructure\Repository\ProductAggregateRepository;
 use App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler;
 use App\Chron\Model\Customer\Handler\QueryRandomCustomerHandler;
 use App\Chron\Model\Customer\Handler\RegisterCustomerHandler;
+use App\Chron\Model\Inventory\Handler\AddInventoryItemHandler;
 use App\Chron\Model\Order\Handler\CancelOrderHandler;
 use App\Chron\Model\Order\Handler\CloseOrderHandler;
 use App\Chron\Model\Order\Handler\CreateOrderHandler;
@@ -30,6 +35,7 @@ use App\Chron\Model\Order\Handler\QueryRandomPendingOrderHandler;
 use App\Chron\Model\Order\Handler\RefundOrderHandler;
 use App\Chron\Model\Order\Handler\ReturnOrderHandler;
 use App\Chron\Model\Order\Handler\ShipOrderHandler;
+use App\Chron\Model\Product\Handler\CreateProductHandler;
 use App\Chron\Package\Chronicler\PgsqlTransactionalChronicler;
 use App\Chron\Package\Chronicler\Subscribers\AppendOnlyStream;
 use App\Chron\Package\Chronicler\Subscribers\BeginTransaction;
@@ -87,8 +93,12 @@ class Catalog
         RefundOrderHandler::class,
         CloseOrderHandler::class,
 
+        //
+        CreateProductHandler::class,
+        AddInventoryItemHandler::class,
+
         // event handlers
-        SendEmailToRegisteredCustomer::class,
+        WhenCustomerRegistered::class,
         WhenCustomerEmailChanged::class,
         WhenOrderCreated::class,
         WhenOrderModified::class,
@@ -99,6 +109,10 @@ class Catalog
         WhenOrderReturned::class,
         WhenOrderRefunded::class,
         WhenOrderClosed::class,
+
+        //
+        WhenProductCreated::class,
+        WhenInventoryItemAdded::class,
 
         // query handlers
         QueryRandomPendingOrderHandler::class,
@@ -147,6 +161,8 @@ class Catalog
     protected array $aggregateRepositories = [
         CustomerAggregateRepository::class,
         OrderAggregateRepository::class,
+        InventoryAggregateRepository::class,
+        ProductAggregateRepository::class,
     ];
 
     public function find(): iterable

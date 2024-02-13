@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order;
 
+use App\Chron\Application\Service\OrderService;
 use App\Chron\Infrastructure\Service\CustomerOrderProvider;
 use RuntimeException;
 use stdClass;

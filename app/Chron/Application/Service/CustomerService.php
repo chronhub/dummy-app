@@ -2,26 +2,33 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Model\Customer;
+namespace App\Chron\Application\Service;
 
 use App\Chron\Application\Messaging\Command\Customer\ChangeCustomerEmail;
 use App\Chron\Application\Messaging\Command\Customer\RegisterCustomer;
-use App\Chron\Application\Messaging\Query\QueryRandomCustomer;
 use App\Chron\Package\Reporter\Report;
+use App\Chron\Projection\Provider\CustomerProvider;
 use Illuminate\Support\Str;
 use RuntimeException;
-use Storm\Support\QueryPromiseTrait;
 
-class CustomerService
+final readonly class CustomerService
 {
-    use QueryPromiseTrait;
+    public function __construct(private CustomerProvider $customerProvider)
+    {
+    }
 
     public function registerCustomer(): void
     {
         $command = RegisterCustomer::withData(
             fake()->uuid,
             $this->ensureUniqueEmail(),
-            fake()->name
+            fake()->name,
+            [
+                'street' => fake()->streetAddress,
+                'city' => fake()->city,
+                'postal_code' => fake()->postcode,
+                'country' => fake()->country,
+            ]
         );
 
         Report::relay($command);
@@ -38,7 +45,7 @@ class CustomerService
 
     public function findRandomCustomer(): string
     {
-        $customer = $this->handlePromise(Report::relay(new QueryRandomCustomer()));
+        $customer = $this->customerProvider->findRandomCustomer();
 
         if ($customer === null) {
             throw new RuntimeException('No customer found');

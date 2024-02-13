@@ -6,15 +6,40 @@ namespace App\Chron\Application\Messaging\Event\Customer;
 
 use App\Chron\Model\Customer\Event\CustomerEmailChanged;
 use App\Chron\Package\Attribute\Messaging\AsEventHandler;
+use App\Chron\Projection\ReadModel\CustomerEmailReadModel;
+use App\Chron\Projection\ReadModel\CustomerReadModel;
 
-#[AsEventHandler(
-    reporter: 'reporter.event.default',
-    handles: CustomerEmailChanged::class,
-)]
-class WhenCustomerEmailChanged
+final readonly class WhenCustomerEmailChanged
 {
-    public function __invoke(CustomerEmailChanged $event): void
+    public function __construct(
+        private CustomerReadModel $customerReadModel,
+        private CustomerEmailReadModel $customerEmailReadModel
+    ) {
+    }
+
+    #[AsEventHandler(
+        reporter: 'reporter.event.default',
+        handles: CustomerEmailChanged::class,
+        priority: 0
+    )]
+    public function updateCustomerEmail(CustomerEmailChanged $event): void
     {
-        logger('CustomerEmailChanged');
+        $this->customerReadModel->updateEmail(
+            $event->aggregateId()->toString(),
+            $event->newEmail()->value
+        );
+    }
+
+    #[AsEventHandler(
+        reporter: 'reporter.event.default',
+        handles: CustomerEmailChanged::class,
+        priority: 1
+    )]
+    public function storeNewCustomerEmail(CustomerEmailChanged $event): void
+    {
+        $this->customerEmailReadModel->insert(
+            $event->aggregateId()->toString(),
+            $event->newEmail()->value
+        );
     }
 }

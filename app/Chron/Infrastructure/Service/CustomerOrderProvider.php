@@ -17,6 +17,8 @@ use Storm\Contract\Clock\SystemClock;
 
 final readonly class CustomerOrderProvider
 {
+    public const TABLE = 'read_customer_order';
+
     public function __construct(
         private Connection $connection,
         private SystemClock $clock
@@ -114,6 +116,6 @@ final readonly class CustomerOrderProvider
 
     private function query(): Builder
     {
-        return $this->connection->table('read_customer_order');
+        return $this->connection->table(self::TABLE);
     }
 }

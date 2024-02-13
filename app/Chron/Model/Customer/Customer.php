@@ -18,18 +18,20 @@ class Customer implements AggregateRoot
 
     private CustomerName $name;
 
-    public static function register(CustomerId $customerId, CustomerEmail $email, CustomerName $name): self
+    private CustomerAddress $address;
+
+    public static function register(CustomerId $customerId, CustomerEmail $email, CustomerName $name, CustomerAddress $address): self
     {
         $self = new self($customerId);
 
-        $self->recordThat(CustomerRegistered::fromData($customerId, $email, $name));
+        $self->recordThat(CustomerRegistered::fromData($customerId, $email, $name, $address));
 
         return $self;
     }
 
     public function changeEmail(CustomerEmail $email): void
     {
-        if ($this->email->equalsTo($email)) {
+        if ($this->email->sameValueAs($email)) {
             return;
         }
 
@@ -54,10 +56,16 @@ class Customer implements AggregateRoot
         return $this->name;
     }
 
+    public function address(): CustomerAddress
+    {
+        return $this->address;
+    }
+
     protected function applyCustomerRegistered(CustomerRegistered $event): void
     {
         $this->email = $event->email();
         $this->name = $event->name();
+        $this->address = $event->address();
     }
 
     protected function applyCustomerEmailChanged(CustomerEmailChanged $event): void
