@@ -6,7 +6,7 @@ namespace App\Chron\Application\Messaging\Command\Inventory;
 
 use Storm\Message\AbstractDomainCommand;
 
-final class IncreaseInventoryItemQuantity extends AbstractDomainCommand
+final class RefillInventoryItem extends AbstractDomainCommand
 {
     public static function withItem(string $skuId, string $productId, int $stock): self
     {

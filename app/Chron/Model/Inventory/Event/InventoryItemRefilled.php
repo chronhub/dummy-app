@@ -9,7 +9,7 @@ use App\Chron\Model\Inventory\Stock;
 use App\Chron\Model\Product\SkuId;
 use Storm\Message\AbstractDomainEvent;
 
-final class InventoryItemQuantityIncreased extends AbstractDomainEvent
+final class InventoryItemRefilled extends AbstractDomainEvent
 {
     public static function withItem(SkuId $skuId, InventoryItemId $itemId, Stock $newStock, Stock $oldStock): self
     {

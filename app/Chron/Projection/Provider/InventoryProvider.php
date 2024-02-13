@@ -7,6 +7,7 @@ namespace App\Chron\Projection\Provider;
 use App\Chron\Projection\ReadModel\InventoryReadModel;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Collection;
 use stdClass;
 
 final readonly class InventoryProvider
@@ -15,9 +16,14 @@ final readonly class InventoryProvider
     {
     }
 
-    public function findRandomInventoryItem(): ?stdClass
+    public function findRandomItem(): ?stdClass
     {
         return $this->query()->inRandomOrder()->first();
+    }
+
+    public function findRandomItems(int $limit = 10): Collection
+    {
+        return $this->query()->inRandomOrder()->limit($limit)->get();
     }
 
     private function query(): Builder

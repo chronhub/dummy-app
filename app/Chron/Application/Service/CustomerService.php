@@ -10,6 +10,7 @@ use App\Chron\Package\Reporter\Report;
 use App\Chron\Projection\Provider\CustomerProvider;
 use Illuminate\Support\Str;
 use RuntimeException;
+use stdClass;
 
 final readonly class CustomerService
 {
@@ -36,14 +37,14 @@ final readonly class CustomerService
 
     public function changeCustomerEmail(): void
     {
-        $customerId = $this->findRandomCustomer();
+        $customer = $this->findRandomCustomer();
 
-        $command = ChangeCustomerEmail::withCustomer($customerId, $this->ensureUniqueEmail());
+        $command = ChangeCustomerEmail::withCustomer($customer->id, $this->ensureUniqueEmail());
 
         Report::relay($command);
     }
 
-    public function findRandomCustomer(): string
+    public function findRandomCustomer(): stdClass
     {
         $customer = $this->customerProvider->findRandomCustomer();
 
@@ -51,7 +52,7 @@ final readonly class CustomerService
             throw new RuntimeException('No customer found');
         }
 
-        return $customer->id;
+        return $customer;
     }
 
     protected function ensureUniqueEmail(): string

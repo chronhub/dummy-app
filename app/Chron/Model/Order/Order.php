@@ -9,6 +9,10 @@ use App\Chron\Model\Order\Event\OrderCanceled;
 use App\Chron\Model\Order\Event\OrderClosed;
 use App\Chron\Model\Order\Event\OrderCreated;
 use App\Chron\Model\Order\Event\OrderDelivered;
+use App\Chron\Model\Order\Event\OrderItemAdded;
+use App\Chron\Model\Order\Event\OrderItemPartiallyAdded;
+use App\Chron\Model\Order\Event\OrderItemQuantityDecreased;
+use App\Chron\Model\Order\Event\OrderItemQuantityIncreased;
 use App\Chron\Model\Order\Event\OrderModified;
 use App\Chron\Model\Order\Event\OrderPaid;
 use App\Chron\Model\Order\Event\OrderRefunded;
@@ -16,9 +20,11 @@ use App\Chron\Model\Order\Event\OrderReturned;
 use App\Chron\Model\Order\Event\OrderShipped;
 use App\Chron\Model\Order\Exception\InvalidOrderOperation;
 use App\Chron\Model\Order\Service\CanReturnOrder;
+use App\Chron\Model\Order\Service\OrderReservationService;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
+use Illuminate\Support\Collection;
 use RuntimeException;
 
 final class Order implements AggregateRoot
@@ -31,6 +37,8 @@ final class Order implements AggregateRoot
 
     private Balance $balance;
 
+    private Collection $orderItems;
+
     private ?string $closedReason = null;
 
     public static function create(OrderId $orderId, CustomerId $customerId): self
@@ -39,6 +47,64 @@ final class Order implements AggregateRoot
         $order->recordThat(OrderCreated::forCustomer($orderId, $customerId, OrderStatus::CREATED));
 
         return $order;
+    }
+
+    public function addOrderItem(OrderItem $orderItem, OrderReservationService $reservationService): void
+    {
+        if (! $this->isOrderPending()) {
+            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'modify', $this->status);
+        }
+
+        if (! $this->orderItems->has($orderItem->orderItemId->toString())) {
+            $reserved = $reservationService->reserveItem($orderItem->skuId->toString(), $orderItem->productId->toString(), $orderItem->quantity->value);
+
+            if ($reserved > $orderItem->quantity->value) {
+                throw new RuntimeException('Reservation service returned more than expected quantity');
+            } elseif ($reserved === $orderItem->quantity->value) {
+                $this->recordThat(OrderItemAdded::forOrder($this->orderId(), $this->customerId, $orderItem));
+            } elseif ($reserved === 0) {
+                throw new RuntimeException('Out of stock for order item');
+            } else {
+                $partialQuantity = Quantity::create($reserved);
+                $partialItem = $orderItem->withAdjustedQuantity($partialQuantity);
+
+                $this->recordThat(OrderItemPartiallyAdded::forOrder($this->orderId(), $this->customerId, $partialItem, $orderItem->quantity));
+            }
+        } else {
+            $saveItem = $this->orderItems->get($orderItem->orderItemId->toString());
+
+            if ($saveItem->quantity->value === $orderItem->quantity->value) {
+                return;
+            }
+
+            // decrease quantity
+            if ($saveItem->quantity->value > $orderItem->quantity->value) {
+                $quantityToRelease = $saveItem->quantity->value - $orderItem->quantity->value;
+
+                $released = $reservationService->releaseItem($orderItem->skuId->toString(), $orderItem->productId->toString(), $quantityToRelease);
+                if ($released) {
+                    $this->recordThat(OrderItemQuantityDecreased::forOrder($this->orderId(), $this->customerId, $orderItem, $saveItem->quantity));
+                } else {
+                    throw new RuntimeException('Reservation service failed to release quantity');
+                }
+            } else {
+                // increase quantity
+                $reserved = $reservationService->reserveItem($orderItem->skuId->toString(), $orderItem->productId->toString(), $orderItem->quantity->value);
+
+                if ($reserved > $orderItem->quantity->value) {
+                    throw new RuntimeException('Reservation service returned more than expected quantity');
+                } elseif ($reserved === $orderItem->quantity->value) {
+                    $this->recordThat(OrderItemQuantityIncreased::forOrder($this->orderId(), $this->customerId, $orderItem, $saveItem->quantity));
+                } elseif ($reserved === 0) {
+                    throw new RuntimeException('Out of stock for order item');
+                } else {
+                    $partialQuantity = Quantity::create($reserved);
+                    $partialItem = $orderItem->withAdjustedQuantity($partialQuantity);
+
+                    $this->recordThat(OrderItemPartiallyAdded::forOrder($this->orderId(), $this->customerId, $partialItem, $orderItem->quantity));
+                }
+            }
+        }
     }
 
     public function modify(Amount $amount): void
@@ -167,6 +233,7 @@ final class Order implements AggregateRoot
         $this->customerId = $event->customerId();
         $this->status = $event->orderStatus();
         $this->balance = Balance::newInstance();
+        $this->orderItems = new Collection();
     }
 
     protected function applyOrderModified(OrderModified $event): void

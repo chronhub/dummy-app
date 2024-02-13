@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Model\Inventory;
 
 use App\Chron\Model\Inventory\Event\InventoryItemAdded;
-use App\Chron\Model\Inventory\Event\InventoryItemQuantityIncreased;
+use App\Chron\Model\Inventory\Event\InventoryItemRefilled;
 use App\Chron\Model\Product\SkuId;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
@@ -31,11 +31,11 @@ final class Inventory implements AggregateRoot
         return $self;
     }
 
-    public function increase(Stock $stock): void
+    public function refill(Stock $stock): void
     {
         $newStock = $this->stock->value + $stock->value;
 
-        $this->recordThat(InventoryItemQuantityIncreased::withItem($this->skuId(), $this->itemId, Stock::create($newStock), $this->stock));
+        $this->recordThat(InventoryItemRefilled::withItem($this->skuId(), $this->itemId, Stock::create($newStock), $this->stock));
     }
 
     public function remove(Stock $stock): void
@@ -85,7 +85,7 @@ final class Inventory implements AggregateRoot
         $this->unitPrice = $event->unitPrice();
     }
 
-    protected function applyInventoryItemQuantityIncreased(InventoryItemQuantityIncreased $event): void
+    protected function applyInventoryItemRefilled(InventoryItemRefilled $event): void
     {
         $this->stock = $event->newStock();
     }

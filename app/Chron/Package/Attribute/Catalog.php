@@ -25,7 +25,7 @@ use App\Chron\Infrastructure\Repository\ProductAggregateRepository;
 use App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler;
 use App\Chron\Model\Customer\Handler\RegisterCustomerHandler;
 use App\Chron\Model\Inventory\Handler\AddInventoryItemHandler;
-use App\Chron\Model\Inventory\Handler\IncreaseInventoryItemQuantityHandler;
+use App\Chron\Model\Inventory\Handler\RefillInventoryItemHandler;
 use App\Chron\Model\Order\Handler\CancelOrderHandler;
 use App\Chron\Model\Order\Handler\CloseOrderHandler;
 use App\Chron\Model\Order\Handler\CreateOrderHandler;
@@ -97,7 +97,7 @@ class Catalog
         //
         CreateProductHandler::class,
         AddInventoryItemHandler::class,
-        IncreaseInventoryItemQuantityHandler::class,
+        RefillInventoryItemHandler::class,
 
         // event handlers
         WhenCustomerRegistered::class,
