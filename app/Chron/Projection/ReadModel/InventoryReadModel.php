@@ -30,18 +30,14 @@ final readonly class InventoryReadModel
         ]);
     }
 
-    public function removeQuantity(string $skuId, int $quantity): void
+    public function updateQuantity(string $skuId, int $quantity): void
     {
         $this->query()
             ->where('id', $skuId)
-            ->decrementEach(['stock' => $quantity, 'reserved' => $quantity], $this->updateTime());
-    }
-
-    public function addQuantity(string $skuId, int $quantity): void
-    {
-        $this->query()
-            ->where('id', $skuId)
-            ->increment('stock', $quantity, $this->updateTime());
+            ->update([
+                'stock' => $quantity,
+                'updated_at' => $this->clock->generate(),
+            ]);
     }
 
     public function reserve(string $skuId, int $quantity): void

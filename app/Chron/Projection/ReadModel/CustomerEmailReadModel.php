@@ -9,6 +9,8 @@ use Illuminate\Database\Query\Builder;
 
 final readonly class CustomerEmailReadModel
 {
+    final public const TABLE = 'read_customer_email';
+
     public function __construct(private Connection $connection)
     {
     }
@@ -23,6 +25,6 @@ final readonly class CustomerEmailReadModel
 
     private function query(): Builder
     {
-        return $this->connection->table('read_customer_email');
+        return $this->connection->table(self::TABLE);
     }
 }

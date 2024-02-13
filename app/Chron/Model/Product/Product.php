@@ -12,8 +12,6 @@ final class Product implements AggregateRoot
 {
     use AggregateBehaviorTrait;
 
-    private ProductInfo $info;
-
     private Sku $sku;
 
     private ProductStatus $status;
@@ -24,7 +22,7 @@ final class Product implements AggregateRoot
 
         $sku = new Sku($skuId, $productId, $productInfo);
 
-        $self->recordThat(ProductCreated::forProduct($productId, $sku, $productInfo, ProductStatus::AVAILABLE));
+        $self->recordThat(ProductCreated::forProduct($sku, ProductStatus::AVAILABLE));
 
         return $self;
     }
@@ -34,11 +32,6 @@ final class Product implements AggregateRoot
         return $this->sku;
     }
 
-    public function info(): ProductInfo
-    {
-        return $this->info;
-    }
-
     public function status(): ProductStatus
     {
         return $this->status;
@@ -46,7 +39,7 @@ final class Product implements AggregateRoot
 
     protected function applyProductCreated(ProductCreated $event): void
     {
-        $this->info = $event->productInfo();
         $this->status = $event->productStatus();
+        $this->sku = $event->sku();
     }
 }

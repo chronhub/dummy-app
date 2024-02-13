@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Messaging\Event\Product;
 
-use App\Chron\Application\Messaging\Command\Inventory\AddInventoryItem;
+use App\Chron\Application\Service\InventoryService;
 use App\Chron\Model\Product\Event\ProductCreated;
 use App\Chron\Package\Attribute\Messaging\AsEventHandler;
-use App\Chron\Package\Reporter\Report;
 use App\Chron\Projection\ReadModel\ProductReadModel;
 
 final readonly class WhenProductCreated
 {
-    public function __construct(private ProductReadModel $readModel)
-    {
+    public function __construct(
+        private ProductReadModel $readModel,
+        private InventoryService $inventoryService
+    ) {
     }
 
     #[AsEventHandler(
@@ -41,13 +42,9 @@ final readonly class WhenProductCreated
     )]
     public function reportNewProductToInventory(ProductCreated $event): void
     {
-        Report::relay(
-            AddInventoryItem::withItem(
-                $event->skuId()->toString(),
-                $event->aggregateId()->toString(),
-                fake()->numberBetween(1000, 10000),
-                (string) fake()->randomFloat(2, 10, 4000),
-            )
+        $this->inventoryService->addNewProductToInventory(
+            $event->skuId()->toString(),
+            $event->aggregateId()->toString()
         );
     }
 }

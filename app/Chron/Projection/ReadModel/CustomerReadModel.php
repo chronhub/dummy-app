@@ -21,7 +21,7 @@ final readonly class CustomerReadModel
     public function insert(string $customerId, string $email, string $name, string $street, string $city, string $postalCode, string $country): void
     {
         $this->query()->insert([
-            'customer_id' => $customerId,
+            'id' => $customerId,
             'email' => $email,
             'name' => $name,
             'street' => $street,
@@ -33,7 +33,7 @@ final readonly class CustomerReadModel
 
     public function updateEmail(string $customerId, string $email): void
     {
-        $this->query()->where('customer_id', $customerId)->update(['email' => $email, 'updated_at' => $this->clock->generate()]);
+        $this->query()->where('id', $customerId)->update(['email' => $email, 'updated_at' => $this->clock->generate()]);
     }
 
     private function query(): Builder

@@ -7,6 +7,7 @@ namespace App\Chron\Package\Attribute;
 use App\Chron\Application\Messaging\Event\Customer\WhenCustomerEmailChanged;
 use App\Chron\Application\Messaging\Event\Customer\WhenCustomerRegistered;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemAdded;
+use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemQuantityIncreased;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCanceled;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderClosed;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCreated;
@@ -24,6 +25,7 @@ use App\Chron\Infrastructure\Repository\ProductAggregateRepository;
 use App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler;
 use App\Chron\Model\Customer\Handler\RegisterCustomerHandler;
 use App\Chron\Model\Inventory\Handler\AddInventoryItemHandler;
+use App\Chron\Model\Inventory\Handler\IncreaseInventoryItemQuantityHandler;
 use App\Chron\Model\Order\Handler\CancelOrderHandler;
 use App\Chron\Model\Order\Handler\CloseOrderHandler;
 use App\Chron\Model\Order\Handler\CreateOrderHandler;
@@ -95,6 +97,7 @@ class Catalog
         //
         CreateProductHandler::class,
         AddInventoryItemHandler::class,
+        IncreaseInventoryItemQuantityHandler::class,
 
         // event handlers
         WhenCustomerRegistered::class,
@@ -112,6 +115,7 @@ class Catalog
         //
         WhenProductCreated::class,
         WhenInventoryItemAdded::class,
+        WhenInventoryItemQuantityIncreased::class,
 
         // query handlers
         QueryRandomPendingOrderHandler::class,

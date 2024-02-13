@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Projection\Provider;
 
 use App\Chron\Model\Customer\CustomerEmail;
+use App\Chron\Projection\ReadModel\CustomerEmailReadModel;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
 
@@ -21,6 +22,6 @@ final readonly class CustomerEmailProvider
 
     private function query(): Builder
     {
-        return $this->connection->table('read_customer_email');
+        return $this->connection->table(CustomerEmailReadModel::TABLE);
     }
 }

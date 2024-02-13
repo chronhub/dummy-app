@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Model\Inventory;
 
 use App\Chron\Model\Inventory\Event\InventoryItemAdded;
-use App\Chron\Model\Product\Sku;
+use App\Chron\Model\Inventory\Event\InventoryItemQuantityIncreased;
 use App\Chron\Model\Product\SkuId;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
@@ -14,7 +14,11 @@ final class Inventory implements AggregateRoot
 {
     use AggregateBehaviorTrait;
 
-    private Sku $sku;
+    private InventoryItemId $itemId;
+
+    private Stock $stock;
+
+    private UnitPrice $unitPrice;
 
     private int $reserved = 0;
 
@@ -29,10 +33,12 @@ final class Inventory implements AggregateRoot
 
     public function increase(Stock $stock): void
     {
-        // restock
+        $newStock = $this->stock->value + $stock->value;
+
+        $this->recordThat(InventoryItemQuantityIncreased::withItem($this->skuId(), $this->itemId, Stock::create($newStock), $this->stock));
     }
 
-    public function decrease(Stock $stock): void
+    public function remove(Stock $stock): void
     {
         // sell
     }
@@ -52,13 +58,35 @@ final class Inventory implements AggregateRoot
         // cancel order
     }
 
-    public function sku(): Sku
+    public function skuId(): SkuId
     {
-        return clone $this->sku;
+        return $this->identity;
+    }
+
+    public function itemId(): InventoryItemId
+    {
+        return $this->itemId;
+    }
+
+    public function stock(): Stock
+    {
+        return $this->stock;
+    }
+
+    public function unitPrice(): UnitPrice
+    {
+        return $this->unitPrice;
     }
 
     protected function applyInventoryItemAdded(InventoryItemAdded $event): void
     {
-        $this->sku = $event->sku();
+        $this->itemId = $event->inventoryItemId();
+        $this->stock = $event->stock();
+        $this->unitPrice = $event->unitPrice();
+    }
+
+    protected function applyInventoryItemQuantityIncreased(InventoryItemQuantityIncreased $event): void
+    {
+        $this->stock = $event->newStock();
     }
 }

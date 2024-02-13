@@ -55,6 +55,6 @@ final readonly class WhenCustomerRegistered
     )]
     public function sendEmailToNewCustomer(CustomerRegistered $event): void
     {
-        logger('WhenCustomerRegistered');
+        // send email to new customer
     }
 }
