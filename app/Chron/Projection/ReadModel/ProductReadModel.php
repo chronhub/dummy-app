@@ -28,7 +28,7 @@ final readonly class ProductReadModel
             'brand' => $info['brand'],
             'model' => $info['model'],
             'status' => $status,
-            'created_at' => $this->clock->now(),
+            'created_at' => $this->clock->generate(),
         ]);
     }
 }

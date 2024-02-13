@@ -22,7 +22,6 @@ use App\Chron\Infrastructure\Repository\InventoryAggregateRepository;
 use App\Chron\Infrastructure\Repository\OrderAggregateRepository;
 use App\Chron\Infrastructure\Repository\ProductAggregateRepository;
 use App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler;
-use App\Chron\Model\Customer\Handler\QueryRandomCustomerHandler;
 use App\Chron\Model\Customer\Handler\RegisterCustomerHandler;
 use App\Chron\Model\Inventory\Handler\AddInventoryItemHandler;
 use App\Chron\Model\Order\Handler\CancelOrderHandler;
@@ -116,7 +115,6 @@ class Catalog
 
         // query handlers
         QueryRandomPendingOrderHandler::class,
-        QueryRandomCustomerHandler::class,
     ];
 
     /**
