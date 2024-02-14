@@ -24,7 +24,6 @@ final readonly class WhenOrderItemAdded
             $event->orderItem()->orderItemId->toString(),
             $event->orderId()->toString(),
             $event->customerId()->toString(),
-            $event->orderItem()->productId->toString(),
             $event->orderItem()->skuId->toString(),
             $event->orderItem()->quantity->value,
             $event->orderItem()->unitPrice->value,

@@ -20,19 +20,17 @@ final class Inventory implements AggregateRoot
 {
     use AggregateBehaviorTrait;
 
-    private InventoryItemId $itemId;
-
     private Stock $stock;
 
     private UnitPrice $unitPrice;
 
     private int $reserved = 0;
 
-    public static function add(SkuId $skuId, InventoryItemId $itemId, Stock $stock, UnitPrice $unitPrice): self
+    public static function add(SkuId $skuId, Stock $stock, UnitPrice $unitPrice): self
     {
         $self = new self($skuId);
 
-        $self->recordThat(InventoryItemAdded::withItem($skuId, $itemId, $stock, $unitPrice));
+        $self->recordThat(InventoryItemAdded::withItem($skuId, $stock, $unitPrice));
 
         return $self;
     }
@@ -41,7 +39,7 @@ final class Inventory implements AggregateRoot
     {
         $newStock = $this->stock->add($stock);
 
-        $this->recordThat(InventoryItemRefilled::withItem($this->skuId(), $this->itemId, $newStock, $this->stock));
+        $this->recordThat(InventoryItemRefilled::withItem($this->skuId(), $newStock, $this->stock));
     }
 
     public function remove(Stock $stock): void
@@ -62,7 +60,7 @@ final class Inventory implements AggregateRoot
 
         // todo partial reservation
 
-        $this->recordThat(InventoryItemReserved::withItem($this->skuId(), $this->itemId, $this->stock->remove($stock), $stock));
+        $this->recordThat(InventoryItemReserved::withItem($this->skuId(), $this->stock->remove($stock), $stock));
 
         // if stock is less than ?, send notification
     }
@@ -78,11 +76,6 @@ final class Inventory implements AggregateRoot
         $identity = $this->identity();
 
         return $identity;
-    }
-
-    public function itemId(): InventoryItemId
-    {
-        return $this->itemId;
     }
 
     public function stock(): Stock
@@ -109,7 +102,6 @@ final class Inventory implements AggregateRoot
     {
         switch (true) {
             case $event instanceof InventoryItemAdded:
-                $this->itemId = $event->inventoryItemId();
                 $this->stock = $event->stock();
                 $this->unitPrice = $event->unitPrice();
 

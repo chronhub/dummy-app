@@ -37,13 +37,12 @@ final readonly class OrderReadModel
             ->update(['quantity' => $quantity, 'balance' => $balance, 'status' => $status, 'updated_at' => $this->clock->generate()]);
     }
 
-    public function insertOrderItem(string $orderItemId, string $orderId, string $customerId, string $itemId, string $skuId, int $quantity, string $unitPrice): void
+    public function insertOrderItem(string $orderItemId, string $orderId, string $customerId, string $skuId, int $quantity, string $unitPrice): void
     {
         $this->queryOrderItem()->insert([
             'id' => $orderItemId,
             'order_id' => $orderId,
             'customer_id' => $customerId,
-            'item_id' => $itemId,
             'sku_id' => $skuId,
             'quantity' => $quantity,
             'unit_price' => $unitPrice,

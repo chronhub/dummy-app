@@ -18,11 +18,10 @@ final readonly class InventoryReadModel
     ) {
     }
 
-    public function insert(string $skuId, string $itemId, int $stock, string $unitPrice): void
+    public function insert(string $skuId, int $stock, string $unitPrice): void
     {
         $this->query()->insert([
             'id' => $skuId,
-            'item_id' => $itemId,
             'stock' => $stock,
             'unit_price' => $unitPrice,
             'reserved' => 0,

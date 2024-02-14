@@ -16,11 +16,11 @@ final class Product implements AggregateRoot
 
     private ProductStatus $status;
 
-    public static function create(ProductId $productId, SkuId $skuId, ProductInfo $productInfo): self
+    public static function create(ProductId $productId, ProductInfo $productInfo): self
     {
         $self = new self($productId);
 
-        $sku = new Sku($skuId, $productId, $productInfo);
+        $sku = new Sku($productId, $productInfo);
 
         $self->recordThat(ProductCreated::forProduct($sku, ProductStatus::AVAILABLE));
 

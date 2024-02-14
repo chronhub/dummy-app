@@ -8,7 +8,6 @@ use App\Chron\Model\Product\ProductId;
 use App\Chron\Model\Product\ProductInfo;
 use App\Chron\Model\Product\ProductStatus;
 use App\Chron\Model\Product\Sku;
-use App\Chron\Model\Product\SkuId;
 use Storm\Message\AbstractDomainEvent;
 
 final class ProductCreated extends AbstractDomainEvent
@@ -17,7 +16,6 @@ final class ProductCreated extends AbstractDomainEvent
     {
         return new self([
             'product_id' => $sku->productId->toString(),
-            'sku_id' => $sku->skuId->toString(),
             'sku_code' => $sku->generateSku(),
             'product_info' => $sku->productInfo->toArray(),
             'product_status' => $status->value,
@@ -27,11 +25,6 @@ final class ProductCreated extends AbstractDomainEvent
     public function aggregateId(): ProductId
     {
         return ProductId::fromString($this->content['product_id']);
-    }
-
-    public function skuId(): SkuId
-    {
-        return SkuId::fromString($this->content['sku_id']);
     }
 
     public function productInfo(): ProductInfo
@@ -51,10 +44,6 @@ final class ProductCreated extends AbstractDomainEvent
 
     public function sku(): Sku
     {
-        return new Sku(
-            $this->skuId(),
-            $this->aggregateId(),
-            $this->productInfo()
-        );
+        return new Sku($this->aggregateId(), $this->productInfo());
     }
 }

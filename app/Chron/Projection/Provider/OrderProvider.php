@@ -33,7 +33,7 @@ final readonly class OrderProvider
     {
         $order = $this->orderQuery()
             ->where('customer_id', $customerId)
-            ->where('closed', 0)
+            ->where('closed', 0) // todo removed and use the order status
             ->orderBy('created_at', 'desc')
             ->first();
 

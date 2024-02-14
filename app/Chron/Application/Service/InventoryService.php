@@ -9,6 +9,7 @@ use App\Chron\Application\Messaging\Command\Inventory\RefillInventoryItem;
 use App\Chron\Package\Reporter\Report;
 use App\Chron\Projection\Provider\InventoryProvider;
 use Illuminate\Support\Collection;
+use RuntimeException;
 use stdClass;
 
 final readonly class InventoryService
@@ -27,12 +28,11 @@ final readonly class InventoryService
         return $this->inventoryProvider->findRandomItem();
     }
 
-    public function addNewProductToInventory(string $skuId, string $itemId): void
+    public function addNewProductToInventory(string $skuId): void
     {
         Report::relay(
             AddInventoryItem::withItem(
                 $skuId,
-                $itemId,
                 fake()->numberBetween(1000, 10000),
                 (string) fake()->randomFloat(2, 10, 4000),
             )
@@ -42,22 +42,13 @@ final readonly class InventoryService
     public function increaseInventoryItemQuantity(): void
     {
         $item = $this->inventoryProvider->findRandomItem();
+
         if ($item === null) {
-            return;
+            throw new RuntimeException('No inventory items found');
         }
 
-        // todo alert when quantity decreased
         Report::relay(
-            RefillInventoryItem::withItem(
-                $item->id,
-                $item->item_id,
-                fake()->numberBetween(1000, 10000),
-            )
+            RefillInventoryItem::withItem($item->id, fake()->numberBetween(1000, 10000))
         );
-    }
-
-    public function reserveItem(string $skuId, string $itemId, int $quantity): void
-    {
-        // todo
     }
 }

@@ -12,7 +12,6 @@ return new class extends Migration
     {
         Schema::create('read_inventory', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('item_id');
             $table->string('unit_price');
             $table->integer('stock');
             $table->integer('reserved')->default(0);

@@ -65,7 +65,6 @@ final readonly class OrderService
             $order->id,
             Uuid::v4()->jsonSerialize(),
             $inventoryItem->id,
-            $inventoryItem->item_id,
             $order->customer_id,
             $inventoryItem->unit_price,
             fake()->numberBetween(1, 10)

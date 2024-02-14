@@ -7,7 +7,6 @@ namespace App\Chron\Model\Inventory\Handler;
 use App\Chron\Application\Messaging\Command\Inventory\AddInventoryItem;
 use App\Chron\Model\Inventory\Exception\InventoryItemAlreadyExists;
 use App\Chron\Model\Inventory\Inventory;
-use App\Chron\Model\Inventory\InventoryItemId;
 use App\Chron\Model\Inventory\Repository\InventoryList;
 use App\Chron\Model\Inventory\Stock;
 use App\Chron\Model\Inventory\UnitPrice;
@@ -34,7 +33,6 @@ final readonly class AddInventoryItemHandler
 
         $inventory = Inventory::add(
             $skuId,
-            InventoryItemId::fromString($command->content['product_id']),
             Stock::create($command->content['stock']),
             UnitPrice::create($command->content['unit_price'])
         );

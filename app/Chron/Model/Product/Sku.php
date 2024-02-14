@@ -10,7 +10,6 @@ use function json_encode;
 final class Sku
 {
     public function __construct(
-        public SkuId $skuId,
         public ProductId $productId,
         public ProductInfo $productInfo
     ) {
@@ -18,8 +17,7 @@ final class Sku
 
     public function generateSku(): string
     {
-        $code = 'SKU_'.$this->skuId->id->toBase58().'-';
-        $code .= 'PRD_'.$this->productId->id->toBase58().'-';
+        $code = 'SKU_'.$this->productId->id->toBase58().'-';
         $code .= 'VR_'.base64_encode(json_encode($this->productInfo));
 
         return $code;

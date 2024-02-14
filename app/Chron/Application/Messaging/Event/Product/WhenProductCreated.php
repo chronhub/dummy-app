@@ -27,8 +27,7 @@ final readonly class WhenProductCreated
         $sku = $event->sku();
 
         $this->readModel->insert(
-            $sku->productId->toString(),
-            $sku->skuId->toString(),
+            $event->aggregateId()->toString(),
             $event->skuCode(),
             $sku->productInfo->toArray(),
             $event->productStatus()->value
@@ -42,9 +41,6 @@ final readonly class WhenProductCreated
     )]
     public function reportNewProductToInventory(ProductCreated $event): void
     {
-        $this->inventoryService->addNewProductToInventory(
-            $event->skuId()->toString(),
-            $event->aggregateId()->toString()
-        );
+        $this->inventoryService->addNewProductToInventory($event->aggregateId()->toString());
     }
 }
