@@ -27,7 +27,7 @@ use App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler;
 use App\Chron\Model\Customer\Handler\RegisterCustomerHandler;
 use App\Chron\Model\Inventory\Handler\AddInventoryItemHandler;
 use App\Chron\Model\Inventory\Handler\RefillInventoryItemHandler;
-use App\Chron\Model\Inventory\Handler\ReserveIventoryItemHandler;
+use App\Chron\Model\Inventory\Handler\ReserveInventoryItemHandler;
 use App\Chron\Model\Order\Handler\AddOrderItemHandler;
 use App\Chron\Model\Order\Handler\CancelOrderHandler;
 use App\Chron\Model\Order\Handler\CloseOrderHandler;
@@ -101,7 +101,7 @@ class Catalog
         CreateProductHandler::class,
         AddInventoryItemHandler::class,
         RefillInventoryItemHandler::class,
-        ReserveIventoryItemHandler::class,
+        ReserveInventoryItemHandler::class,
         AddOrderItemHandler::class,
 
         // event handlers
@@ -122,7 +122,6 @@ class Catalog
         WhenInventoryItemAdded::class,
         WhenInventoryItemRefilled::class,
         WhenInventoryItemReserved::class,
-        WhenInventoryItemAdded::class,
 
         // query handlers
         QueryRandomPendingOrderHandler::class,

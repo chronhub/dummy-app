@@ -20,6 +20,26 @@ final readonly class Stock
         return new self($stock);
     }
 
+    public function add(Stock $stock): self
+    {
+        return new self($this->value + $stock->value);
+    }
+
+    public function remove(Stock $stock): self
+    {
+        return new self($this->value - $stock->value);
+    }
+
+    public function isFullyAvailable(Stock $requested): bool
+    {
+        return $this->value >= $requested->value;
+    }
+
+    public function isPartiallyAvailable(Stock $requested): bool
+    {
+        return $this->value > 0 && $requested->value - $this->value > 0;
+    }
+
     public function sameValueAs(self $other): bool
     {
         return $this->value === $other->value;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Application\Console\Domain;
+namespace App\Chron\Application\Console\Shop;
 
 use App\Chron\Model\Order\OrderSagaManagement;
 use Illuminate\Console\Command;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Inventory\Handler;
 
-use App\Chron\Application\Messaging\Command\Inventory\ReserveIventoryItem;
+use App\Chron\Application\Messaging\Command\Inventory\ReserveInventoryItem;
 use App\Chron\Model\Inventory\Exception\InventoryItemNotFound;
 use App\Chron\Model\Inventory\Inventory;
 use App\Chron\Model\Inventory\InventoryItemId;
@@ -15,15 +15,15 @@ use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',
-    handles: ReserveIventoryItem::class,
+    handles: ReserveInventoryItem::class,
 )]
-final readonly class ReserveIventoryItemHandler
+final readonly class ReserveInventoryItemHandler
 {
     public function __construct(private InventoryList $inventoryList)
     {
     }
 
-    public function __invoke(ReserveIventoryItem $command): void
+    public function __invoke(ReserveInventoryItem $command): void
     {
         $skuId = SkuId::fromString($command->content['sku_id']);
 

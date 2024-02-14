@@ -5,24 +5,19 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order;
 
 use App\Chron\Model\Customer\CustomerId;
-use App\Chron\Model\Order\Event\OrderCanceled;
-use App\Chron\Model\Order\Event\OrderClosed;
+use App\Chron\Model\Inventory\Inventory;
+use App\Chron\Model\Inventory\Stock;
 use App\Chron\Model\Order\Event\OrderCreated;
-use App\Chron\Model\Order\Event\OrderDelivered;
 use App\Chron\Model\Order\Event\OrderItemAdded;
-use App\Chron\Model\Order\Event\OrderItemPartiallyAdded;
 use App\Chron\Model\Order\Event\OrderModified;
-use App\Chron\Model\Order\Event\OrderPaid;
-use App\Chron\Model\Order\Event\OrderRefunded;
-use App\Chron\Model\Order\Event\OrderReturned;
-use App\Chron\Model\Order\Event\OrderShipped;
 use App\Chron\Model\Order\Exception\InvalidOrderOperation;
-use App\Chron\Model\Order\Service\CanReturnOrder;
-use App\Chron\Model\Order\Service\OrderReservationService;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
 use RuntimeException;
+use Storm\Contract\Message\DomainEvent;
+
+use function sprintf;
 
 final class Order implements AggregateRoot
 {
@@ -48,133 +43,38 @@ final class Order implements AggregateRoot
         return $order;
     }
 
-    public function addOrderItem(OrderItem $orderItem, OrderReservationService $reservationService): void
+    public function addOrderItem(OrderItem $orderItem, Inventory $inventory): void
     {
         if (! $this->isOrderPending()) {
             throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'modify', $this->status);
         }
 
         if (! $this->orderItems->has($orderItem)) {
-            $reserved = $reservationService->reserveItem($orderItem->skuId->toString(), $orderItem->productId->toString(), $orderItem->quantity->value);
+            // assume fully available stock
+            if ($inventory->canReserve(Stock::create($orderItem->quantity->value))) {
 
-            if ($reserved > $orderItem->quantity->value) {
-                throw new RuntimeException('Reservation service returned more than expected quantity');
-            } elseif ($reserved === $orderItem->quantity->value) {
-                $this->recordThat(OrderItemAdded::forOrder($this->orderId(), $this->customerId, $orderItem));
+                $inventory->reserve(Stock::create($orderItem->quantity->value));
 
-            } elseif ($reserved === 0) {
-                throw new RuntimeException('Out of stock for order item');
+                $this->recordThat(OrderItemAdded::forOrder(
+                    $this->orderId(),
+                    $this->customerId,
+                    $orderItem,
+                ));
+
+                $this->recordThat(OrderModified::forCustomer(
+                    $this->orderId(),
+                    $this->customerId,
+                    $this->orderItems->calculateBalance(),
+                    $this->orderItems->calculateQuantity(),
+                    OrderStatus::MODIFIED)
+                );
             } else {
-                $partialQuantity = Quantity::create($reserved);
-
-                $partialItem = $orderItem->withAdjustedQuantity($partialQuantity);
-
-                $this->recordThat(OrderItemPartiallyAdded::forOrder($this->orderId(), $this->customerId, $partialItem, $orderItem->quantity));
+                throw new RuntimeException('Not enough stock');
             }
-
-            $this->recordThat(OrderModified::forCustomer(
-                $this->orderId(),
-                $this->customerId,
-                $this->orderItems->calculateBalance(),
-                $this->orderItems->calculateQuantity(),
-                OrderStatus::MODIFIED)
-            );
         } else {
             logger('Order item already exists');
         }
     }
-
-    //    public function modify(Amount $amount): void
-    //    {
-    //        if (! $this->isOrderPending()) {
-    //            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'modify', $this->status);
-    //        }
-    //
-    //        $this->recordThat(OrderModified::forCustomer($this->orderId(), $this->customerId, OrderStatus::MODIFIED, clone $amount));
-    //    }
-    //
-    //    public function pay(): void
-    //    {
-    //        if ($this->status !== OrderStatus::MODIFIED) {
-    //            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'pay', $this->status);
-    //        }
-    //
-    //        if ($this->balance->toFloat() <= 0) {
-    //            throw InvalidOrderOperation::withInvalidBalance($this->orderId(), 'pay', $this->balance());
-    //        }
-    //
-    //        $this->recordThat(OrderPaid::forCustomer($this->orderId(), $this->customerId, OrderStatus::PAID));
-    //    }
-    //
-    //    public function ship(): void
-    //    {
-    //        if ($this->status !== OrderStatus::PAID) {
-    //            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'ship', $this->status);
-    //        }
-    //
-    //        $this->recordThat(OrderShipped::forCustomer($this->orderId(), $this->customerId, OrderStatus::SHIPPED));
-    //    }
-    //
-    //    public function deliver(): void
-    //    {
-    //        if ($this->status !== OrderStatus::SHIPPED) {
-    //            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'deliver', $this->status);
-    //        }
-    //
-    //        $this->recordThat(OrderDelivered::forCustomer($this->orderId(), $this->customerId, OrderStatus::DELIVERED));
-    //    }
-    //
-    //    public function return(CanReturnOrder $allowReturn): void
-    //    {
-    //        if ($this->status !== OrderStatus::DELIVERED) {
-    //            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'return', $this->status);
-    //        }
-    //
-    //        //fixMe never refund
-    //        if (! $allowReturn($this->orderId(), $this->customerId)) {
-    //            throw InvalidOrderOperation::returnOrderDisallowByPolicy($this->orderId());
-    //        }
-    //
-    //        $this->recordThat(OrderReturned::forCustomer($this->orderId(), $this->customerId, OrderStatus::RETURNED));
-    //    }
-    //
-    //    public function refund(): void
-    //    {
-    //        if ($this->status !== OrderStatus::RETURNED) {
-    //            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'refund', $this->status);
-    //        }
-    //
-    //        $this->recordThat(OrderRefunded::forCustomer($this->orderId(), $this->customerId, OrderStatus::REFUNDED, $this->balance()));
-    //    }
-    //
-    //    public function cancel(): void
-    //    {
-    //        if (! $this->isOrderPending()) {
-    //            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'cancel', $this->status);
-    //        }
-    //
-    //        $this->recordThat(OrderCanceled::forCustomer($this->orderId(), $this->customerId, OrderStatus::CANCELLED));
-    //    }
-    //
-    //    public function close(CanReturnOrder $allowReturn): void
-    //    {
-    //        if (! $this->canCloseOrder()) {
-    //            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'close', $this->status);
-    //        }
-    //
-    //        if ($allowReturn($this->orderId(), $this->customerId)) {
-    //            throw InvalidOrderOperation::closeOrderDisallowByPolicy($this->orderId());
-    //        }
-    //
-    //        $reason = match ($this->status) {
-    //            OrderStatus::DELIVERED => 'Order returned is overdue',
-    //            OrderStatus::REFUNDED => 'Order refunded',
-    //            OrderStatus::CANCELLED => 'Order cancelled',
-    //            default => throw new RuntimeException('Close order operation does not support status: '.$this->status->value),
-    //        };
-    //
-    //        $this->recordThat(OrderClosed::forCustomer($this->orderId(), $this->customerId, OrderStatus::CLOSED, $reason));
-    //    }
 
     public function orderId(): OrderId
     {
@@ -205,72 +105,33 @@ final class Order implements AggregateRoot
         return $this->closedReason;
     }
 
-    protected function applyOrderCreated(OrderCreated $event): void
-    {
-        $this->customerId = $event->customerId();
-        $this->status = $event->orderStatus();
-        $this->balance = Balance::newInstance();
-        $this->orderItems = new ItemCollection();
-    }
-
-    protected function applyOrderModified(OrderModified $event): void
-    {
-        $this->balance = $event->balance();
-        $this->quantity = $event->quantity();
-        $this->status = $event->orderStatus();
-    }
-
-    protected function applyOrderItemAdded(OrderItemAdded $event): void
-    {
-        $this->orderItems->put($event->orderItem());
-    }
-
-    protected function applyOrderPaid(OrderPaid $event): void
-    {
-        $this->status = $event->orderStatus();
-    }
-
-    protected function applyOrderDelivered(OrderDelivered $event): void
-    {
-        $this->status = $event->orderStatus();
-    }
-
-    protected function applyOrderReturned(OrderReturned $event): void
-    {
-        $this->status = $event->orderStatus();
-    }
-
-    protected function applyOrderRefunded(OrderRefunded $event): void
-    {
-        $this->status = $event->orderStatus();
-        $this->balance = Balance::newInstance();
-    }
-
-    protected function applyOrderShipped(OrderShipped $event): void
-    {
-        $this->status = $event->orderStatus();
-    }
-
-    protected function applyOrderCanceled(OrderCanceled $event): void
-    {
-        $this->status = $event->orderStatus();
-    }
-
-    protected function applyOrderClosed(OrderClosed $event): void
-    {
-        $this->status = $event->orderStatus();
-        $this->closedReason = $event->reason();
-    }
-
     private function isOrderPending(): bool
     {
         return $this->status === OrderStatus::CREATED || $this->status === OrderStatus::MODIFIED;
     }
 
-    private function canCloseOrder(): bool
+    protected function apply(DomainEvent $event): void
     {
-        return $this->status === OrderStatus::DELIVERED
-            || $this->status === OrderStatus::REFUNDED
-            || $this->status === OrderStatus::CANCELLED;
+        switch (true) {
+            case $event instanceof OrderCreated:
+                $this->customerId = $event->customerId();
+                $this->status = $event->orderStatus();
+                $this->balance = Balance::newInstance();
+                $this->orderItems = new ItemCollection();
+
+                break;
+            case $event instanceof OrderModified:
+                $this->balance = $event->balance();
+                $this->quantity = $event->quantity();
+                $this->status = $event->orderStatus();
+
+                break;
+            case $event instanceof OrderItemAdded:
+                $this->orderItems->put($event->orderItem());
+
+                break;
+            default:
+                throw new RuntimeException(sprintf('Unknown order event %s', $event::class));
+        }
     }
 }

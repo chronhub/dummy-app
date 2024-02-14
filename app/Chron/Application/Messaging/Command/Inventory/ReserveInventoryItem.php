@@ -6,7 +6,7 @@ namespace App\Chron\Application\Messaging\Command\Inventory;
 
 use Storm\Message\AbstractDomainCommand;
 
-final class ReserveIventoryItem extends AbstractDomainCommand
+final class ReserveInventoryItem extends AbstractDomainCommand
 {
     public static function forItem(string $skuId, string $productId, int $quantity): self
     {
