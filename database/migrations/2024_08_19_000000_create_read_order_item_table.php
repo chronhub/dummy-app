@@ -12,10 +12,10 @@ return new class extends Migration
     {
         Schema::create('read_order_item', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('customer_id');
             $table->uuid('order_id');
             $table->uuid('item_id');
             $table->uuid('sku_id');
+            $table->uuid('customer_id');
             $table->unsignedInteger('quantity');
             $table->string('unit_price');
 

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Chron\Application\Messaging\Event\Order;
 
 use App\Chron\Model\Order\Event\OrderCreated;
+use App\Chron\Model\Order\Event\OrderModified;
 use App\Chron\Package\Attribute\Messaging\AsEventHandler;
+use App\Chron\Projection\ReadModel\OrderReadModel;
 
 #[AsEventHandler(
     reporter: 'reporter.event.default',
@@ -13,8 +15,16 @@ use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 )]
 final class WhenOrderCreated
 {
-    public function __invoke(OrderCreated $event): void
+    public function __construct(private OrderReadModel $readModel)
     {
-        logger('Order created:'.$event->orderId()->toString().' for customer: '.$event->customerId()->toString());
+    }
+
+    public function __invoke(OrderModified $event): void
+    {
+        $this->readModel->insertOrder(
+            $event->orderId()->toString(),
+            $event->customerId()->toString(),
+            $event->orderStatus()->value
+        );
     }
 }

@@ -6,9 +6,11 @@ namespace App\Chron\Model\Inventory;
 
 use App\Chron\Model\Inventory\Event\InventoryItemAdded;
 use App\Chron\Model\Inventory\Event\InventoryItemRefilled;
+use App\Chron\Model\Inventory\Event\InventoryItemReserved;
 use App\Chron\Model\Product\SkuId;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
+use RuntimeException;
 
 final class Inventory implements AggregateRoot
 {
@@ -40,7 +42,7 @@ final class Inventory implements AggregateRoot
 
     public function remove(Stock $stock): void
     {
-        // sell
+
     }
 
     public function adjust(Stock $stock): void
@@ -48,9 +50,15 @@ final class Inventory implements AggregateRoot
         // returns product
     }
 
-    public function reserve(Stock $quantity): void
+    public function reserve(Stock $stock): void
     {
-        // order
+        if ($this->stock->value < $stock->value) {
+            throw new RuntimeException('Not enough stock');
+        } else {
+            $newStock = Stock::create($this->stock->value - $stock->value);
+
+            $this->recordThat(InventoryItemReserved::withItem($this->skuId(), $this->itemId, $newStock, $stock));
+        }
     }
 
     public function release(Stock $quantity): void
@@ -78,6 +86,11 @@ final class Inventory implements AggregateRoot
         return $this->unitPrice;
     }
 
+    public function reserved(): int
+    {
+        return $this->reserved;
+    }
+
     protected function applyInventoryItemAdded(InventoryItemAdded $event): void
     {
         $this->itemId = $event->inventoryItemId();
@@ -88,5 +101,11 @@ final class Inventory implements AggregateRoot
     protected function applyInventoryItemRefilled(InventoryItemRefilled $event): void
     {
         $this->stock = $event->newStock();
+    }
+
+    protected function applyInventoryItemReserved(InventoryItemReserved $event): void
+    {
+        $this->stock = $event->newStock();
+        $this->reserved = $event->reserved()->value;
     }
 }

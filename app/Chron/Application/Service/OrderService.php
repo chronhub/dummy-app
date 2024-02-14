@@ -59,13 +59,15 @@ final readonly class OrderService
 
         // todo fetch order items to know if we increase, decrease or add
 
+        //$orderItem = $order->read_order_item;
+
         Report::relay(AddOrderItem::forOrder(
-            $order->order_id,
             $order->id,
-            $item->sku_id,
+            Uuid::v4()->jsonSerialize(),
+            $item->id,
             $item->item_id,
             $order->customer_id,
-            $order->read_order_item->unit_price,
+            $item->unit_price,
             fake()->numberBetween(1, 10)
         ));
     }

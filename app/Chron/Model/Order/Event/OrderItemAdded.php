@@ -19,4 +19,19 @@ final class OrderItemAdded extends AbstractDomainEvent
             'item' => $orderItem->toArray(),
         ]);
     }
+
+    public function orderId(): OrderId
+    {
+        return OrderId::fromString($this->content['order_id']);
+    }
+
+    public function customerId(): CustomerId
+    {
+        return CustomerId::fromString($this->content['customer_id']);
+    }
+
+    public function orderItem(): OrderItem
+    {
+        return OrderItem::fromArray($this->content['item']);
+    }
 }

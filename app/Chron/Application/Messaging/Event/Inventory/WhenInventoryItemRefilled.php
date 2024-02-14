@@ -12,7 +12,7 @@ use App\Chron\Projection\ReadModel\InventoryReadModel;
     reporter: 'reporter.event.default',
     handles: InventoryItemRefilled::class,
 )]
-final readonly class WhenInventoryItemQuantityIncreased
+final readonly class WhenInventoryItemRefilled
 {
     public function __construct(private InventoryReadModel $readModel)
     {
