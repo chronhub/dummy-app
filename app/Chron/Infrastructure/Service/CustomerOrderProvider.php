@@ -15,6 +15,9 @@ use Illuminate\Support\LazyCollection;
 use stdClass;
 use Storm\Contract\Clock\SystemClock;
 
+/**
+ * @deprecated
+ */
 final readonly class CustomerOrderProvider
 {
     public const TABLE = 'read_customer_order';

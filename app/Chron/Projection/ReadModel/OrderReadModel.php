@@ -20,19 +20,19 @@ final readonly class OrderReadModel
     ) {
     }
 
-    public function insertOrder(string $customerId, string $orderId, string $status): void
+    public function insertOrder(string $orderId, string $customerId, string $status): void
     {
         $this->queryOrder()->insert([
             'id' => $orderId,
             'customer_id' => $customerId,
-            'order_status' => $status,
+            'status' => $status,
         ]);
     }
 
-    public function updateOrder(string $customerId, string $orderId, string $balance, int $quantity, string $status): void
+    public function updateOrder(string $orderId, string $customerId, string $balance, int $quantity, string $status): void
     {
         $this->queryOrder()
-            ->find($orderId)
+            ->where('id', $orderId)
             ->where('customer_id', $customerId)
             ->update(['quantity' => $quantity, 'balance' => $balance, 'status' => $status, 'updated_at' => $this->clock->generate()]);
     }

@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Chron\Application\Service\OrderService;
 use Symfony\Component\HttpFoundation\Response;
 
 use function array_rand;
 
 final class HomeController
 {
-    public function __invoke(): Response
+    public function __invoke(OrderService $orderService): Response
     {
+        $orderService->makeOrderForRandomCustomer();
 
         return new Response('ok');
 

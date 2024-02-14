@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('read_order', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('customer_id');
-            $table->enum('order_status', OrderStatus::toStrings());
+            $table->enum('status', OrderStatus::toStrings());
             $table->string('balance')->default('0.00');
             $table->unsignedInteger('quantity')->default(0);
-            $table->boolean('closed')->default(0);
+            $table->boolean('closed')->default(0); // todo remove and use status
             $table->string('reason')->nullable();
             $table->timestampTz('created_at', 6)->useCurrent();
             $table->timestampTz('updated_at', 6)->nullable()->useCurrent();

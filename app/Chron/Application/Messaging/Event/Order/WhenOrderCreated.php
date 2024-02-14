@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Chron\Application\Messaging\Event\Order;
 
 use App\Chron\Model\Order\Event\OrderCreated;
-use App\Chron\Model\Order\Event\OrderModified;
 use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Projection\ReadModel\OrderReadModel;
 
@@ -19,7 +18,7 @@ final class WhenOrderCreated
     {
     }
 
-    public function __invoke(OrderModified $event): void
+    public function __invoke(OrderCreated $event): void
     {
         $this->readModel->insertOrder(
             $event->orderId()->toString(),

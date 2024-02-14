@@ -13,6 +13,7 @@ use App\Chron\Application\Messaging\Event\Order\WhenOrderCanceled;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderClosed;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCreated;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderDelivered;
+use App\Chron\Application\Messaging\Event\Order\WhenOrderItemAdded;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderModified;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderPaid;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderRefunded;
@@ -107,8 +108,7 @@ class Catalog
         // event handlers
         WhenCustomerRegistered::class,
         WhenCustomerEmailChanged::class,
-        WhenOrderCreated::class,
-        WhenOrderModified::class,
+
         WhenOrderPaid::class,
         WhenOrderCanceled::class,
         WhenOrderShipped::class,
@@ -118,7 +118,10 @@ class Catalog
         WhenOrderClosed::class,
 
         //
+        WhenOrderCreated::class,
+        WhenOrderModified::class,
         WhenProductCreated::class,
+        WhenOrderItemAdded::class,
         WhenInventoryItemAdded::class,
         WhenInventoryItemRefilled::class,
         WhenInventoryItemReserved::class,

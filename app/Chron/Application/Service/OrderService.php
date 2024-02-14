@@ -34,11 +34,14 @@ final readonly class OrderService
     public function makeOrderForRandomCustomer(): void
     {
         $customer = $this->customerProvider->findRandomCustomer();
+        if ($customer === null) {
+            throw new RuntimeException('No customer found');
+        }
 
-        $order = $this->orderProvider->findCurrentOrderOfCustomer($customer->customer_id);
+        $order = $this->orderProvider->findCurrentOrderOfCustomer($customer->id);
 
         if ($order === null) {
-            $this->createOrder($customer->customer_id);
+            $this->createOrder($customer->id);
         } else {
             $this->makeOrderItem($order);
         }
@@ -57,19 +60,19 @@ final readonly class OrderService
             throw new RuntimeException('No inventory item found');
         }
 
-        // todo fetch order items to know if we increase, decrease or add
-
-        //$orderItem = $order->read_order_item;
-
-        Report::relay(AddOrderItem::forOrder(
-            $order->id,
-            Uuid::v4()->jsonSerialize(),
-            $item->id,
-            $item->item_id,
-            $order->customer_id,
-            $item->unit_price,
-            fake()->numberBetween(1, 10)
-        ));
+        if ($order->items->isEmpty()) {
+            Report::relay(AddOrderItem::forOrder(
+                $order->id,
+                Uuid::v4()->jsonSerialize(),
+                $item->id,
+                $item->item_id,
+                $order->customer_id,
+                $item->unit_price,
+                fake()->numberBetween(1, 10)
+            ));
+        } else {
+            logger('Order item not empty');
+        }
     }
 
     //    public function modifyOrder(string $customerId, string $orderId): void

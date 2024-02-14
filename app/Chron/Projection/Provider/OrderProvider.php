@@ -23,7 +23,7 @@ final readonly class OrderProvider
 
     public function findPendingOrders(): LazyCollection
     {
-        return $this->query()
+        return $this->orderQuery()
             ->whereIn('order_status', [OrderStatus::CREATED->value, OrderStatus::MODIFIED])
             ->where('closed', 0)
             ->cursor();
@@ -31,17 +31,26 @@ final readonly class OrderProvider
 
     public function findCurrentOrderOfCustomer(string $customerId): ?stdClass
     {
-        return $this->query()
-            ->where('read_order.customer_id', $customerId)
-            ->join('read_order_item', 'read_order.id', '=', 'read_order_item.order_id')
-            ->orderBy('read_order.created_at', 'desc')
-            ->where('read_order.closed', 0)
+        $order = $this->orderQuery()
+            ->where('customer_id', $customerId)
+            ->where('closed', 0)
+            ->orderBy('created_at', 'desc')
             ->first();
+
+        if (! $order) {
+            return null;
+        }
+
+        $orderItems = $this->orderItemQuery()->where('order_id', $order->id)->get();
+
+        $order->items = $orderItems;
+
+        return $order;
     }
 
     public function findOrderOfCustomer(string $customerId, string $orderId): ?stdClass
     {
-        return $this->query()
+        return $this->orderQuery()
             ->find($orderId)
             ->where('customer_id', $customerId)
             ->where('closed', 0)
@@ -50,7 +59,7 @@ final readonly class OrderProvider
 
     public function findOrdersByStatus(OrderStatus $status, int $limit = 500): LazyCollection
     {
-        return $this->query()
+        return $this->orderQuery()
             ->where('order_status', $status->value)
             ->where('closed', 0)
             ->limit($limit)
@@ -59,7 +68,7 @@ final readonly class OrderProvider
 
     public function findCancelledOrRefundedOrders(): LazyCollection
     {
-        return $this->query()
+        return $this->orderQuery()
             ->whereIn('order_status', [OrderStatus::CANCELLED->value, OrderStatus::REFUNDED->value])
             ->where('closed', 0)
             ->cursor();
@@ -67,15 +76,20 @@ final readonly class OrderProvider
 
     public function findOverdueDeliveredOrders(): LazyCollection
     {
-        return $this->query()
+        return $this->orderQuery()
             ->where('order_status', OrderStatus::DELIVERED->value)
             ->where('closed', 0)
             ->where('created_at', '<', $this->clock->now()->sub(new DateInterval('PT5M')))
             ->cursor();
     }
 
-    public function query(): Builder
+    public function orderQuery(): Builder
     {
         return $this->connection->table(OrderReadModel::TABLE_ORDER);
+    }
+
+    public function orderItemQuery(): Builder
+    {
+        return $this->connection->table(OrderReadModel::TABLE_ORDER_ITEM);
     }
 }

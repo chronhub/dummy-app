@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order\Handler;
 
 use App\Chron\Application\Messaging\Command\Order\ModifyOrder;
-use App\Chron\Infrastructure\Service\CustomerOrderProvider;
 use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Customer\Exception\CustomerNotFound;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
@@ -23,8 +22,7 @@ final readonly class ModifyOrderHandler
 {
     public function __construct(
         private OrderList $orders,
-        private CustomerCollection $customers,
-        private CustomerOrderProvider $readModel,
+        private CustomerCollection $customers
     ) {
     }
 
@@ -47,7 +45,5 @@ final readonly class ModifyOrderHandler
         $order->modify(Amount::fromString($command->content['amount']));
 
         $this->orders->save($order);
-
-        $this->readModel->update($order->customerId(), $order->orderId(), $order->status(), $order->balance());
     }
 }

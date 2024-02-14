@@ -11,6 +11,7 @@ use App\Chron\Model\Order\Exception\OrderNotFound;
 use App\Chron\Model\Order\OrderId;
 use App\Chron\Model\Order\OrderItem;
 use App\Chron\Model\Order\Repository\OrderList;
+use App\Chron\Model\Product\SkuId;
 use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
@@ -35,7 +36,7 @@ final readonly class AddOrderItemHandler
             throw OrderNotFound::withId($orderId);
         }
 
-        $skuId = $command->content['sku_id'];
+        $skuId = SkuId::fromString($command->content['sku_id']);
         $inventory = $this->inventoryList->get($skuId);
 
         if ($inventory === null) {
@@ -43,6 +44,8 @@ final readonly class AddOrderItemHandler
         }
 
         $order->addOrderItem(OrderItem::fromArray($command->toContent()), $inventory);
+
+        $this->inventoryList->save($inventory);
 
         $this->orders->save($order);
     }

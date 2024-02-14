@@ -60,6 +60,8 @@ trait AggregateBehaviorTrait
     {
         $this->apply($event);
 
+        $this->version++;
+
         $this->recordedEvents[] = $event;
     }
 
@@ -68,7 +70,5 @@ trait AggregateBehaviorTrait
         $parts = explode('\\', $event::class);
 
         $this->{'apply'.end($parts)}($event);
-
-        $this->version++;
     }
 }

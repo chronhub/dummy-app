@@ -44,7 +44,7 @@ final readonly class OrderItem
     public function toArray(): array
     {
         return [
-            'id' => $this->orderItemId->toString(),
+            'order_item_id' => $this->orderItemId->toString(),
             'sku_id' => $this->skuId->toString(),
             'product_id' => $this->productId->toString(),
             'unit_price' => $this->unitPrice->value,
