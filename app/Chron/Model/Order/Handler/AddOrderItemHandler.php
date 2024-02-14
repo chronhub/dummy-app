@@ -8,6 +8,7 @@ use App\Chron\Application\Messaging\Command\Order\AddOrderItem;
 use App\Chron\Model\Inventory\Exception\InventoryItemNotFound;
 use App\Chron\Model\Inventory\Repository\InventoryList;
 use App\Chron\Model\Order\Exception\OrderNotFound;
+use App\Chron\Model\Order\Order;
 use App\Chron\Model\Order\OrderId;
 use App\Chron\Model\Order\OrderItem;
 use App\Chron\Model\Order\Repository\OrderList;
@@ -32,7 +33,7 @@ final readonly class AddOrderItemHandler
 
         $order = $this->orders->get($orderId);
 
-        if ($order === null) {
+        if (! $order instanceof Order) {
             throw OrderNotFound::withId($orderId);
         }
 

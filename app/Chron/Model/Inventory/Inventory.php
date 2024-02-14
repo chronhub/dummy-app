@@ -120,7 +120,7 @@ final class Inventory implements AggregateRoot
                 break;
             case $event instanceof InventoryItemReserved:
                 $this->stock = $event->newStock();
-                $this->reserved = $event->reserved()->value;
+                $this->reserved = $this->reserved + $event->reserved()->value;
 
                 break;
             default:

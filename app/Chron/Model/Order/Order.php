@@ -78,7 +78,6 @@ final class Order implements AggregateRoot
 
     public function orderId(): OrderId
     {
-        // fixMe: This is a workaround for non detected type hinting
         /** @var AggregateIdentity&OrderId $identity */
         $identity = $this->identity();
 
@@ -98,6 +97,11 @@ final class Order implements AggregateRoot
     public function balance(): Balance
     {
         return clone $this->balance;
+    }
+
+    public function quantity(): Quantity
+    {
+        return clone $this->quantity;
     }
 
     public function closedReason(): ?string

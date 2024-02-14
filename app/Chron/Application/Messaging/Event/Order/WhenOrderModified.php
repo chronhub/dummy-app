@@ -16,7 +16,6 @@ final readonly class WhenOrderModified
 {
     public function __construct(private OrderReadModel $readModel)
     {
-
     }
 
     public function __invoke(OrderModified $event): void
