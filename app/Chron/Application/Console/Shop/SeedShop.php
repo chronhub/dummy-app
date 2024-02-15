@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Console\Shop;
 
-use App\Chron\Application\Messaging\Command\Product\CreateProduct;
 use App\Chron\Application\Service\CustomerService;
-use App\Chron\Package\Reporter\Report;
+use App\Chron\Application\Service\ProductService;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Uid\Uuid;
-
-use function sleep;
 
 #[AsCommand(
     name: 'shop:seed',
@@ -21,9 +17,18 @@ class SeedShop extends Command
 {
     protected $signature = 'shop:seed';
 
+    protected array $streamNames = [
+        'customer',
+        'product',
+        'inventory',
+        'order',
+    ];
+
     public function __invoke(): int
     {
         $this->call('migrate');
+
+        $this->createStream();
 
         $this->createProducts();
 
@@ -32,45 +37,21 @@ class SeedShop extends Command
         return self::SUCCESS;
     }
 
-    protected function createProducts(): void
+    protected function createStream(): void
     {
+        $connection = $this->laravel['db'];
 
-        Report::relay(
-            CreateProduct::withProduct(
-                Uuid::v4()->jsonSerialize(),
-                [
-                    'name' => 'Product 1',
-                    'category' => 'Category 1',
-                    'description' => fake()->sentence,
-                    'brand' => fake()->company,
-                    'model' => fake()->word,
-                ]
-            ));
-
-        sleep(5);
-
-        $this->registerOtherProducts();
+        foreach ($this->streamNames as $streamName) {
+            $connection->table('stream_event')->useWritePdo()->insert(['stream_name' => $streamName]);
+        }
     }
 
-    protected function registerOtherProducts(): void
+    protected function createProducts(): void
     {
-        $i = 2;
+        /** @var ProductService $productService */
+        $productService = $this->laravel[ProductService::class];
 
-        while ($i < 99) {
-            Report::relay(
-                CreateProduct::withProduct(
-                    Uuid::v4()->jsonSerialize(),
-                    [
-                        'name' => 'Product '.$i,
-                        'category' => 'Category '.$i,
-                        'description' => fake()->sentence,
-                        'brand' => fake()->company,
-                        'model' => fake()->word,
-                    ]
-                ));
-
-            $i++;
-        }
+        $productService->createProducts();
     }
 
     protected function registerCustomer(): void
@@ -78,6 +59,6 @@ class SeedShop extends Command
         /** @var CustomerService $customerService */
         $customerService = $this->laravel[CustomerService::class];
 
-        $customerService->registerCustomer();
+        $customerService->registerCustomers();
     }
 }

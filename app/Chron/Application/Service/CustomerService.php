@@ -18,6 +18,17 @@ final readonly class CustomerService
     {
     }
 
+    public function registerCustomers(int $limit = 1000): void
+    {
+        $i = 1;
+
+        while ($i <= $limit) {
+            $this->registerCustomer();
+
+            $i++;
+        }
+    }
+
     public function registerCustomer(): void
     {
         $command = RegisterCustomer::withData(

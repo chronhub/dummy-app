@@ -74,7 +74,7 @@ final readonly class OrderService
     private function isOrderItemAlreadyInOrder(stdClass $order, stdClass $inventoryItem): bool
     {
         return $order->items->contains(
-            fn (stdClass $item) => $item->item_id === $inventoryItem->item_id // todo use sku_id
+            fn (stdClass $item) => $item->sku_id === $inventoryItem->id
         );
     }
 }

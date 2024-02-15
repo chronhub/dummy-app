@@ -34,7 +34,6 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
         protected CursorConnectionLoader $streamEventLoader,
         protected string $masterTable = 'stream_event',
     ) {
-        // todo assert event stream provider is a laravel connection
     }
 
     public function append(Stream $stream): void
@@ -78,6 +77,7 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
     public function retrieveAll(StreamName $streamName, AggregateIdentity $aggregateId, Direction $direction = Direction::FORWARD): Generator
     {
         $query = $this->connection->table($this->masterTable)
+            ->where('stream_name', $streamName->name) // todo fix for partition
             ->where('id', $aggregateId->toString())
             ->orderBy('position', $direction->value);
 
@@ -87,6 +87,7 @@ final readonly class PgsqlTransactionalChronicler implements TransactionalChroni
     public function retrieveFiltered(StreamName $streamName, QueryFilter $queryFilter): Generator
     {
         $query = $this->connection->table($this->masterTable);
+        $query->where('stream_name', $streamName->name); // todo fix for partition
 
         $queryFilter->apply()($query);
 

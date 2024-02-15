@@ -115,12 +115,16 @@ BEGIN
 
     END IF;
 
-    -- Get the next position using the NextPosition() function
-    SELECT NextPosition() INTO next_position;
+    -- Allow create stream name only
+    IF NEW.type IS NOT NULL AND NEW.id IS NOT NULL AND NEW.version IS NOT NULL AND NEW.metadata IS NOT NULL AND NEW.content IS NOT NULL THEN
+        -- Get the next position using the NextPosition() function
+        SELECT NextPosition() INTO next_position;
 
-    -- Insert record into the base table
-    EXECUTE format('INSERT INTO %I (position, stream_name, type, id, version, metadata, content) VALUES ($1, $2, $3, $4, $5, $6, $7)', stream_name)
-        USING next_position, NEW.stream_name, NEW.type, NEW.id, NEW.version, NEW.metadata, NEW.content;
+        -- Insert record into the base table
+        EXECUTE format('INSERT INTO %I (position, stream_name, type, id, version, metadata, content) VALUES ($1, $2, $3, $4, $5, $6, $7)', stream_name)
+            USING next_position, NEW.stream_name, NEW.type, NEW.id, NEW.version, NEW.metadata, NEW.content;
+
+    END IF;
 
     RETURN NULL;
 END;
