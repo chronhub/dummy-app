@@ -9,6 +9,10 @@ use App\Chron\Model\Customer\Event\CustomerRegistered;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
+use RuntimeException;
+use Storm\Contract\Message\DomainEvent;
+
+use function sprintf;
 
 class Customer implements AggregateRoot
 {
@@ -61,15 +65,22 @@ class Customer implements AggregateRoot
         return $this->address;
     }
 
-    protected function applyCustomerRegistered(CustomerRegistered $event): void
+    protected function apply(DomainEvent $event): void
     {
-        $this->email = $event->email();
-        $this->name = $event->name();
-        $this->address = $event->address();
-    }
+        switch (true) {
+            case $event instanceof CustomerRegistered:
+                $this->email = $event->email();
+                $this->name = $event->name();
+                $this->address = $event->address();
 
-    protected function applyCustomerEmailChanged(CustomerEmailChanged $event): void
-    {
-        $this->email = $event->newEmail();
+                break;
+            case $event instanceof CustomerEmailChanged:
+                $this->email = $event->newEmail();
+
+                break;
+
+            default:
+                throw new RuntimeException(sprintf('Event %s not supported', $event::class));
+        }
     }
 }

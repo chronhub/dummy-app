@@ -9,7 +9,7 @@ use App\Chron\Model\Inventory\Stock;
 use App\Chron\Model\Product\SkuId;
 use Storm\Message\AbstractDomainEvent;
 
-final class InventoryItemReserved extends AbstractDomainEvent
+final class InventoryItemPartiallyReserved extends AbstractDomainEvent
 {
     public static function withItem(
         SkuId $skuId,
@@ -17,7 +17,7 @@ final class InventoryItemReserved extends AbstractDomainEvent
         Stock $oldStock,
         Quantity $reserved,
         Quantity $totalReserved,
-        Quantity $requested
+        Quantity $requested,
     ): self {
         return new self([
             'sku_id' => $skuId->toString(),
@@ -25,7 +25,7 @@ final class InventoryItemReserved extends AbstractDomainEvent
             'old_stock' => $oldStock->value,
             'reserved' => $reserved->value,
             'total_reserved' => $totalReserved->value,
-            'quantity_requested' => $requested->value,
+            'requested_reserved' => $requested->value,
         ]);
     }
 
@@ -54,8 +54,8 @@ final class InventoryItemReserved extends AbstractDomainEvent
         return Quantity::create($this->content['total_reserved']);
     }
 
-    public function quantityRequested(): Quantity
+    public function requestedReserved(): Quantity
     {
-        return Quantity::create($this->content['quantity_requested']);
+        return Quantity::create($this->content['requested_reserved']);
     }
 }

@@ -8,6 +8,8 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
 use Storm\Contract\Clock\SystemClock;
 
+use function abs;
+
 final readonly class InventoryReadModel
 {
     final public const TABLE = 'read_inventory';
@@ -39,18 +41,18 @@ final readonly class InventoryReadModel
             ]);
     }
 
-    public function reserve(string $skuId, int $quantity): void
+    public function increment(string $skuId, int $quantity): void
     {
         $this->query()
             ->where('id', $skuId)
-            ->increment('reserved', $quantity, $this->updateTime());
+            ->increment('reserved', abs($quantity), $this->updateTime());
     }
 
-    public function release(string $skuId, int $quantity): void
+    public function decrement(string $skuId, int $quantity): void
     {
         $this->query()
             ->where('id', $skuId)
-            ->decrement('reserved', $quantity, $this->updateTime());
+            ->decrement('reserved', abs($quantity), $this->updateTime());
     }
 
     public function getAvailableProductQuantity(string $skuId): int

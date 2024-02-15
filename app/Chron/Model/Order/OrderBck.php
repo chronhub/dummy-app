@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order;
 
 use App\Chron\Model\Customer\CustomerId;
-use App\Chron\Model\Inventory\Inventory;
-use App\Chron\Model\Inventory\Stock;
 use App\Chron\Model\Order\Event\OrderCanceled;
 use App\Chron\Model\Order\Event\OrderClosed;
 use App\Chron\Model\Order\Event\OrderCreated;
@@ -46,41 +44,6 @@ final class OrderBck implements AggregateRoot
         $order->recordThat(OrderCreated::forCustomer($orderId, $customerId, OrderStatus::CREATED));
 
         return $order;
-    }
-
-    public function addOrderItem(OrderItem $orderItem, Inventory $inventory): void
-    {
-        if (! $this->isOrderPending()) {
-            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'modify', $this->status);
-        }
-
-        if (! $this->orderItems->has($orderItem)) {
-            if ($inventory->canReserve(Stock::create($orderItem->quantity->value))) {
-
-                $inventory->reserve(Stock::create($orderItem->quantity->value));
-
-                $this->recordThat(OrderItemAdded::forOrder(
-                    $this->orderId(),
-                    $this->customerId,
-                    $orderItem,
-                ));
-
-                $this->recordThat(OrderModified::forCustomer(
-                    $this->orderId(),
-                    $this->customerId,
-                    $this->orderItems->calculateBalance(),
-                    $this->orderItems->calculateQuantity(),
-                    OrderStatus::MODIFIED)
-                );
-            } else {
-                throw new RuntimeException('Not enough stock');
-            }
-        } else {
-            logger('Order item already exists');
-
-            return;
-
-        }
     }
 
     //    public function modify(Amount $amount): void

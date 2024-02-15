@@ -7,6 +7,8 @@ namespace App\Chron\Package\Attribute;
 use App\Chron\Application\Messaging\Event\Customer\WhenCustomerEmailChanged;
 use App\Chron\Application\Messaging\Event\Customer\WhenCustomerRegistered;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemAdded;
+use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemExhausted;
+use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemPartiallyReserved;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemRefilled;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemReserved;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCanceled;
@@ -125,6 +127,8 @@ class Catalog
         WhenInventoryItemAdded::class,
         WhenInventoryItemRefilled::class,
         WhenInventoryItemReserved::class,
+        WhenInventoryItemPartiallyReserved::class,
+        WhenInventoryItemExhausted::class,
 
         // query handlers
         QueryRandomPendingOrderHandler::class,

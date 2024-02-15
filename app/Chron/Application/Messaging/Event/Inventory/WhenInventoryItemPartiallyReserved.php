@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Messaging\Event\Inventory;
 
-use App\Chron\Model\Inventory\Event\InventoryItemReserved;
+use App\Chron\Model\Inventory\Event\InventoryItemPartiallyReserved;
 use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Projection\ReadModel\InventoryReadModel;
 
 #[AsEventHandler(
     reporter: 'reporter.event.default',
-    handles: InventoryItemReserved::class,
+    handles: InventoryItemPartiallyReserved::class,
 )]
-final readonly class WhenInventoryItemReserved
+final readonly class WhenInventoryItemPartiallyReserved
 {
     public function __construct(private InventoryReadModel $readModel)
     {
     }
 
-    public function __invoke(InventoryItemReserved $event): void
+    public function __invoke(InventoryItemPartiallyReserved $event): void
     {
         $this->readModel->increment(
             $event->aggregateId()->toString(),

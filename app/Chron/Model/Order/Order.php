@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order;
 
 use App\Chron\Model\Customer\CustomerId;
-use App\Chron\Model\Inventory\Inventory;
-use App\Chron\Model\Inventory\Stock;
+use App\Chron\Model\Inventory\Service\InventoryReservationService;
 use App\Chron\Model\Order\Event\OrderCreated;
 use App\Chron\Model\Order\Event\OrderItemAdded;
 use App\Chron\Model\Order\Event\OrderModified;
@@ -43,34 +42,33 @@ final class Order implements AggregateRoot
         return $order;
     }
 
-    public function addOrderItem(OrderItem $orderItem, Inventory $inventory): void
+    public function addOrderItem(OrderItem $orderItem, InventoryReservationService $reservation): void
     {
         if (! $this->isOrderPending()) {
             throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'modify', $this->status);
         }
 
         if (! $this->orderItems->has($orderItem)) {
-            // assume fully available stock
-            if ($inventory->canReserve(Stock::create($orderItem->quantity->value))) {
+            $reservedStock = $reservation->reserve($orderItem->skuId->toString(), $orderItem->quantity->value);
 
-                $inventory->reserve(Stock::create($orderItem->quantity->value));
-
-                $this->recordThat(OrderItemAdded::forOrder(
-                    $this->orderId(),
-                    $this->customerId,
-                    $orderItem,
-                ));
-
-                $this->recordThat(OrderModified::forCustomer(
-                    $this->orderId(),
-                    $this->customerId,
-                    $this->orderItems->calculateBalance(),
-                    $this->orderItems->calculateQuantity(),
-                    OrderStatus::MODIFIED)
-                );
-            } else {
+            if ($reservedStock === false) {
+                // checkMe - should we throw an exception here or let the inventory service handle it?
                 throw new RuntimeException('Not enough stock');
             }
+
+            if ($reservedStock->value !== $orderItem->quantity->value) {
+                // todo should we record an OrderItemPartiallyAdded event?
+                $orderItem->withAdjustedQuantity(Quantity::create($reservedStock->value));
+            }
+
+            $this->recordThat(OrderItemAdded::forOrder(
+                $this->orderId(),
+                $this->customerId,
+                $orderItem,
+            ));
+
+            $this->markOrderAsModified();
+
         } else {
             logger('Order item already exists');
         }
@@ -107,6 +105,19 @@ final class Order implements AggregateRoot
     public function closedReason(): ?string
     {
         return $this->closedReason;
+    }
+
+    private function markOrderAsModified(): void
+    {
+        if ($this->isOrderPending()) {
+            $this->recordThat(OrderModified::forCustomer(
+                $this->orderId(),
+                $this->customerId,
+                $this->orderItems->calculateBalance(),
+                $this->orderItems->calculateQuantity(),
+                OrderStatus::MODIFIED
+            ));
+        }
     }
 
     private function isOrderPending(): bool

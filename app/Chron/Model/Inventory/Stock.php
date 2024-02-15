@@ -11,7 +11,7 @@ final readonly class Stock
     private function __construct(public int $value)
     {
         if ($value < 0) {
-            throw new InvalidArgumentException('Stock must be greater than or equal to 0');
+            throw new InvalidArgumentException('Inventory stock must be greater than or equal to 0');
         }
     }
 
@@ -30,14 +30,24 @@ final readonly class Stock
         return new self($this->value - $stock->value);
     }
 
-    public function isFullyAvailable(Stock $requested): bool
+    public function isOutOfStock(): bool
     {
-        return $this->value >= $requested->value;
+        return $this->value === 0;
     }
 
-    public function isPartiallyAvailable(Stock $requested): bool
+    public function getAvailableQuantity(ReservationQuantity $requested): false|ReservationQuantity
     {
-        return $this->value > 0 && $requested->value - $this->value > 0;
+        if ($this->isOutOfStock()) {
+            return false;
+        }
+
+        // return the minimum value between the requested quantity and the available stock
+        if ($this->value < $requested->value) {
+            return ReservationQuantity::create($this->value);
+        }
+
+        // return the requested quantity
+        return ReservationQuantity::create($requested->value);
     }
 
     public function sameValueAs(self $other): bool

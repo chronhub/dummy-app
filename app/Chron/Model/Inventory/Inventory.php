@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Chron\Model\Inventory;
 
 use App\Chron\Model\Inventory\Event\InventoryItemAdded;
+use App\Chron\Model\Inventory\Event\InventoryItemExhausted;
+use App\Chron\Model\Inventory\Event\InventoryItemPartiallyReserved;
 use App\Chron\Model\Inventory\Event\InventoryItemRefilled;
 use App\Chron\Model\Inventory\Event\InventoryItemReserved;
+use App\Chron\Model\Inventory\Exception\InventoryOutOfStock;
 use App\Chron\Model\Product\SkuId;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
@@ -24,7 +27,7 @@ final class Inventory implements AggregateRoot
 
     private UnitPrice $unitPrice;
 
-    private int $reserved = 0;
+    private Reservation $reserved;
 
     public static function add(SkuId $skuId, Stock $stock, UnitPrice $unitPrice): self
     {
@@ -40,11 +43,14 @@ final class Inventory implements AggregateRoot
         $newStock = $this->stock->add($stock);
 
         $this->recordThat(InventoryItemRefilled::withItem($this->skuId(), $newStock, $this->stock));
+
+        // when product has been marked unavailable, and now it's refilled, adjusted ...
+        // its responsibility of the product to get back the inventory item to the list of available items
     }
 
-    public function remove(Stock $stock): void
+    public function remove(ReservationQuantity $requested): void
     {
-
+        // on purchase
     }
 
     public function adjust(Stock $stock): void
@@ -52,22 +58,40 @@ final class Inventory implements AggregateRoot
         // returns product
     }
 
-    public function reserve(Stock $stock): void
+    public function reserve(ReservationQuantity $requested): void
     {
-        if (! $this->stock->isFullyAvailable($stock)) {
-            throw new RuntimeException('Not enough stock. partial reservation is not supported yet.');
+        // both todo can imply global rules or per sku rules
+        // todo add rule for limit reservation in time
+        // todo add rule for limit reservation in quantity
+        // todo add rule to send notification when stock is low
+
+        $availableQuantity = $this->stock->getAvailableQuantity($requested);
+
+        if ($availableQuantity === false) {
+            throw InventoryOutOfStock::forSkuId($this->skuId());
         }
 
-        // todo partial reservation
+        $newStock = $this->stock->remove($availableQuantity->toStock());
+        $reserved = Reservation::create($availableQuantity->value);
+        $totalReserved = $this->reserved->add($reserved);
 
-        $this->recordThat(InventoryItemReserved::withItem($this->skuId(), $this->stock->remove($stock), $stock));
+        $availableQuantity->sameValueAs($requested)
+            ? $this->recordReserveItem($newStock, $reserved, $requested)
+            : $this->recordPartiallyReserveItem($newStock, $reserved, $requested);
 
-        // if stock is less than ?, send notification
+        if ($newStock->isOutOfStock()) {
+            // record event but still need to consider pending reservation
+            $this->recordThat(InventoryItemExhausted::withItem($this->skuId(), $newStock, $totalReserved->toQuantity()));
+
+            // todo add InventoryItemFullyExhausted when reserved is empty
+            // handler should publish event to put the product in the out-of-stock list
+            // and should delete the item from read inventory
+        }
     }
 
-    public function release(Stock $quantity): void
+    public function release(ReservationQuantity $requested): void
     {
-        // cancel order
+        // cancel/return order
     }
 
     public function skuId(): SkuId
@@ -88,14 +112,48 @@ final class Inventory implements AggregateRoot
         return $this->unitPrice;
     }
 
-    public function reserved(): int
+    public function reserved(): Reservation
     {
-        return $this->reserved;
+        return clone $this->reserved;
     }
 
-    public function canReserve(Stock $stock): bool
+    /**
+     * Get available quantity for reservation
+     *
+     * return full or partial available quantity
+     * return false if not available
+     */
+    public function getAvailableQuantity(ReservationQuantity $requested): ReservationQuantity|false
     {
-        return $this->stock->isFullyAvailable($stock);
+        return $this->stock->getAvailableQuantity($requested);
+    }
+
+    private function recordReserveItem(Stock $newStock, Reservation $reserved, ReservationQuantity $requested): void
+    {
+        $event = InventoryItemReserved::withItem(
+            $this->skuId(),
+            $newStock,
+            $this->stock,
+            $reserved->toQuantity(),
+            $this->reserved->add($reserved)->toQuantity(),
+            Quantity::create($requested->value)
+        );
+
+        $this->recordThat($event);
+    }
+
+    private function recordPartiallyReserveItem(Stock $newStock, Reservation $reserved, ReservationQuantity $requested): void
+    {
+        $event = InventoryItemPartiallyReserved::withItem(
+            $this->skuId(),
+            $newStock,
+            $this->stock,
+            $reserved->toQuantity(),
+            $this->reserved->add($reserved)->toQuantity(),
+            Quantity::create($requested->value)
+        );
+
+        $this->recordThat($event);
     }
 
     protected function apply(DomainEvent $event): void
@@ -104,6 +162,7 @@ final class Inventory implements AggregateRoot
             case $event instanceof InventoryItemAdded:
                 $this->stock = $event->stock();
                 $this->unitPrice = $event->unitPrice();
+                $this->reserved = Reservation::create(0);
 
                 break;
             case $event instanceof InventoryItemRefilled:
@@ -112,7 +171,19 @@ final class Inventory implements AggregateRoot
                 break;
             case $event instanceof InventoryItemReserved:
                 $this->stock = $event->newStock();
-                $this->reserved = $this->reserved + $event->reserved()->value;
+                $this->reserved = Reservation::create($event->totalReserved()->value);
+
+                break;
+
+            case $event instanceof InventoryItemPartiallyReserved:
+                $this->stock = $event->newStock();
+                $this->reserved = Reservation::create($event->totalReserved()->value);
+
+                break;
+
+            case $event instanceof InventoryItemExhausted:
+                $this->stock = $event->newStock();
+                $this->reserved = Reservation::create($event->totalReserved()->value);
 
                 break;
             default:

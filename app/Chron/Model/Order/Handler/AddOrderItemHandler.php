@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order\Handler;
 
 use App\Chron\Application\Messaging\Command\Order\AddOrderItem;
-use App\Chron\Model\Inventory\Exception\InventoryItemNotFound;
-use App\Chron\Model\Inventory\Repository\InventoryList;
+use App\Chron\Model\Inventory\Service\InventoryReservationService;
 use App\Chron\Model\Order\Exception\OrderNotFound;
 use App\Chron\Model\Order\Order;
 use App\Chron\Model\Order\OrderId;
 use App\Chron\Model\Order\OrderItem;
 use App\Chron\Model\Order\Repository\OrderList;
-use App\Chron\Model\Product\SkuId;
 use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
@@ -23,7 +21,7 @@ final readonly class AddOrderItemHandler
 {
     public function __construct(
         private OrderList $orders,
-        private InventoryList $inventoryList,
+        private InventoryReservationService $inventoryReservationService,
     ) {
     }
 
@@ -37,16 +35,7 @@ final readonly class AddOrderItemHandler
             throw OrderNotFound::withId($orderId);
         }
 
-        $skuId = SkuId::fromString($command->content['sku_id']);
-        $inventory = $this->inventoryList->get($skuId);
-
-        if ($inventory === null) {
-            throw InventoryItemNotFound::withId($skuId);
-        }
-
-        $order->addOrderItem(OrderItem::fromArray($command->toContent()), $inventory);
-
-        $this->inventoryList->save($inventory);
+        $order->addOrderItem(OrderItem::fromArray($command->toContent()), $this->inventoryReservationService);
 
         $this->orders->save($order);
     }

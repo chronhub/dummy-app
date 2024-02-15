@@ -7,6 +7,10 @@ namespace App\Chron\Model\Product;
 use App\Chron\Model\Product\Event\ProductCreated;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
+use RuntimeException;
+use Storm\Contract\Message\DomainEvent;
+
+use function sprintf;
 
 final class Product implements AggregateRoot
 {
@@ -37,9 +41,17 @@ final class Product implements AggregateRoot
         return $this->status;
     }
 
-    protected function applyProductCreated(ProductCreated $event): void
+    protected function apply(DomainEvent $event): void
     {
-        $this->status = $event->productStatus();
-        $this->sku = $event->sku();
+        switch (true) {
+            case $event instanceof ProductCreated:
+                $this->status = $event->productStatus();
+                $this->sku = $event->sku();
+
+                break;
+
+            default:
+                throw new RuntimeException(sprintf('Event %s not supported', $event::class));
+        }
     }
 }
