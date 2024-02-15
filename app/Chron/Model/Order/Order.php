@@ -26,10 +26,6 @@ final class Order implements AggregateRoot
 
     private OrderStatus $status;
 
-    private Balance $balance;
-
-    private Quantity $quantity;
-
     private ItemCollection $orderItems;
 
     private ?string $closedReason = null;
@@ -61,9 +57,7 @@ final class Order implements AggregateRoot
                 $orderItem->withAdjustedQuantity(Quantity::create($reservedStock->value));
             }
 
-            $this->recordThat(
-                OrderItemAdded::forOrder($this->orderId(), $this->customerId, $orderItem)
-            );
+            $this->recordThat(OrderItemAdded::forOrder($this->orderId(), $this->customerId, $orderItem));
 
             $this->markOrderAsModified();
         } else {
@@ -91,12 +85,12 @@ final class Order implements AggregateRoot
 
     public function balance(): Balance
     {
-        return clone $this->balance;
+        return $this->orderItems->calculateBalance();
     }
 
     public function quantity(): Quantity
     {
-        return clone $this->quantity;
+        return $this->orderItems->calculateQuantity();
     }
 
     public function closedReason(): ?string
@@ -129,14 +123,10 @@ final class Order implements AggregateRoot
         switch (true) {
             case $event instanceof OrderCreated:
                 $this->customerId = $event->customerId();
-                $this->status = $event->orderStatus();
-                $this->balance = Balance::newInstance();
                 $this->orderItems = new ItemCollection();
 
                 break;
             case $event instanceof OrderModified:
-                $this->balance = $event->balance();
-                $this->quantity = $event->quantity();
                 $this->status = $event->orderStatus();
 
                 break;
