@@ -25,7 +25,7 @@ final class InventoryItemReserved extends AbstractDomainEvent
             'old_stock' => $oldStock->value,
             'reserved' => $reserved->value,
             'total_reserved' => $totalReserved->value,
-            'quantity_requested' => $requested->value,
+            'requested' => $requested->value,
         ]);
     }
 
@@ -56,6 +56,6 @@ final class InventoryItemReserved extends AbstractDomainEvent
 
     public function quantityRequested(): Quantity
     {
-        return Quantity::create($this->content['quantity_requested']);
+        return Quantity::create($this->content['requested']);
     }
 }
