@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order;
 
+use App\Chron\Model\Order\Exception\OrderAlreadyExists;
+use App\Chron\Model\Order\Exception\OrderNotFound;
 use Illuminate\Support\Collection;
-use RuntimeException;
 
 final class ItemCollection
 {
@@ -16,23 +17,23 @@ final class ItemCollection
         $this->items = new Collection();
     }
 
-    public function put(OrderItem $orderItem)
+    public function put(OrderItem $orderItem): void
     {
         $orderItemId = $orderItem->orderItemId->toString();
 
         if ($this->items->has($orderItemId)) {
-            throw new RuntimeException('Order item already exists');
+            throw OrderAlreadyExists::withOrderItemId($orderItem->orderItemId);
         }
 
         $this->items->put($orderItemId, $orderItem);
     }
 
-    public function remove(OrderItem $orderItem)
+    public function remove(OrderItem $orderItem): void
     {
         $orderItemId = $orderItem->orderItemId->toString();
 
         if (! $this->items->has($orderItemId)) {
-            throw new RuntimeException('Order item does not exist');
+            throw OrderNotFound::withOrderItemId($orderItem->orderItemId);
         }
 
         $this->items->forget($orderItemId);

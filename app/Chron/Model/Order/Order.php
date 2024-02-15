@@ -61,14 +61,11 @@ final class Order implements AggregateRoot
                 $orderItem->withAdjustedQuantity(Quantity::create($reservedStock->value));
             }
 
-            $this->recordThat(OrderItemAdded::forOrder(
-                $this->orderId(),
-                $this->customerId,
-                $orderItem,
-            ));
+            $this->recordThat(
+                OrderItemAdded::forOrder($this->orderId(), $this->customerId, $orderItem)
+            );
 
             $this->markOrderAsModified();
-
         } else {
             logger('Order item already exists');
         }
@@ -110,13 +107,15 @@ final class Order implements AggregateRoot
     private function markOrderAsModified(): void
     {
         if ($this->isOrderPending()) {
-            $this->recordThat(OrderModified::forCustomer(
+            $event = OrderModified::forCustomer(
                 $this->orderId(),
                 $this->customerId,
                 $this->orderItems->calculateBalance(),
                 $this->orderItems->calculateQuantity(),
                 OrderStatus::MODIFIED
-            ));
+            );
+
+            $this->recordThat($event);
         }
     }
 
