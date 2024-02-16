@@ -36,7 +36,7 @@ final readonly class InventoryReadModel
         $this->query()
             ->where('id', $skuId)
             ->update([
-                'stock' => $quantity,
+                'stock' => abs($quantity),
                 'updated_at' => $this->clock->generate(),
             ]);
     }

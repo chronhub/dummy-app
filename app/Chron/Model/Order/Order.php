@@ -5,18 +5,19 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order;
 
 use App\Chron\Model\Customer\CustomerId;
+use App\Chron\Model\InvalidDomainException;
 use App\Chron\Model\Inventory\Service\InventoryReservationService;
 use App\Chron\Model\Order\Event\OrderCreated;
 use App\Chron\Model\Order\Event\OrderItemAdded;
+use App\Chron\Model\Order\Event\OrderItemPartiallyAdded;
 use App\Chron\Model\Order\Event\OrderModified;
 use App\Chron\Model\Order\Exception\InvalidOrderOperation;
+use App\Chron\Model\Order\Exception\OrderAlreadyExists;
+use App\Chron\Model\Order\Exception\ReservationOrderItemFailed;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
-use RuntimeException;
 use Storm\Contract\Message\DomainEvent;
-
-use function sprintf;
 
 final class Order implements AggregateRoot
 {
@@ -44,25 +45,33 @@ final class Order implements AggregateRoot
             throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'modify', $this->status);
         }
 
-        if (! $this->orderItems->has($orderItem)) {
-            $reservedStock = $reservation->reserve($orderItem->skuId->toString(), $orderItem->quantity->value);
+        $this->assertOrderItemNotExists($orderItem);
 
-            if ($reservedStock === false) {
-                // checkMe - should we throw an exception here or let the inventory service handle it?
-                throw new RuntimeException('Not enough stock');
-            }
+        $reservedStock = $reservation->reserve($orderItem->skuId->toString(), $orderItem->quantity->value);
 
-            if ($reservedStock->value !== $orderItem->quantity->value) {
-                // todo should we record an OrderItemPartiallyAdded event?
-                $orderItem->withAdjustedQuantity(Quantity::create($reservedStock->value));
-            }
-
-            $this->recordThat(OrderItemAdded::forOrder($this->orderId(), $this->customerId, $orderItem));
-
-            $this->markOrderAsModified();
-        } else {
-            logger('Order item already exists');
+        if ($reservedStock === false) {
+            throw ReservationOrderItemFailed::withReason(
+                $orderItem->skuId,
+                $this->orderId(),
+                $orderItem->orderItemId,
+                'Insufficient stock'
+            );
         }
+
+        if ($reservedStock->value !== $orderItem->quantity->value) {
+            $orderItem->withAdjustedQuantity(Quantity::create($reservedStock->value));
+
+            $this->recordThat(OrderItemPartiallyAdded::forOrder(
+                $this->orderId(),
+                $this->customerId,
+                $orderItem,
+                Quantity::create($reservedStock->value)
+            ));
+        } else {
+            $this->recordThat(OrderItemAdded::forOrder($this->orderId(), $this->customerId, $orderItem));
+        }
+
+        $this->markOrderAsModified();
     }
 
     public function orderId(): OrderId
@@ -118,6 +127,13 @@ final class Order implements AggregateRoot
         return $this->status === OrderStatus::CREATED || $this->status === OrderStatus::MODIFIED;
     }
 
+    private function assertOrderItemNotExists(OrderItem $orderItem): void
+    {
+        if ($this->orderItems->has($orderItem)) {
+            throw OrderAlreadyExists::withOrderItem($this->orderId(), $orderItem->orderItemId);
+        }
+    }
+
     protected function apply(DomainEvent $event): void
     {
         switch (true) {
@@ -135,7 +151,7 @@ final class Order implements AggregateRoot
 
                 break;
             default:
-                throw new RuntimeException(sprintf('Unknown order event %s', $event::class));
+                throw InvalidDomainException::eventNotSupported(self::class, $event::class);
         }
     }
 }

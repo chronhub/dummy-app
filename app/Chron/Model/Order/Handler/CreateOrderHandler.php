@@ -37,7 +37,7 @@ final readonly class CreateOrderHandler
         $orderId = OrderId::fromString($command->content['order_id']);
 
         if ($this->orders->get($orderId) !== null) {
-            throw OrderAlreadyExists::withId($orderId);
+            throw OrderAlreadyExists::withOrder($orderId);
         }
 
         $order = Order::create($orderId, $customerId);

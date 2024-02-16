@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Product;
 
+use App\Chron\Model\InvalidDomainException;
 use App\Chron\Model\Product\Event\ProductCreated;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
-use RuntimeException;
 use Storm\Contract\Message\DomainEvent;
 
-use function sprintf;
+use function get_class;
 
 final class Product implements AggregateRoot
 {
@@ -51,7 +51,7 @@ final class Product implements AggregateRoot
                 break;
 
             default:
-                throw new RuntimeException(sprintf('Event %s not supported', $event::class));
+                throw InvalidDomainException::eventNotSupported(self::class, get_class($event));
         }
     }
 }

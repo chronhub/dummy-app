@@ -10,12 +10,14 @@ use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemAdded;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemExhausted;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemPartiallyReserved;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemRefilled;
+use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemReleased;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemReserved;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCanceled;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderClosed;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCreated;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderDelivered;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderItemAdded;
+use App\Chron\Application\Messaging\Event\Order\WhenOrderItemPartiallyAdded;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderModified;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderPaid;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderRefunded;
@@ -125,9 +127,11 @@ class Catalog
         WhenProductCreated::class,
         WhenOrderItemAdded::class,
         WhenInventoryItemAdded::class,
+        WhenOrderItemPartiallyAdded::class,
         WhenInventoryItemRefilled::class,
         WhenInventoryItemReserved::class,
         WhenInventoryItemPartiallyReserved::class,
+        WhenInventoryItemReleased::class,
         WhenInventoryItemExhausted::class,
 
         // query handlers

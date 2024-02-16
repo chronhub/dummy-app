@@ -21,4 +21,24 @@ final class OrderItemPartiallyAdded extends AbstractDomainEvent
             'expected_quantity' => $expectedQuantity->value,
         ]);
     }
+
+    public function orderId(): OrderId
+    {
+        return OrderId::fromString($this->content['order_id']);
+    }
+
+    public function customerId(): CustomerId
+    {
+        return CustomerId::fromString($this->content['customer_id']);
+    }
+
+    public function orderItem(): OrderItem
+    {
+        return OrderItem::fromArray($this->content['item']);
+    }
+
+    public function expectedQuantity(): Quantity
+    {
+        return Quantity::create($this->content['expected_quantity']);
+    }
 }

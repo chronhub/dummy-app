@@ -22,7 +22,7 @@ final class ItemCollection
         $orderItemId = $orderItem->orderItemId->toString();
 
         if ($this->items->has($orderItemId)) {
-            throw OrderAlreadyExists::withOrderItemId($orderItem->orderItemId);
+            throw OrderAlreadyExists::withOrderItem($orderItem->orderItemId);
         }
 
         $this->items->put($orderItemId, $orderItem);

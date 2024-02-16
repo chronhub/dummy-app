@@ -25,6 +25,11 @@ final readonly class Reservation
         return new self($this->value + $reservation->value);
     }
 
+    public function sub(self $reservation): self
+    {
+        return new self($this->value - $reservation->value);
+    }
+
     public function remove(self $reservation): self
     {
         return new self($this->value - $reservation->value);
