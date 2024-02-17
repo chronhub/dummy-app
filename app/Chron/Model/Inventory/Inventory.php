@@ -32,9 +32,11 @@ final class Inventory implements AggregateRoot
     /**
      * Add unique inventory item with skuId, stock and unit price
      */
-    public static function add(SkuId $skuId, Stock $stock, UnitPrice $unitPrice): self
+    public static function add(SkuId $skuId, Quantity $quantity, UnitPrice $unitPrice): self
     {
         $self = new self($skuId);
+
+        $stock = Stock::create($quantity->value);
 
         $self->recordThat(InventoryItemAdded::withItem($skuId, $stock, $unitPrice));
 
@@ -174,7 +176,7 @@ final class Inventory implements AggregateRoot
     {
         switch (true) {
             case $event instanceof InventoryItemAdded:
-                $this->stock = $event->availableStock();
+                $this->stock = $event->initialStock();
                 $this->unitPrice = $event->unitPrice();
                 $this->reserved = Reservation::create(0);
 

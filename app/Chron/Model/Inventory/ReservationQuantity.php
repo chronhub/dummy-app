@@ -15,11 +15,6 @@ final class ReservationQuantity
         }
     }
 
-    public function toQuantity(): Quantity
-    {
-        return Quantity::create($this->value);
-    }
-
     public static function create(int $value): self
     {
         return new self($value);

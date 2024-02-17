@@ -47,7 +47,7 @@ final class Order implements AggregateRoot
 
         $this->assertOrderItemNotExists($orderItem);
 
-        $reservedStock = $reservation->reserve($orderItem->skuId->toString(), $orderItem->quantity->value);
+        $reservedStock = $reservation->reserveItem($orderItem->skuId->toString(), $orderItem->quantity->value);
 
         if ($reservedStock === false) {
             throw ReservationOrderItemFailed::withReason(

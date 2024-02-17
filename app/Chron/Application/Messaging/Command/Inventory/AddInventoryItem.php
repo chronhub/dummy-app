@@ -8,11 +8,11 @@ use Storm\Message\AbstractDomainCommand;
 
 final class AddInventoryItem extends AbstractDomainCommand
 {
-    public static function withItem(string $skuId, int $stock, string $unitPrice): self
+    public static function withItem(string $skuId, int $quantity, string $unitPrice): self
     {
         return new self([
             'sku_id' => $skuId,
-            'stock' => $stock,
+            'quantity' => $quantity,
             'unit_price' => $unitPrice,
         ]);
     }

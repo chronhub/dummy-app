@@ -11,11 +11,11 @@ use Storm\Message\AbstractDomainEvent;
 
 final class InventoryItemAdded extends AbstractDomainEvent
 {
-    public static function withItem(SkuId $skuId, Stock $availableStock, UnitPrice $unitPrice): self
+    public static function withItem(SkuId $skuId, Stock $initialStock, UnitPrice $unitPrice): self
     {
         return new self([
             'sku_id' => $skuId->toString(),
-            'available_stock' => $availableStock->value,
+            'initial_stock' => $initialStock->value,
             'unit_price' => $unitPrice->value,
         ]);
     }
@@ -25,9 +25,9 @@ final class InventoryItemAdded extends AbstractDomainEvent
         return SkuId::fromString($this->content['sku_id']);
     }
 
-    public function availableStock(): Stock
+    public function initialStock(): Stock
     {
-        return Stock::create($this->content['available_stock']);
+        return Stock::create($this->content['initial_stock']);
     }
 
     public function unitPrice(): UnitPrice

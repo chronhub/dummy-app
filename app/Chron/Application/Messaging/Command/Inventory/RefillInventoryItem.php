@@ -8,11 +8,11 @@ use Storm\Message\AbstractDomainCommand;
 
 final class RefillInventoryItem extends AbstractDomainCommand
 {
-    public static function withItem(string $skuId, int $stock): self
+    public static function withItem(string $skuId, int $quantity): self
     {
         return new self([
             'sku_id' => $skuId,
-            'stock' => $stock,
+            'quantity' => $quantity,
         ]);
     }
 }

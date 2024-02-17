@@ -7,8 +7,8 @@ namespace App\Chron\Model\Inventory\Handler;
 use App\Chron\Application\Messaging\Command\Inventory\RefillInventoryItem;
 use App\Chron\Model\Inventory\Exception\InventoryItemNotFound;
 use App\Chron\Model\Inventory\Inventory;
+use App\Chron\Model\Inventory\Quantity;
 use App\Chron\Model\Inventory\Repository\InventoryList;
-use App\Chron\Model\Inventory\Stock;
 use App\Chron\Model\Product\SkuId;
 use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
@@ -32,7 +32,7 @@ final readonly class RefillInventoryItemHandler
             throw InventoryItemNotFound::withId($skuId);
         }
 
-        $inventory->refill(Stock::create($command->content['stock']));
+        $inventory->refill(Quantity::create($command->content['quantity']));
 
         $this->inventoryList->save($inventory);
     }
