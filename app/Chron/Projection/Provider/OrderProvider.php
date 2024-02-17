@@ -9,10 +9,14 @@ use App\Chron\Projection\ReadModel\OrderReadModel;
 use DateInterval;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
 use stdClass;
 use Storm\Contract\Clock\SystemClock;
 
+/**
+ * @template TItem of Collection{stdClass{id: string, order_id: string, sku_id: string, customer_id: string, quantity: int, unit_price:string}}
+ */
 final readonly class OrderProvider
 {
     public function __construct(
@@ -27,6 +31,38 @@ final readonly class OrderProvider
             ->whereIn('order_status', [OrderStatus::CREATED->value, OrderStatus::MODIFIED])
             ->where('closed', 0)
             ->cursor();
+    }
+
+    public function findOrderOfCustomer(string $customerId, string $orderId): ?stdClass
+    {
+        $order = $this->orderQuery()
+            ->where('id', $orderId)
+            ->where('customer_id', $customerId)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (! $order) {
+            return null;
+        }
+
+        $orderItems = $this->orderItemQuery()->where('order_id', $order->id)->get();
+
+        $order->items = $orderItems;
+
+        return $order;
+    }
+
+    public function getOrderSummaryOfCustomer(string $customerId): Collection
+    {
+        return $this->orderQuery()->select('id', 'status', 'customer_id')->where('customer_id', $customerId)->get();
+    }
+
+    public function getOrderSummary(): stdClass
+    {
+        return $this->orderQuery()
+            ->selectRaw('count(*) as total_orders, SUM(balance::numeric) as total_balance, SUM(quantity) as total_quantity')
+            ->whereIn('status', [OrderStatus::CREATED->value, OrderStatus::MODIFIED])
+            ->first();
     }
 
     public function findCurrentOrderOfCustomer(string $customerId): ?stdClass
@@ -46,15 +82,6 @@ final readonly class OrderProvider
         $order->items = $orderItems;
 
         return $order;
-    }
-
-    public function findOrderOfCustomer(string $customerId, string $orderId): ?stdClass
-    {
-        return $this->orderQuery()
-            ->find($orderId)
-            ->where('customer_id', $customerId)
-            ->where('closed', 0)
-            ->first();
     }
 
     public function findOrdersByStatus(OrderStatus $status, int $limit = 500): LazyCollection

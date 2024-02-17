@@ -4,30 +4,21 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Chron\Application\Service\CustomerService;
-use App\Chron\Application\Service\OrderService;
-use Symfony\Component\HttpFoundation\Response;
-
-use function array_rand;
+use App\Chron\Projection\Provider\InventoryProvider;
+use App\Chron\Projection\Provider\OrderProvider;
+use Illuminate\View\View;
 
 final class HomeController
 {
-    public function __invoke(OrderService $orderService, CustomerService $customerService): Response
+    // todo make report queries
+    public function __invoke(OrderProvider $orderProvider, InventoryProvider $inventoryProvider): View
     {
-        //$customerService->registerCustomer();
-        $orderService->makeOrderForRandomCustomer();
+        $order = $orderProvider->getOrderSummary();
+        $inventory = $inventoryProvider->getInventorySummary();
 
-        return new Response('ok');
-
-        // dd($customerOrderProvider->findPendingOrders()->count());
-        $rand = [
-            //fn () => $customerService->registerCustomer(),
-            fn () => $customerService->changeCustomerEmail(),
-            //fn () => $saga->processOrder($customerService->findRandomCustomer()),
-        ];
-
-        $rand[array_rand($rand)]();
-
-        return new Response('ok');
+        return view('home', [
+            'order' => $order,
+            'inventory' => $inventory,
+        ]);
     }
 }

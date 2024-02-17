@@ -8,6 +8,8 @@ use App\Chron\Model\DomainException;
 use App\Chron\Model\Order\OrderId;
 use App\Chron\Model\Order\OrderItemId;
 
+use function sprintf;
+
 class OrderNotFound extends DomainException
 {
     public static function withId(OrderId $id): self
@@ -15,8 +17,12 @@ class OrderNotFound extends DomainException
         return new self("Order with id {$id->toString()} not found");
     }
 
-    public static function withOrderItemId(OrderItemId $orderItemId): self
+    public static function withOrderItemId(OrderId $orderId, OrderItemId $orderItemId): self
     {
-        return new self("Order item with id {$orderItemId->toString()} not found");
+        return new self(sprintf(
+            'Order item with id %s not found in order %s',
+            $orderItemId->toString(),
+            $orderId->toString()
+        ));
     }
 }

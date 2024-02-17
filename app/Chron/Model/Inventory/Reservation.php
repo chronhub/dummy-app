@@ -39,4 +39,9 @@ final readonly class Reservation
     {
         return Quantity::create($this->value);
     }
+
+    public function toZeroQuantity()
+    {
+
+    }
 }

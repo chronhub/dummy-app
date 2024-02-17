@@ -29,6 +29,8 @@ use App\Chron\Infrastructure\Repository\InventoryAggregateRepository;
 use App\Chron\Infrastructure\Repository\OrderAggregateRepository;
 use App\Chron\Infrastructure\Repository\ProductAggregateRepository;
 use App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler;
+use App\Chron\Model\Customer\Handler\QueryCustomerProfileHandler;
+use App\Chron\Model\Customer\Handler\QueryPaginatedCustomersHandler;
 use App\Chron\Model\Customer\Handler\RegisterCustomerHandler;
 use App\Chron\Model\Inventory\Handler\AddInventoryItemHandler;
 use App\Chron\Model\Inventory\Handler\RefillInventoryItemHandler;
@@ -40,6 +42,8 @@ use App\Chron\Model\Order\Handler\CreateOrderHandler;
 use App\Chron\Model\Order\Handler\DeliverOrderHandler;
 use App\Chron\Model\Order\Handler\ModifyOrderHandler;
 use App\Chron\Model\Order\Handler\PayOrderHandler;
+use App\Chron\Model\Order\Handler\QueryOrderOfCustomerHandler;
+use App\Chron\Model\Order\Handler\QueryOrdersSummaryOfCustomerHandler;
 use App\Chron\Model\Order\Handler\QueryRandomPendingOrderHandler;
 use App\Chron\Model\Order\Handler\RefundOrderHandler;
 use App\Chron\Model\Order\Handler\ReturnOrderHandler;
@@ -136,6 +140,10 @@ class Catalog
 
         // query handlers
         QueryRandomPendingOrderHandler::class,
+        QueryCustomerProfileHandler::class,
+        QueryOrderOfCustomerHandler::class,
+        QueryOrdersSummaryOfCustomerHandler::class,
+        QueryPaginatedCustomersHandler::class,
     ];
 
     /**

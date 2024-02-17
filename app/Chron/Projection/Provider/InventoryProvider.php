@@ -26,6 +26,13 @@ final readonly class InventoryProvider
         return $this->query()->inRandomOrder()->limit($limit)->get();
     }
 
+    public function getInventorySummary(): stdClass
+    {
+        return $this->query()
+            ->selectRaw('count(*) as total_items, SUM(stock) as total_stock ,SUM(reserved) as total_reserved')
+            ->first();
+    }
+
     private function query(): Builder
     {
         return $this->connection->table(InventoryReadModel::TABLE);

@@ -7,6 +7,7 @@ namespace App\Chron\Projection\Provider;
 use App\Chron\Projection\ReadModel\CustomerReadModel;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Collection;
 use stdClass;
 
 final readonly class CustomerProvider
@@ -15,9 +16,19 @@ final readonly class CustomerProvider
     {
     }
 
+    public function findCustomerById(string $customerId): ?stdClass
+    {
+        return $this->query()->find($customerId);
+    }
+
     public function findRandomCustomer(): ?stdClass
     {
         return $this->query()->inRandomOrder()->first(['id']);
+    }
+
+    public function getPaginatedCustomers(int $page, int $perPage): Collection
+    {
+        return $this->query()->forPage($page, $perPage)->get(['id', 'name', 'email']);
     }
 
     private function query(): Builder

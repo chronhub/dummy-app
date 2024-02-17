@@ -10,6 +10,7 @@ final readonly class Quantity
 {
     private function __construct(public int $value)
     {
+        // fixMe: zero should not be allowed for adding items to the order
         if ($value < 0) {
             throw new InvalidArgumentException('Quantity must be greater than or equal to 0');
         }

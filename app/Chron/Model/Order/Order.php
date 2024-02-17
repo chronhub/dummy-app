@@ -139,7 +139,8 @@ final class Order implements AggregateRoot
         switch (true) {
             case $event instanceof OrderCreated:
                 $this->customerId = $event->customerId();
-                $this->orderItems = new ItemCollection();
+                $this->orderItems = new ItemCollection($this->orderId());
+                $this->status = $event->orderStatus();
 
                 break;
             case $event instanceof OrderModified:

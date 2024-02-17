@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Inventory\Event;
 
+use App\Chron\Model\Inventory\Quantity;
 use App\Chron\Model\Inventory\Stock;
 use App\Chron\Model\Product\SkuId;
 use Storm\Message\AbstractDomainEvent;
 
 final class InventoryItemRefilled extends AbstractDomainEvent
 {
-    public static function withItem(SkuId $skuId, Stock $newStock, Stock $oldStock): self
+    public static function withItem(SkuId $skuId, Stock $newStock, Stock $oldStock, Quantity $quantityRefilled): self
     {
         return new self([
             'sku_id' => $skuId->toString(),
             'new_stock' => $newStock->value,
             'old_stock' => $oldStock->value,
+            'quantity_refilled' => $quantityRefilled->value,
         ]);
     }
 
@@ -32,5 +34,10 @@ final class InventoryItemRefilled extends AbstractDomainEvent
     public function oldStock(): Stock
     {
         return Stock::create($this->content['old_stock']);
+    }
+
+    public function quantityRefilled(): Quantity
+    {
+        return Quantity::create($this->content['quantity_refilled']);
     }
 }

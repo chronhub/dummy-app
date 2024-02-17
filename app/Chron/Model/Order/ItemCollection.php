@@ -8,12 +8,15 @@ use App\Chron\Model\Order\Exception\OrderAlreadyExists;
 use App\Chron\Model\Order\Exception\OrderNotFound;
 use Illuminate\Support\Collection;
 
-final class ItemCollection
+final readonly class ItemCollection
 {
     public Collection $items;
 
-    public function __construct()
+    public OrderId $orderId;
+
+    public function __construct(OrderId $orderId)
     {
+        $this->orderId = $orderId;
         $this->items = new Collection();
     }
 
@@ -22,7 +25,7 @@ final class ItemCollection
         $orderItemId = $orderItem->orderItemId->toString();
 
         if ($this->items->has($orderItemId)) {
-            throw OrderAlreadyExists::withOrderItem($orderItem->orderItemId);
+            throw OrderAlreadyExists::withOrderItem($this->orderId, $orderItem->orderItemId);
         }
 
         $this->items->put($orderItemId, $orderItem);
@@ -33,7 +36,7 @@ final class ItemCollection
         $orderItemId = $orderItem->orderItemId->toString();
 
         if (! $this->items->has($orderItemId)) {
-            throw OrderNotFound::withOrderItemId($orderItem->orderItemId);
+            throw OrderNotFound::withOrderItemId($this->orderId, $orderItem->orderItemId);
         }
 
         $this->items->forget($orderItemId);

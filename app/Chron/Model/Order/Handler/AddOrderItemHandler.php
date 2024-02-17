@@ -15,7 +15,7 @@ use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',
-    handles: AddOrderItem::class,
+    handles: AddOrderItem::class
 )]
 final readonly class AddOrderItemHandler
 {

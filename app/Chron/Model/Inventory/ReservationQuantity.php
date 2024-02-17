@@ -15,9 +15,9 @@ final class ReservationQuantity
         }
     }
 
-    public function toStock(): Stock
+    public function toQuantity(): Quantity
     {
-        return Stock::create($this->value);
+        return Quantity::create($this->value);
     }
 
     public static function create(int $value): self

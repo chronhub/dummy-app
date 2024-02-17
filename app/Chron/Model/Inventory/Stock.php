@@ -15,19 +15,19 @@ final readonly class Stock
         }
     }
 
-    public static function create(int $stock): self
+    public static function create(int $quantity): self
     {
-        return new self($stock);
+        return new self($quantity);
     }
 
-    public function add(Stock $stock): self
+    public function add(Quantity $quantity): self
     {
-        return new self($this->value + $stock->value);
+        return new self($this->value + $quantity->value);
     }
 
-    public function remove(Stock $stock): self
+    public function remove(Quantity $quantity): self
     {
-        return new self($this->value - $stock->value);
+        return new self($this->value - $quantity->value);
     }
 
     public function isOutOfStock(): bool
@@ -35,7 +35,7 @@ final readonly class Stock
         return $this->value === 0;
     }
 
-    public function getAvailableQuantity(ReservationQuantity $requested): false|ReservationQuantity
+    public function getAvailableQuantity(Quantity $requested): false|Quantity
     {
         if ($this->isOutOfStock()) {
             return false;
@@ -43,11 +43,11 @@ final readonly class Stock
 
         // return the minimum value between the requested quantity and the available stock
         if ($this->value < $requested->value) {
-            return ReservationQuantity::create($this->value);
+            return Quantity::create($this->value);
         }
 
         // return the requested quantity
-        return ReservationQuantity::create($requested->value);
+        return Quantity::create($requested->value);
     }
 
     public function sameValueAs(self $other): bool
