@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Chron\Model\Inventory\Event;
 
 use App\Chron\Model\Inventory\Quantity;
+use App\Chron\Model\Inventory\SkuId;
 use App\Chron\Model\Inventory\Stock;
-use App\Chron\Model\Product\SkuId;
 use Storm\Message\AbstractDomainEvent;
 
 final class InventoryItemReleased extends AbstractDomainEvent

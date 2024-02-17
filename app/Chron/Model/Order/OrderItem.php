@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order;
 
+use App\Chron\Model\Inventory\SkuId;
 use App\Chron\Model\Inventory\UnitPrice;
-use App\Chron\Model\Product\SkuId;
 
 final readonly class OrderItem
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Model\Inventory\Repository;
 
 use App\Chron\Model\Inventory\Inventory;
-use App\Chron\Model\Product\SkuId;
+use App\Chron\Model\Inventory\SkuId;
 
 interface InventoryList
 {

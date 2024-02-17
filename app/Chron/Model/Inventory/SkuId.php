@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Model\Customer;
+namespace App\Chron\Model\Inventory;
 
 use App\Chron\Model\Customer\Exception\InvalidCustomerValue;
 use App\Chron\Package\Aggregate\AggregateIdV4Trait;
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
 use InvalidArgumentException;
 
-final class CustomerId implements AggregateIdentity
+final class SkuId implements AggregateIdentity
 {
     use AggregateIdV4Trait {
         fromString as private fromStringV4;
@@ -20,7 +20,7 @@ final class CustomerId implements AggregateIdentity
         try {
             return self::fromStringV4($aggregateId);
         } catch (InvalidArgumentException) {
-            throw new InvalidCustomerValue('Invalid Customer id');
+            throw new InvalidCustomerValue('Invalid sku id');
         }
     }
 }

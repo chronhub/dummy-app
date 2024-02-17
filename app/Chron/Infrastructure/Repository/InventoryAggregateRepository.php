@@ -6,7 +6,7 @@ namespace App\Chron\Infrastructure\Repository;
 
 use App\Chron\Model\Inventory\Inventory;
 use App\Chron\Model\Inventory\Repository\InventoryList;
-use App\Chron\Model\Product\SkuId;
+use App\Chron\Model\Inventory\SkuId;
 use App\Chron\Package\Aggregate\Contract\AggregateRepository;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
 use App\Chron\Package\Attribute\AggregateRepository\AsAggregateRepository;

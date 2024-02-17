@@ -14,7 +14,7 @@ use Storm\Contract\Message\DomainEvent;
 
 use function sprintf;
 
-class Customer implements AggregateRoot
+final class Customer implements AggregateRoot
 {
     use AggregateBehaviorTrait;
 

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Inventory\Event;
 
+use App\Chron\Model\Inventory\SkuId;
 use App\Chron\Model\Inventory\Stock;
 use App\Chron\Model\Inventory\UnitPrice;
-use App\Chron\Model\Product\SkuId;
 use Storm\Message\AbstractDomainEvent;
 
 final class InventoryItemAdded extends AbstractDomainEvent

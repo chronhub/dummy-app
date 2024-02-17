@@ -9,7 +9,7 @@ use App\Chron\Model\Inventory\Inventory;
 use App\Chron\Model\Inventory\InventoryReleaseReason;
 use App\Chron\Model\Inventory\Quantity;
 use App\Chron\Model\Inventory\Repository\InventoryList;
-use App\Chron\Model\Product\SkuId;
+use App\Chron\Model\Inventory\SkuId;
 
 // todo context mapping
 final readonly class InventoryReservationService

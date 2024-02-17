@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order\Exception;
 
 use App\Chron\Model\DomainException;
+use App\Chron\Model\Inventory\SkuId;
 use App\Chron\Model\Order\OrderId;
 use App\Chron\Model\Order\OrderItemId;
-use App\Chron\Model\Product\SkuId;
 
 use function sprintf;
 

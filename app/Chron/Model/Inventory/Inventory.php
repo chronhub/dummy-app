@@ -12,7 +12,6 @@ use App\Chron\Model\Inventory\Event\InventoryItemRefilled;
 use App\Chron\Model\Inventory\Event\InventoryItemReleased;
 use App\Chron\Model\Inventory\Event\InventoryItemReserved;
 use App\Chron\Model\Inventory\Exception\InventoryOutOfStock;
-use App\Chron\Model\Product\SkuId;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;

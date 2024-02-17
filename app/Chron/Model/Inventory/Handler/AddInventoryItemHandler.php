@@ -9,8 +9,8 @@ use App\Chron\Model\Inventory\Exception\InventoryItemAlreadyExists;
 use App\Chron\Model\Inventory\Inventory;
 use App\Chron\Model\Inventory\Quantity;
 use App\Chron\Model\Inventory\Repository\InventoryList;
+use App\Chron\Model\Inventory\SkuId;
 use App\Chron\Model\Inventory\UnitPrice;
-use App\Chron\Model\Product\SkuId;
 use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
