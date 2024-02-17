@@ -47,9 +47,9 @@ final class Order implements AggregateRoot
 
         $this->assertOrderItemNotExists($orderItem);
 
-        $reservedStock = $reservation->reserveItem($orderItem->skuId->toString(), $orderItem->quantity->value);
+        $quantityReserved = $reservation->reserveItem($orderItem->skuId->toString(), $orderItem->quantity->value);
 
-        if ($reservedStock === false) {
+        if ($quantityReserved === false) {
             throw ReservationOrderItemFailed::withReason(
                 $orderItem->skuId,
                 $this->orderId(),
@@ -58,14 +58,14 @@ final class Order implements AggregateRoot
             );
         }
 
-        if ($reservedStock->value !== $orderItem->quantity->value) {
-            $orderItem->withAdjustedQuantity(Quantity::create($reservedStock->value));
+        if ($quantityReserved->value !== $orderItem->quantity->value) {
+            $orderItem->withAdjustedQuantity(Quantity::create($quantityReserved->value));
 
             $this->recordThat(OrderItemPartiallyAdded::forOrder(
                 $this->orderId(),
                 $this->customerId,
                 $orderItem,
-                Quantity::create($reservedStock->value)
+                Quantity::create($quantityReserved->value)
             ));
         } else {
             $this->recordThat(OrderItemAdded::forOrder($this->orderId(), $this->customerId, $orderItem));

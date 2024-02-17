@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Inventory;
 
-use InvalidArgumentException;
+use App\Chron\Model\Inventory\Exception\InvalidInventoryValue;
 
 final readonly class Reservation
 {
     private function __construct(public int $value)
     {
         if ($value < 0) {
-            throw new InvalidArgumentException('Reservation must be greater than or equal to 0');
+            throw new InvalidInventoryValue('Inventory reservation must be greater than or equal to 0');
         }
     }
 
@@ -38,10 +38,5 @@ final readonly class Reservation
     public function toQuantity(): Quantity
     {
         return Quantity::create($this->value);
-    }
-
-    public function toZeroQuantity()
-    {
-
     }
 }

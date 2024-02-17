@@ -9,7 +9,6 @@ use App\Chron\Model\Inventory\Inventory;
 use App\Chron\Model\Inventory\InventoryReleaseReason;
 use App\Chron\Model\Inventory\Quantity;
 use App\Chron\Model\Inventory\Repository\InventoryList;
-use App\Chron\Model\Inventory\ReservationQuantity;
 use App\Chron\Model\Product\SkuId;
 
 // todo context mapping
@@ -19,7 +18,7 @@ final readonly class InventoryReservationService
     {
     }
 
-    public function reserveItem(string $skuId, int $requested): false|ReservationQuantity
+    public function reserveItem(string $skuId, int $requested): false|Quantity
     {
         $inventory = $this->getInventory($skuId);
 
@@ -35,17 +34,14 @@ final readonly class InventoryReservationService
 
         $this->inventoryList->save($inventory);
 
-        return ReservationQuantity::create($availableQuantity->value);
+        return $availableQuantity;
     }
 
     public function releaseItem(string $skuId, int $requested, string $reason = InventoryReleaseReason::OTHER): void
     {
         $inventory = $this->getInventory($skuId);
 
-        $inventory->release(
-            $this->reservationQuantity($requested),
-            $reason
-        );
+        $inventory->release($this->reservationQuantity($requested), $reason);
 
         $this->inventoryList->save($inventory);
     }

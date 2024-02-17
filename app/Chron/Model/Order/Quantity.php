@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order;
 
-use InvalidArgumentException;
+use App\Chron\Model\Order\Exception\InvalidOrderValue;
 
 final readonly class Quantity
 {
     private function __construct(public int $value)
     {
-        // fixMe: zero should not be allowed for adding items to the order
         if ($value < 0) {
-            throw new InvalidArgumentException('Quantity must be greater than or equal to 0');
+            throw new InvalidOrderValue('Order quantity must be greater than or equal to 0');
         }
     }
 

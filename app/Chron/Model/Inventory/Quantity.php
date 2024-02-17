@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Inventory;
 
-use InvalidArgumentException;
+use App\Chron\Model\Inventory\Exception\InvalidInventoryValue;
 
 final class Quantity
 {
     private function __construct(public int $value)
     {
         if ($value < 1) {
-            throw new InvalidArgumentException('Quantity must be greater than 0.');
+            throw new InvalidInventoryValue('Inventory quantity must be greater than 0.');
         }
     }
 

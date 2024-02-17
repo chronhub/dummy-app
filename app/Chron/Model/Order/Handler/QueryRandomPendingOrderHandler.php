@@ -15,6 +15,9 @@ use function json_decode;
     reporter: 'reporter.query.default',
     handles: QueryRandomPendingOrder::class
 )]
+/**
+ * @deprecated
+ */
 final readonly class QueryRandomPendingOrderHandler
 {
     public function __construct(private Connection $connection)

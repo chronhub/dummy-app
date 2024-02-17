@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order;
 
-use InvalidArgumentException;
+use App\Chron\Model\Order\Exception\InvalidOrderValue;
 
 use function number_format;
 
@@ -17,7 +17,7 @@ final class Balance
         $this->value = $this->formatValue($value);
 
         if ($this->toFloat() < 0) {
-            throw new InvalidArgumentException('Balance must a positive number.');
+            throw new InvalidOrderValue('Order balance must a positive number.');
         }
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Customer;
 
+// todo validate address
 final readonly class CustomerAddress
 {
     private function __construct(
@@ -34,7 +35,7 @@ final readonly class CustomerAddress
         ];
     }
 
-    public function sameValueAs(CustomerAddress $other): bool
+    public function sameValueAs(self $other): bool
     {
         return $this->street === $other->street
             && $this->city === $other->city

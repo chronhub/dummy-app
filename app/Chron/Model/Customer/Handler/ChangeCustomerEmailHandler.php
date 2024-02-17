@@ -29,13 +29,14 @@ final readonly class ChangeCustomerEmailHandler
     public function __invoke(ChangeCustomerEmail $command): void
     {
         $customerId = CustomerId::fromString($command->content['customer_id']);
-        $customerEmail = CustomerEmail::fromString($command->content['customer_new_email']);
 
         $customer = $this->customers->get($customerId);
 
         if (! $customer instanceof Customer) {
             throw CustomerNotFound::withId($customerId);
         }
+
+        $customerEmail = CustomerEmail::fromString($command->content['customer_new_email']);
 
         if ($customer->email()->sameValueAs($customerEmail)) {
             return;

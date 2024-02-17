@@ -6,6 +6,8 @@ use App\Http\Controllers\Customer\CustomerInfoAction;
 use App\Http\Controllers\Customer\CustomerListAction;
 use App\Http\Controllers\Customer\CustomerOrderAction;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Seed\ChangeCustomerEmailAction;
+use App\Http\Controllers\Seed\MakeOrderAction;
 use App\Http\Controllers\Seed\RegisterCustomerAction;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +19,6 @@ Route::get('/customer/{customer_id}/order/{order_id}', CustomerOrderAction::clas
 // seed
 Route::group(['prefix' => 'seed'], function () {
     Route::get('/customer', RegisterCustomerAction::class)->name('seed.customer.register');
-    Route::get('/customer/email/change', RegisterCustomerAction::class)->name('seed.customer.email.change');
-    Route::get('/order/random', RegisterCustomerAction::class)->name('seed.order.random');
+    Route::get('/customer/email/change', ChangeCustomerEmailAction::class)->name('seed.customer.email.change');
+    Route::get('/order/random', MakeOrderAction::class)->name('seed.order.random');
 });

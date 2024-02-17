@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Inventory\Exception;
 
-use App\Chron\Model\DomainException;
 use App\Chron\Model\Product\SkuId;
 
 use function sprintf;
 
-class InventoryItemAlreadyExists extends DomainException
+class InventoryItemAlreadyExists extends InventoryException
 {
     public static function withId(SkuId $skuId): self
     {
