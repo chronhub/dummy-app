@@ -74,8 +74,6 @@ final class Inventory implements AggregateRoot
      */
     public function reserve(Quantity $requested): void
     {
-        // todo refactor, increase reserved and let the stock untouched
-
         $availableQuantity = $this->stock->getAvailableQuantity($requested);
 
         if ($availableQuantity === false) {
