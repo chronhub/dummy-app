@@ -17,7 +17,7 @@ final class OrderItemPartiallyAdded extends AbstractDomainEvent
         return new self([
             'order_id' => $orderId->toString(),
             'customer_id' => $customerId->toString(),
-            'item' => $orderItem->toArray(),
+            'order_item' => $orderItem->toArray(),
             'expected_quantity' => $expectedQuantity->value,
         ]);
     }
@@ -34,7 +34,7 @@ final class OrderItemPartiallyAdded extends AbstractDomainEvent
 
     public function orderItem(): OrderItem
     {
-        return OrderItem::fromArray($this->content['item']);
+        return OrderItem::fromArray($this->content['order_item']);
     }
 
     public function expectedQuantity(): Quantity

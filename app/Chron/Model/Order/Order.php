@@ -33,6 +33,7 @@ final class Order implements AggregateRoot
 
     private ?string $closedReason = null;
 
+    // @todo change customerId to a better context for order
     public static function create(OrderId $orderId, CustomerId $customerId): self
     {
         $order = new self($orderId);

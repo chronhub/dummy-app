@@ -42,7 +42,7 @@ final readonly class OrderService
         } elseif (in_array($order->status, [OrderStatus::CREATED->value, OrderStatus::MODIFIED->value], true)) {
             $this->makeOrderItem($order);
         } else {
-            // todo handle other order statuses
+            logger('Order is not in a state to be modified: '.$order->status);
         }
     }
 

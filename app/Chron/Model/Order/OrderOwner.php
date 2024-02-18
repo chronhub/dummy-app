@@ -6,10 +6,9 @@ namespace App\Chron\Model\Order;
 
 use App\Chron\Model\Customer\Exception\InvalidCustomerValue;
 use App\Chron\Package\Aggregate\AggregateIdV4Trait;
-use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
 use InvalidArgumentException;
 
-final class OrderId implements AggregateIdentity
+final class OrderOwner
 {
     use AggregateIdV4Trait {
         fromString as private fromStringV4;
@@ -20,7 +19,7 @@ final class OrderId implements AggregateIdentity
         try {
             return self::fromStringV4($aggregateId);
         } catch (InvalidArgumentException) {
-            throw new InvalidCustomerValue('Invalid Order id');
+            throw new InvalidCustomerValue('Invalid order owner id');
         }
     }
 }

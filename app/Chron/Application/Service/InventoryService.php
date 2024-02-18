@@ -8,24 +8,12 @@ use App\Chron\Application\Messaging\Command\Inventory\AddInventoryItem;
 use App\Chron\Application\Messaging\Command\Inventory\RefillInventoryItem;
 use App\Chron\Package\Reporter\Report;
 use App\Chron\Projection\Provider\InventoryProvider;
-use Illuminate\Support\Collection;
 use RuntimeException;
-use stdClass;
 
 final readonly class InventoryService
 {
     public function __construct(private InventoryProvider $inventoryProvider)
     {
-    }
-
-    public function getRandomItems(int $limit = 10): Collection
-    {
-        return $this->inventoryProvider->findRandomItems($limit);
-    }
-
-    public function getRandomItem(): stdClass
-    {
-        return $this->inventoryProvider->findRandomItem();
     }
 
     public function addNewProductToInventory(string $skuId): void

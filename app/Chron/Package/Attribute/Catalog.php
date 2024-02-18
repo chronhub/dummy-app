@@ -13,17 +13,10 @@ use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemRefilled;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemReleased;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemReserved;
 use App\Chron\Application\Messaging\Event\Order\WhenCustomerRequestedOrderCanceled;
-use App\Chron\Application\Messaging\Event\Order\WhenOrderCanceled;
-use App\Chron\Application\Messaging\Event\Order\WhenOrderClosed;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCreated;
-use App\Chron\Application\Messaging\Event\Order\WhenOrderDelivered;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderItemAdded;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderItemPartiallyAdded;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderModified;
-use App\Chron\Application\Messaging\Event\Order\WhenOrderPaid;
-use App\Chron\Application\Messaging\Event\Order\WhenOrderRefunded;
-use App\Chron\Application\Messaging\Event\Order\WhenOrderReturned;
-use App\Chron\Application\Messaging\Event\Order\WhenOrderShipped;
 use App\Chron\Application\Messaging\Event\Product\WhenProductCreated;
 use App\Chron\Infrastructure\Repository\CustomerAggregateRepository;
 use App\Chron\Infrastructure\Repository\InventoryAggregateRepository;
@@ -37,18 +30,10 @@ use App\Chron\Model\Inventory\Handler\AddInventoryItemHandler;
 use App\Chron\Model\Inventory\Handler\RefillInventoryItemHandler;
 use App\Chron\Model\Inventory\Handler\ReserveInventoryItemHandler;
 use App\Chron\Model\Order\Handler\AddOrderItemHandler;
-use App\Chron\Model\Order\Handler\CloseOrderHandler;
 use App\Chron\Model\Order\Handler\CreateOrderHandler;
 use App\Chron\Model\Order\Handler\CustomerRequestsOrderCancellationHandler;
-use App\Chron\Model\Order\Handler\DeliverOrderHandler;
-use App\Chron\Model\Order\Handler\ModifyOrderHandler;
-use App\Chron\Model\Order\Handler\PayOrderHandler;
 use App\Chron\Model\Order\Handler\QueryOrderOfCustomerHandler;
 use App\Chron\Model\Order\Handler\QueryOrdersSummaryOfCustomerHandler;
-use App\Chron\Model\Order\Handler\QueryRandomPendingOrderHandler;
-use App\Chron\Model\Order\Handler\RefundOrderHandler;
-use App\Chron\Model\Order\Handler\ReturnOrderHandler;
-use App\Chron\Model\Order\Handler\ShipOrderHandler;
 use App\Chron\Model\Product\Handler\CreateProductHandler;
 use App\Chron\Package\Chronicler\PgsqlTransactionalChronicler;
 use App\Chron\Package\Chronicler\Subscribers\AppendOnlyStream;
@@ -97,20 +82,14 @@ class Catalog
         // command handlers
         RegisterCustomerHandler::class,
         ChangeCustomerEmailHandler::class,
-        CreateOrderHandler::class,
-        ModifyOrderHandler::class,
-        //        PayOrderHandler::class,
-        //        ShipOrderHandler::class,
-        //        DeliverOrderHandler::class,
-        //        ReturnOrderHandler::class,
-        //        RefundOrderHandler::class,
-        //        CloseOrderHandler::class,
 
-        //
+        CreateOrderHandler::class,
         CreateProductHandler::class,
+
         AddInventoryItemHandler::class,
         RefillInventoryItemHandler::class,
         ReserveInventoryItemHandler::class,
+
         AddOrderItemHandler::class,
         CustomerRequestsOrderCancellationHandler::class,
 
@@ -118,19 +97,14 @@ class Catalog
         WhenCustomerRegistered::class,
         WhenCustomerEmailChanged::class,
 
-        //        WhenOrderPaid::class,
-        //        WhenOrderCanceled::class,
-        //        WhenOrderShipped::class,
-        //        WhenOrderDelivered::class,
-        //        WhenOrderReturned::class,
-        //        WhenOrderRefunded::class,
-        //        WhenOrderClosed::class,
-
         //
+        WhenProductCreated::class,
+
         WhenOrderCreated::class,
         WhenOrderModified::class,
-        WhenProductCreated::class,
         WhenOrderItemAdded::class,
+        WhenCustomerRequestedOrderCanceled::class,
+
         WhenInventoryItemAdded::class,
         WhenOrderItemPartiallyAdded::class,
         WhenInventoryItemRefilled::class,
@@ -138,10 +112,8 @@ class Catalog
         WhenInventoryItemPartiallyReserved::class,
         WhenInventoryItemReleased::class,
         WhenInventoryItemExhausted::class,
-        WhenCustomerRequestedOrderCanceled::class,
 
         // query handlers
-        QueryRandomPendingOrderHandler::class,
         QueryCustomerProfileHandler::class,
         QueryOrderOfCustomerHandler::class,
         QueryOrdersSummaryOfCustomerHandler::class,

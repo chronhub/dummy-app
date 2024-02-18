@@ -35,11 +35,7 @@ final readonly class CreateOrderHandler
         }
 
         if ($this->customerOrder->hasPendingOrder($customerId)) {
-            logger('Pending Order already exists');
-
-            return;
-
-            //throw OrderAlreadyExists::withPendingOrder($customerId);
+            throw OrderAlreadyExists::withPendingOrder($customerId);
         }
 
         $orderId = $command->orderId();
