@@ -13,7 +13,7 @@ use Storm\Message\AbstractDomainCommand;
 final class RegisterCustomer extends AbstractDomainCommand
 {
     /**
-     * @param array $address{street: string, city: string, state: string, postal_code: string, country: string}
+     * @param array{street: string, city: string, state: string, postal_code: string, country: string} $address
      */
     public static function withData(string $customerId, string $customerEmail, string $customerName, array $address): self
     {

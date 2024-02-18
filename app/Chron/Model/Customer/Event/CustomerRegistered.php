@@ -22,7 +22,7 @@ final class CustomerRegistered extends AbstractDomainEvent
         ]);
     }
 
-    public function customerId(): CustomerId
+    public function aggregateId(): CustomerId
     {
         return CustomerId::fromString($this->content['customer_id']);
     }

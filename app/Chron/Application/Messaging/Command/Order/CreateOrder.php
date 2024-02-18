@@ -13,18 +13,18 @@ final class CreateOrder extends AbstractDomainCommand
     public static function forCustomer(string $orderOwner, string $orderId): self
     {
         return new self([
-            'customer_id' => $orderOwner,
+            'order_owner' => $orderOwner,
             'order_id' => $orderId,
         ]);
+    }
+
+    public function orderOwner(): OrderOwner
+    {
+        return OrderOwner::fromString($this->content['order_owner']);
     }
 
     public function orderId(): OrderId
     {
         return OrderId::fromString($this->content['order_id']);
-    }
-
-    public function orderOwner(): OrderOwner
-    {
-        return OrderOwner::fromString($this->content['customer_id']);
     }
 }

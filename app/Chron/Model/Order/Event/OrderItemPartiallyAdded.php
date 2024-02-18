@@ -6,6 +6,7 @@ namespace App\Chron\Model\Order\Event;
 
 use App\Chron\Model\Order\OrderId;
 use App\Chron\Model\Order\OrderItem;
+use App\Chron\Model\Order\OrderItemId;
 use App\Chron\Model\Order\OrderOwner;
 use App\Chron\Model\Order\Quantity;
 use Storm\Message\AbstractDomainEvent;
@@ -20,6 +21,11 @@ final class OrderItemPartiallyAdded extends AbstractDomainEvent
             'order_item' => $orderItem->toArray(),
             'expected_quantity' => $expectedQuantity->value,
         ]);
+    }
+
+    public function aggregateId(): OrderItemId
+    {
+        return OrderItemId::fromString($this->content['order_item']['order_item_id']);
     }
 
     public function orderId(): OrderId

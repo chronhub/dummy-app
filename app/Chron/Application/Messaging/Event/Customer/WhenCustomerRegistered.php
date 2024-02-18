@@ -27,7 +27,7 @@ final readonly class WhenCustomerRegistered
     public function storeNewCustomer(CustomerRegistered $event): void
     {
         $this->customerReadModel->insert(
-            $event->customerId()->toString(),
+            $event->aggregateId()->toString(),
             $event->email()->value,
             $event->name()->value,
             $event->address()->street,
@@ -45,7 +45,7 @@ final readonly class WhenCustomerRegistered
     public function storeCustomerEmail(CustomerRegistered $event): void
     {
         $this->customerEmailReadModel->insert(
-            $event->customerId()->toString(),
+            $event->aggregateId()->toString(),
             $event->email()->value
         );
     }
@@ -70,6 +70,6 @@ final readonly class WhenCustomerRegistered
      */
     public function createOrderForCustomer(CustomerRegistered $event): void
     {
-        $this->orderService->createOrder($event->customerId()->toString());
+        $this->orderService->createOrder($event->aggregateId()->toString());
     }
 }

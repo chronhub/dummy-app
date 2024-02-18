@@ -23,7 +23,7 @@ final readonly class WhenOrderItemPartiallyAdded
         $orderItem = $event->orderItem();
 
         $this->readModel->insertOrderItem(
-            $event->orderItem()->orderItemId->toString(),
+            $event->aggregateId()->toString(),
             $event->orderId()->toString(),
             $event->orderOwner()->toString(),
             $orderItem->skuId->toString(),
