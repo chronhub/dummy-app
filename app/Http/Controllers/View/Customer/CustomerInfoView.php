@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Customer;
+namespace App\Http\Controllers\View\Customer;
 
 use App\Chron\Application\Messaging\Query\QueryCustomerProfile;
 use App\Chron\Application\Messaging\Query\QueryOrdersSummaryOfCustomer;
@@ -13,7 +13,7 @@ use stdClass;
 use Storm\Support\QueryPromiseTrait;
 use Throwable;
 
-final class CustomerInfoAction
+final class CustomerInfoView
 {
     use QueryPromiseTrait;
 

@@ -6,6 +6,9 @@ namespace App\Chron\Application\Messaging\Command\Order;
 
 use Storm\Message\AbstractDomainCommand;
 
+/**
+ * @deprecated
+ */
 final class ModifyOrder extends AbstractDomainCommand
 {
     public static function forCustomer(string $customerId, string $orderId, string $amount): self

@@ -4,27 +4,29 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order\Handler;
 
-use App\Chron\Application\Messaging\Command\Order\CreateOrder;
+use App\Chron\Application\Messaging\Command\Order\CustomerRequestsOrderCancellation;
 use App\Chron\Model\Customer\Exception\CustomerNotFound;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
-use App\Chron\Model\Order\Exception\OrderAlreadyExists;
+use App\Chron\Model\Inventory\Service\InventoryReservationService;
+use App\Chron\Model\Order\Exception\OrderNotFound;
 use App\Chron\Model\Order\Order;
 use App\Chron\Model\Order\Repository\OrderList;
 use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',
-    handles: CreateOrder::class,
+    handles: CustomerRequestsOrderCancellation::class,
 )]
-final readonly class CreateOrderHandler
+final readonly class CustomerRequestsOrderCancellationHandler
 {
     public function __construct(
         private OrderList $orders,
         private CustomerCollection $customers,
+        private InventoryReservationService $reservationService,
     ) {
     }
 
-    public function __invoke(CreateOrder $command): void
+    public function __invoke(CustomerRequestsOrderCancellation $command): void
     {
         $customerId = $command->customerId();
 
@@ -34,11 +36,13 @@ final readonly class CreateOrderHandler
 
         $orderId = $command->orderId();
 
-        if ($this->orders->get($orderId) !== null) {
-            throw OrderAlreadyExists::withId($orderId);
+        $order = $this->orders->get($orderId);
+
+        if (! $order instanceof Order) {
+            throw OrderNotFound::withId($orderId);
         }
 
-        $order = Order::create($orderId, $customerId);
+        $order->cancelByCustomer($this->reservationService);
 
         $this->orders->save($order);
     }

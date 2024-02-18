@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Messaging\Command\Inventory;
 
+use App\Chron\Model\Inventory\Quantity;
+use App\Chron\Model\Inventory\SkuId;
+use App\Chron\Model\Inventory\UnitPrice;
 use Storm\Message\AbstractDomainCommand;
 
 final class AddInventoryItem extends AbstractDomainCommand
@@ -15,5 +18,20 @@ final class AddInventoryItem extends AbstractDomainCommand
             'quantity' => $quantity,
             'unit_price' => $unitPrice,
         ]);
+    }
+
+    public function skuId(): SkuId
+    {
+        return SkuId::fromString($this->content['sku_id']);
+    }
+
+    public function quantity(): Quantity
+    {
+        return Quantity::create($this->content['quantity']);
+    }
+
+    public function unitPrice(): UnitPrice
+    {
+        return UnitPrice::create($this->content['unit_price']);
     }
 }

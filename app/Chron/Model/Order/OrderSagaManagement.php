@@ -130,7 +130,7 @@ final readonly class OrderSagaManagement
 
                 break;
             case OrderStatus::REFUNDED:
-            case OrderStatus::CANCELLED:
+            case OrderStatus::CANCELED:
             case OrderStatus::CLOSED:
                 break;
             default:

@@ -49,6 +49,14 @@ final readonly class OrderReadModel
         ]);
     }
 
+    public function deleteOrderItem(string $orderId, string $customerId): void
+    {
+        $this->queryOrderItem()
+            ->where('order_id', $orderId)
+            ->where('customer_id', $customerId)
+            ->delete();
+    }
+
     public function queryOrder(): Builder
     {
         return $this->connection->table(self::TABLE_ORDER);

@@ -233,6 +233,6 @@ final class OrderBck implements AggregateRoot
     {
         return $this->status === OrderStatus::DELIVERED
             || $this->status === OrderStatus::REFUNDED
-            || $this->status === OrderStatus::CANCELLED;
+            || $this->status === OrderStatus::CANCELED;
     }
 }

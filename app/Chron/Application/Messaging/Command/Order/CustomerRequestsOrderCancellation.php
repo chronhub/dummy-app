@@ -8,16 +8,13 @@ use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Order\OrderId;
 use Storm\Message\AbstractDomainCommand;
 
-/**
- * @deprecated
- */
-final class CancelOrder extends AbstractDomainCommand
+final class CustomerRequestsOrderCancellation extends AbstractDomainCommand
 {
-    public static function forCustomer(string $customerId, string $orderId): self
+    public static function forOrder(string $orderId, string $customerId): self
     {
         return new self([
-            'customer_id' => $customerId,
             'order_id' => $orderId,
+            'customer_id' => $customerId,
         ]);
     }
 

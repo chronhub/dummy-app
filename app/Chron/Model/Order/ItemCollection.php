@@ -25,7 +25,7 @@ final readonly class ItemCollection
         $orderItemId = $orderItem->orderItemId->toString();
 
         if ($this->items->has($orderItemId)) {
-            throw OrderAlreadyExists::withOrderItem($this->orderId, $orderItem->orderItemId);
+            throw OrderAlreadyExists::withOrderItemId($this->orderId, $orderItem->orderItemId);
         }
 
         $this->items->put($orderItemId, $orderItem);
@@ -66,5 +66,10 @@ final readonly class ItemCollection
         $quantity = $this->items->sum(fn (OrderItem $item) => $item->quantity->value);
 
         return Quantity::create($quantity);
+    }
+
+    public function getItems(): Collection
+    {
+        return clone $this->items;
     }
 }

@@ -6,6 +6,8 @@ namespace App\Chron\Application\Service;
 
 use App\Chron\Application\Messaging\Command\Order\AddOrderItem;
 use App\Chron\Application\Messaging\Command\Order\CreateOrder;
+use App\Chron\Application\Messaging\Command\Order\CustomerRequestsOrderCancellation;
+use App\Chron\Model\Order\OrderStatus;
 use App\Chron\Package\Reporter\Report;
 use App\Chron\Projection\Provider\CustomerProvider;
 use App\Chron\Projection\Provider\InventoryProvider;
@@ -13,6 +15,9 @@ use App\Chron\Projection\Provider\OrderProvider;
 use RuntimeException;
 use stdClass;
 use Symfony\Component\Uid\Uuid;
+
+use function in_array;
+use function sleep;
 
 final readonly class OrderService
 {
@@ -34,9 +39,17 @@ final readonly class OrderService
 
         if ($order === null) {
             $this->createOrder($customer->id);
-        } else {
+            sleep(2);
+        } elseif (in_array($order->status, [OrderStatus::CREATED->value, OrderStatus::MODIFIED->value], true)) {
             $this->makeOrderItem($order);
+        } else {
+            // todo handle other order statuses
         }
+    }
+
+    public function cancelOrderByCustomer(string $orderId, string $customerId): void
+    {
+        Report::relay(CustomerRequestsOrderCancellation::forOrder($orderId, $customerId));
     }
 
     private function createOrder(string $customerId): void

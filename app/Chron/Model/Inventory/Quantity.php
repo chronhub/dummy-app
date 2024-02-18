@@ -10,8 +10,8 @@ final class Quantity
 {
     private function __construct(public int $value)
     {
-        if ($value < 1) {
-            throw new InvalidInventoryValue('Inventory quantity must be greater than 0.');
+        if ($value < 0) {
+            throw new InvalidInventoryValue('Inventory quantity must be greater or equals than 0.');
         }
     }
 

@@ -7,9 +7,7 @@ namespace App\Chron\Model\Inventory\Handler;
 use App\Chron\Application\Messaging\Command\Inventory\ReserveInventoryItem;
 use App\Chron\Model\Inventory\Exception\InventoryItemNotFound;
 use App\Chron\Model\Inventory\Inventory;
-use App\Chron\Model\Inventory\Quantity;
 use App\Chron\Model\Inventory\Repository\InventoryList;
-use App\Chron\Model\Inventory\SkuId;
 use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
@@ -24,7 +22,7 @@ final readonly class ReserveInventoryItemHandler
 
     public function __invoke(ReserveInventoryItem $command): void
     {
-        $skuId = SkuId::fromString($command->content['sku_id']);
+        $skuId = $command->skuId();
 
         $inventory = $this->inventoryList->get($skuId);
 
@@ -32,9 +30,7 @@ final readonly class ReserveInventoryItemHandler
             throw InventoryItemNotFound::withId($skuId);
         }
 
-        $quantity = Quantity::create($command->content['quantity']);
-
-        $inventory->reserve($quantity);
+        $inventory->reserve($command->quantity());
 
         $this->inventoryList->save($inventory);
     }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Customer;
+namespace App\Http\Controllers\View\Customer;
 
 use App\Chron\Application\Messaging\Query\QueryOrderOfCustomer;
 use App\Chron\Package\Reporter\Report;
@@ -11,13 +11,12 @@ use stdClass;
 use Storm\Support\QueryPromiseTrait;
 use Throwable;
 
-final class CustomerOrderAction
+final class CustomerOrderView
 {
     use QueryPromiseTrait;
 
     public function __invoke(string $customerId, string $orderId): View
     {
-
         return view('customer_order', [
             'order' => $this->findOrderOfCustomer($customerId, $orderId),
             'customer_id' => $customerId,

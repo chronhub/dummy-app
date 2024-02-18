@@ -6,8 +6,6 @@ namespace App\Chron\Model\Customer\Handler;
 
 use App\Chron\Application\Messaging\Command\Customer\ChangeCustomerEmail;
 use App\Chron\Model\Customer\Customer;
-use App\Chron\Model\Customer\CustomerEmail;
-use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Customer\Exception\CustomerAlreadyExists;
 use App\Chron\Model\Customer\Exception\CustomerNotFound;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
@@ -28,7 +26,7 @@ final readonly class ChangeCustomerEmailHandler
 
     public function __invoke(ChangeCustomerEmail $command): void
     {
-        $customerId = CustomerId::fromString($command->content['customer_id']);
+        $customerId = $command->customerId();
 
         $customer = $this->customers->get($customerId);
 
@@ -36,7 +34,7 @@ final readonly class ChangeCustomerEmailHandler
             throw CustomerNotFound::withId($customerId);
         }
 
-        $customerEmail = CustomerEmail::fromString($command->content['customer_new_email']);
+        $customerEmail = $command->customerNewEmail();
 
         if ($customer->email()->sameValueAs($customerEmail)) {
             return;

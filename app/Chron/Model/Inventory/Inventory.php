@@ -11,6 +11,7 @@ use App\Chron\Model\Inventory\Event\InventoryItemPartiallyReserved;
 use App\Chron\Model\Inventory\Event\InventoryItemRefilled;
 use App\Chron\Model\Inventory\Event\InventoryItemReleased;
 use App\Chron\Model\Inventory\Event\InventoryItemReserved;
+use App\Chron\Model\Inventory\Exception\InvalidInventoryValue;
 use App\Chron\Model\Inventory\Exception\InventoryOutOfStock;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
@@ -27,6 +28,8 @@ final class Inventory implements AggregateRoot
     private UnitPrice $unitPrice;
 
     private Reservation $reserved;
+
+    //@todo change stock object to stock value object to pass to events
 
     /**
      * Add unique inventory item with skuId, stock and unit price
@@ -98,6 +101,11 @@ final class Inventory implements AggregateRoot
      */
     public function release(Quantity $requested, string $reason): void
     {
+        // add VO
+        if ($requested->value <= 0) {
+            throw new InvalidInventoryValue('Inventory quantity to release must be greater than 0');
+        }
+
         // todo compensation
         if ($this->reserved->value < $requested->value) {
             throw new RuntimeException('Quantity in inventory to release is greater than reserved quantity');
@@ -179,7 +187,7 @@ final class Inventory implements AggregateRoot
 
                 break;
             case $event instanceof InventoryItemRefilled:
-                $this->stock = $event->newStock();
+                $this->stock = $event->availableStock();
 
                 break;
             case $event instanceof InventoryItemReserved:

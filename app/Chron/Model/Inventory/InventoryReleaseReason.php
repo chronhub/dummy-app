@@ -11,7 +11,7 @@ class InventoryReleaseReason
     /**
      * The order associated with the reservation was canceled
      */
-    public const ORDER_CANCELLED = 'Order cancelled';
+    public const ORDER_CANCELED = 'Order canceled';
 
     /**
      * The reservation associated with the order expired
@@ -66,7 +66,7 @@ class InventoryReleaseReason
     public static function all(): array
     {
         return [
-            self::ORDER_CANCELLED,
+            self::ORDER_CANCELED,
             self::ORDER_EXPIRED,
             self::ORDER_RETURNED,
             self::MANUAL_ADJUSTMENT,

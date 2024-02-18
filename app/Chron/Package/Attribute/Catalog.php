@@ -12,6 +12,7 @@ use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemPartiallyRe
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemRefilled;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemReleased;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemReserved;
+use App\Chron\Application\Messaging\Event\Order\WhenCustomerRequestedOrderCanceled;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCanceled;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderClosed;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCreated;
@@ -36,9 +37,9 @@ use App\Chron\Model\Inventory\Handler\AddInventoryItemHandler;
 use App\Chron\Model\Inventory\Handler\RefillInventoryItemHandler;
 use App\Chron\Model\Inventory\Handler\ReserveInventoryItemHandler;
 use App\Chron\Model\Order\Handler\AddOrderItemHandler;
-use App\Chron\Model\Order\Handler\CancelOrderHandler;
 use App\Chron\Model\Order\Handler\CloseOrderHandler;
 use App\Chron\Model\Order\Handler\CreateOrderHandler;
+use App\Chron\Model\Order\Handler\CustomerRequestsOrderCancellationHandler;
 use App\Chron\Model\Order\Handler\DeliverOrderHandler;
 use App\Chron\Model\Order\Handler\ModifyOrderHandler;
 use App\Chron\Model\Order\Handler\PayOrderHandler;
@@ -98,13 +99,12 @@ class Catalog
         ChangeCustomerEmailHandler::class,
         CreateOrderHandler::class,
         ModifyOrderHandler::class,
-        CancelOrderHandler::class,
-        PayOrderHandler::class,
-        ShipOrderHandler::class,
-        DeliverOrderHandler::class,
-        ReturnOrderHandler::class,
-        RefundOrderHandler::class,
-        CloseOrderHandler::class,
+        //        PayOrderHandler::class,
+        //        ShipOrderHandler::class,
+        //        DeliverOrderHandler::class,
+        //        ReturnOrderHandler::class,
+        //        RefundOrderHandler::class,
+        //        CloseOrderHandler::class,
 
         //
         CreateProductHandler::class,
@@ -112,18 +112,19 @@ class Catalog
         RefillInventoryItemHandler::class,
         ReserveInventoryItemHandler::class,
         AddOrderItemHandler::class,
+        CustomerRequestsOrderCancellationHandler::class,
 
         // event handlers
         WhenCustomerRegistered::class,
         WhenCustomerEmailChanged::class,
 
-        WhenOrderPaid::class,
-        WhenOrderCanceled::class,
-        WhenOrderShipped::class,
-        WhenOrderDelivered::class,
-        WhenOrderReturned::class,
-        WhenOrderRefunded::class,
-        WhenOrderClosed::class,
+        //        WhenOrderPaid::class,
+        //        WhenOrderCanceled::class,
+        //        WhenOrderShipped::class,
+        //        WhenOrderDelivered::class,
+        //        WhenOrderReturned::class,
+        //        WhenOrderRefunded::class,
+        //        WhenOrderClosed::class,
 
         //
         WhenOrderCreated::class,
@@ -137,6 +138,7 @@ class Catalog
         WhenInventoryItemPartiallyReserved::class,
         WhenInventoryItemReleased::class,
         WhenInventoryItemExhausted::class,
+        WhenCustomerRequestedOrderCanceled::class,
 
         // query handlers
         QueryRandomPendingOrderHandler::class,

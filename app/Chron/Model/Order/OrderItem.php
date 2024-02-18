@@ -27,6 +27,11 @@ final readonly class OrderItem
         );
     }
 
+    public static function fromValues(OrderItemId $orderItemId, SkuId $skuId, UnitPrice $unitPrice, Quantity $quantity): self
+    {
+        return new self($orderItemId, $skuId, $unitPrice, $quantity);
+    }
+
     public function withAdjustedQuantity(Quantity $quantity): self
     {
         return new self(

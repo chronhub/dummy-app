@@ -10,7 +10,7 @@ enum OrderStatus: string
 
     case MODIFIED = 'modified';
 
-    case CANCELLED = 'cancelled';
+    case CANCELED = 'canceled';
 
     case PAID = 'paid';
 
@@ -29,7 +29,7 @@ enum OrderStatus: string
         return [
             self::CREATED->value,
             self::MODIFIED->value,
-            self::CANCELLED->value,
+            self::CANCELED->value,
             self::PAID->value,
             self::SHIPPED->value,
             self::DELIVERED->value,

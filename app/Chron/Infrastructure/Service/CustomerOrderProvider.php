@@ -103,7 +103,7 @@ final readonly class CustomerOrderProvider
     public function findCancelledOrRefundedOrders(): LazyCollection
     {
         return $this->query()
-            ->whereIn('order_status', [OrderStatus::CANCELLED->value, OrderStatus::REFUNDED->value])
+            ->whereIn('order_status', [OrderStatus::CANCELED->value, OrderStatus::REFUNDED->value])
             ->where('closed', 0)
             ->cursor();
     }

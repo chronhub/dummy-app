@@ -6,10 +6,6 @@ namespace App\Chron\Model\Customer\Handler;
 
 use App\Chron\Application\Messaging\Command\Customer\RegisterCustomer;
 use App\Chron\Model\Customer\Customer;
-use App\Chron\Model\Customer\CustomerAddress;
-use App\Chron\Model\Customer\CustomerEmail;
-use App\Chron\Model\Customer\CustomerId;
-use App\Chron\Model\Customer\CustomerName;
 use App\Chron\Model\Customer\Exception\CustomerAlreadyExists;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
 use App\Chron\Model\Customer\Service\UniqueEmail;
@@ -29,13 +25,13 @@ final readonly class RegisterCustomerHandler
 
     public function __invoke(RegisterCustomer $command): void
     {
-        $customerId = CustomerId::fromString($command->content['customer_id']);
+        $customerId = $command->customerId();
 
         if ($this->customers->get($customerId) !== null) {
             throw CustomerAlreadyExists::withId($customerId);
         }
 
-        $customerEmail = CustomerEmail::fromString($command->content['customer_email']);
+        $customerEmail = $command->customerEmail();
 
         if (! $this->uniqueEmail->isUnique($customerEmail)) {
             throw CustomerAlreadyExists::withEmail($customerEmail);
@@ -44,8 +40,8 @@ final readonly class RegisterCustomerHandler
         $customer = Customer::register(
             $customerId,
             $customerEmail,
-            CustomerName::fromString($command->content['customer_name']),
-            CustomerAddress::fromArray($command->content['customer_address']),
+            $command->customerName(),
+            $command->customerAddress(),
         );
 
         $this->customers->save($customer);
