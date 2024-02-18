@@ -38,7 +38,7 @@ final readonly class CustomerRequestsOrderCancellationHandler
 
     private function checkOrderContext(OrderId $orderId, OrderOwner $orderOwner): Order
     {
-        if (! $this->customers->isIdentityUnique($orderOwner->toString())) {
+        if (! $this->customers->exists($orderOwner->toString())) {
             throw OrderNotFound::withOrderOwner($orderOwner, $orderId);
         }
 

@@ -42,7 +42,7 @@ final readonly class CreateOrderHandler
 
     private function checkOrderContext(OrderId $orderId, OrderOwner $orderOwner): void
     {
-        if (! $this->customers->isIdentityUnique($orderOwner->toString())) {
+        if (! $this->customers->exists($orderOwner->toString())) {
             throw OrderNotFound::withOrderOwner($orderOwner, $orderId);
         }
 
