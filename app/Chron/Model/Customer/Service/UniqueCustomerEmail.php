@@ -6,7 +6,7 @@ namespace App\Chron\Model\Customer\Service;
 
 use App\Chron\Model\Customer\CustomerEmail;
 
-interface UniqueEmail
+interface UniqueCustomerEmail
 {
     public function isUnique(CustomerEmail $email): bool;
 }

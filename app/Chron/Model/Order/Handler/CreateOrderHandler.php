@@ -10,6 +10,7 @@ use App\Chron\Model\Customer\Repository\CustomerCollection;
 use App\Chron\Model\Order\Exception\OrderAlreadyExists;
 use App\Chron\Model\Order\Order;
 use App\Chron\Model\Order\Repository\OrderList;
+use App\Chron\Model\Order\Service\UniquePendingCustomerOrder;
 use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
@@ -21,6 +22,7 @@ final readonly class CreateOrderHandler
     public function __construct(
         private OrderList $orders,
         private CustomerCollection $customers,
+        private UniquePendingCustomerOrder $customerOrder
     ) {
     }
 
@@ -30,6 +32,14 @@ final readonly class CreateOrderHandler
 
         if ($this->customers->get($customerId) === null) {
             throw CustomerNotFound::withId($customerId);
+        }
+
+        if ($this->customerOrder->hasPendingOrder($customerId)) {
+            logger('Pending Order already exists');
+
+            return;
+
+            //throw OrderAlreadyExists::withPendingOrder($customerId);
         }
 
         $orderId = $command->orderId();

@@ -8,7 +8,7 @@ use App\Chron\Application\Messaging\Command\Customer\RegisterCustomer;
 use App\Chron\Model\Customer\Customer;
 use App\Chron\Model\Customer\Exception\CustomerAlreadyExists;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
-use App\Chron\Model\Customer\Service\UniqueEmail;
+use App\Chron\Model\Customer\Service\UniqueCustomerEmail;
 use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
@@ -19,7 +19,7 @@ final readonly class RegisterCustomerHandler
 {
     public function __construct(
         private CustomerCollection $customers,
-        private UniqueEmail $uniqueEmail,
+        private UniqueCustomerEmail $uniqueEmail,
     ) {
     }
 

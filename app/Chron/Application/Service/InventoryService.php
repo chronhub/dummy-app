@@ -34,7 +34,7 @@ final readonly class InventoryService
             AddInventoryItem::withItem(
                 $skuId,
                 fake()->numberBetween(1000, 10000),
-                (string) fake()->randomFloat(2, 10, 4000),
+                (string) fake()->randomFloat(2, 10, 2000),
             )
         );
     }

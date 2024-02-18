@@ -12,7 +12,7 @@ use App\Chron\Projection\ReadModel\OrderReadModel;
     reporter: 'reporter.event.default',
     handles: OrderCreated::class,
 )]
-final class WhenOrderCreated
+final readonly class WhenOrderCreated
 {
     public function __construct(private OrderReadModel $readModel)
     {

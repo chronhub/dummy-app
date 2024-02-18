@@ -17,7 +17,6 @@ use stdClass;
 use Symfony\Component\Uid\Uuid;
 
 use function in_array;
-use function sleep;
 
 final readonly class OrderService
 {
@@ -31,6 +30,7 @@ final readonly class OrderService
     public function makeOrderForRandomCustomer(): void
     {
         $customer = $this->customerProvider->findRandomCustomer();
+
         if ($customer === null) {
             throw new RuntimeException('No customer found');
         }
@@ -39,7 +39,6 @@ final readonly class OrderService
 
         if ($order === null) {
             $this->createOrder($customer->id);
-            sleep(2);
         } elseif (in_array($order->status, [OrderStatus::CREATED->value, OrderStatus::MODIFIED->value], true)) {
             $this->makeOrderItem($order);
         } else {
@@ -52,7 +51,7 @@ final readonly class OrderService
         Report::relay(CustomerRequestsOrderCancellation::forOrder($orderId, $customerId));
     }
 
-    private function createOrder(string $customerId): void
+    public function createOrder(string $customerId): void
     {
         Report::relay(CreateOrder::forCustomer($customerId, Uuid::v4()->jsonSerialize()));
     }

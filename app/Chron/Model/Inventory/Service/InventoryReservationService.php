@@ -26,7 +26,8 @@ final readonly class InventoryReservationService
             $this->reservationQuantity($requested)
         );
 
-        if ($availableQuantity === false) {
+        // fixMe add VO for Quantity with no zero value
+        if ($availableQuantity === false || $availableQuantity->value === 0) {
             return false;
         }
 

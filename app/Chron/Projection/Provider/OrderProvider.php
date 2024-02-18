@@ -25,10 +25,18 @@ final readonly class OrderProvider
     ) {
     }
 
+    public function findPendingOrderOfCustomer(string $customerId): ?stdClass
+    {
+        return $this->orderQuery()
+            ->where('customer_id', $customerId)
+            ->whereIn('status', [OrderStatus::CREATED->value, OrderStatus::MODIFIED->value])
+            ->first();
+    }
+
     public function findPendingOrders(): LazyCollection
     {
         return $this->orderQuery()
-            ->whereIn('order_status', [OrderStatus::CREATED->value, OrderStatus::MODIFIED])
+            ->whereIn('status', [OrderStatus::CREATED->value, OrderStatus::MODIFIED->value])
             ->where('closed', 0)
             ->cursor();
     }
@@ -69,7 +77,6 @@ final readonly class OrderProvider
     {
         $order = $this->orderQuery()
             ->where('customer_id', $customerId)
-            ->where('closed', 0) // todo removed and use the order status
             ->orderBy('created_at', 'desc')
             ->first();
 
