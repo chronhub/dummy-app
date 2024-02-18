@@ -42,6 +42,9 @@ final readonly class OrderItem
         );
     }
 
+    /**
+     * @return array{order_item_id: string, sku_id: string, unit_price: string, quantity: int}
+     */
     public function toArray(): array
     {
         return [

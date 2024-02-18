@@ -31,7 +31,7 @@ final readonly class OrderProvider
     /**
      * @return stdClass{TOrder}|null
      */
-    public function findPendingOrderOfCustomer(string $customerId): ?stdClass
+    public function findPendingOwnerOrder(string $customerId): ?stdClass
     {
         return $this->orderQuery()
             ->where('customer_id', $customerId)

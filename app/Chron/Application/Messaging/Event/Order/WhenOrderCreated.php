@@ -21,8 +21,8 @@ final readonly class WhenOrderCreated
     public function __invoke(OrderCreated $event): void
     {
         $this->readModel->insertOrder(
-            $event->orderId()->toString(),
-            $event->customerId()->toString(),
+            $event->aggregateId()->toString(),
+            $event->orderOwner()->toString(),
             $event->orderStatus()->value
         );
     }

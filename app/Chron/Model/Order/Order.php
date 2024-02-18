@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order;
 
-use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\InvalidDomainException;
 use App\Chron\Model\Inventory\InventoryReleaseReason;
 use App\Chron\Model\Inventory\Service\InventoryReservationService;
-use App\Chron\Model\Order\Event\CustomerRequestedOrderCanceled;
 use App\Chron\Model\Order\Event\OrderCreated;
 use App\Chron\Model\Order\Event\OrderItemAdded;
 use App\Chron\Model\Order\Event\OrderItemPartiallyAdded;
 use App\Chron\Model\Order\Event\OrderModified;
+use App\Chron\Model\Order\Event\OwnerRequestedOrderCanceled;
 use App\Chron\Model\Order\Exception\InvalidOrderOperation;
 use App\Chron\Model\Order\Exception\OrderAlreadyExists;
 use App\Chron\Model\Order\Exception\ReservationOrderItemFailed;
@@ -25,7 +24,7 @@ final class Order implements AggregateRoot
 {
     use AggregateBehaviorTrait;
 
-    private CustomerId $customerId;
+    private OrderOwner $owner;
 
     private OrderStatus $status;
 
@@ -33,11 +32,10 @@ final class Order implements AggregateRoot
 
     private ?string $closedReason = null;
 
-    // @todo change customerId to a better context for order
-    public static function create(OrderId $orderId, CustomerId $customerId): self
+    public static function create(OrderId $orderId, OrderOwner $owner): self
     {
         $order = new self($orderId);
-        $order->recordThat(OrderCreated::forCustomer($orderId, $customerId, OrderStatus::CREATED));
+        $order->recordThat(OrderCreated::forCustomer($orderId, $owner, OrderStatus::CREATED));
 
         return $order;
     }
@@ -66,24 +64,24 @@ final class Order implements AggregateRoot
 
             $this->recordThat(OrderItemPartiallyAdded::forOrder(
                 $this->orderId(),
-                $this->customerId,
+                $this->owner,
                 $orderItem,
                 Quantity::create($quantityReserved->value)
             ));
         } else {
-            $this->recordThat(OrderItemAdded::forOrder($this->orderId(), $this->customerId, $orderItem));
+            $this->recordThat(OrderItemAdded::forOrder($this->orderId(), $this->owner, $orderItem));
         }
 
         $this->markOrderAsModified(OrderStatus::MODIFIED);
     }
 
     /**
-     * Cancel the order by the customer request
+     * Cancel the order for the customer request
      *
      * The full order is canceled, and the reserved stock is released
      * Must be called only if the order is pending
      */
-    public function cancelByCustomer(InventoryReservationService $reservationService): void
+    public function cancelByOwner(InventoryReservationService $reservationService): void
     {
         if (! $this->isOrderPending()) {
             throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'cancel by customer', $this->status);
@@ -97,7 +95,7 @@ final class Order implements AggregateRoot
             $reservationService->releaseItem($orderItem->skuId->toString(), $orderItem->quantity->value, $inventoryReason);
         });
 
-        $this->recordThat(CustomerRequestedOrderCanceled::forOrder($this->orderId(), $this->customerId, OrderStatus::CANCELED, $orderReason));
+        $this->recordThat(OwnerRequestedOrderCanceled::forOrder($this->orderId(), $this->owner, OrderStatus::CANCELED, $orderReason));
 
         $this->markOrderAsModified(OrderStatus::CANCELED);
     }
@@ -110,9 +108,9 @@ final class Order implements AggregateRoot
         return $identity;
     }
 
-    public function customerId(): CustomerId
+    public function owner(): OrderOwner
     {
-        return $this->customerId;
+        return $this->owner;
     }
 
     public function status(): OrderStatus
@@ -139,7 +137,7 @@ final class Order implements AggregateRoot
     {
         $event = OrderModified::forCustomer(
             $this->orderId(),
-            $this->customerId,
+            $this->owner,
             $this->orderItems->calculateBalance(),
             $this->orderItems->calculateQuantity(),
             $orderStatus
@@ -164,7 +162,7 @@ final class Order implements AggregateRoot
     {
         switch (true) {
             case $event instanceof OrderCreated:
-                $this->customerId = $event->customerId();
+                $this->owner = $event->orderOwner();
                 $this->orderItems = new ItemCollection($this->orderId());
                 $this->status = $event->orderStatus();
 
@@ -183,7 +181,7 @@ final class Order implements AggregateRoot
 
                 break;
 
-            case $event instanceof CustomerRequestedOrderCanceled:
+            case $event instanceof OwnerRequestedOrderCanceled:
                 $this->orderItems = new ItemCollection($this->orderId());
                 $this->status = $event->orderStatus();
 

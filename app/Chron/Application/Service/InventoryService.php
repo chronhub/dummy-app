@@ -16,7 +16,7 @@ final readonly class InventoryService
     {
     }
 
-    public function addNewProductToInventory(string $skuId): void
+    public function feedInventory(string $skuId): void
     {
         Report::relay(
             AddInventoryItem::withItem(

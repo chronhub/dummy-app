@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Messaging\Command\Order;
 
-use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Order\OrderId;
+use App\Chron\Model\Order\OrderOwner;
 use Storm\Message\AbstractDomainCommand;
 
-final class CustomerRequestsOrderCancellation extends AbstractDomainCommand
+final class OwnerRequestsOrderCancellation extends AbstractDomainCommand
 {
-    public static function forOrder(string $orderId, string $customerId): self
+    public static function forOrder(string $orderId, string $orderOwner): self
     {
         return new self([
             'order_id' => $orderId,
-            'customer_id' => $customerId,
+            'order_owner' => $orderOwner,
         ]);
     }
 
@@ -23,8 +23,8 @@ final class CustomerRequestsOrderCancellation extends AbstractDomainCommand
         return OrderId::fromString($this->content['order_id']);
     }
 
-    public function customerId(): CustomerId
+    public function orderOwner(): OrderOwner
     {
-        return CustomerId::fromString($this->content['customer_id']);
+        return OrderOwner::fromString($this->content['order_owner']);
     }
 }

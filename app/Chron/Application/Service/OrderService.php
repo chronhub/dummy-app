@@ -6,7 +6,7 @@ namespace App\Chron\Application\Service;
 
 use App\Chron\Application\Messaging\Command\Order\AddOrderItem;
 use App\Chron\Application\Messaging\Command\Order\CreateOrder;
-use App\Chron\Application\Messaging\Command\Order\CustomerRequestsOrderCancellation;
+use App\Chron\Application\Messaging\Command\Order\OwnerRequestsOrderCancellation;
 use App\Chron\Model\Order\OrderStatus;
 use App\Chron\Package\Reporter\Report;
 use App\Chron\Projection\Provider\CustomerProvider;
@@ -48,7 +48,7 @@ final readonly class OrderService
 
     public function cancelOrderByCustomer(string $orderId, string $customerId): void
     {
-        Report::relay(CustomerRequestsOrderCancellation::forOrder($orderId, $customerId));
+        Report::relay(OwnerRequestsOrderCancellation::forOrder($orderId, $customerId));
     }
 
     public function createOrder(string $customerId): void

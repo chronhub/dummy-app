@@ -4,37 +4,43 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order\Handler;
 
-use App\Chron\Application\Messaging\Command\Order\CustomerRequestsOrderCancellation;
-use App\Chron\Model\Customer\Exception\CustomerNotFound;
-use App\Chron\Model\Customer\Repository\CustomerCollection;
+use App\Chron\Application\Messaging\Command\Order\OwnerRequestsOrderCancellation;
+use App\Chron\Model\Customer\Service\CustomerManagement;
 use App\Chron\Model\Inventory\Service\InventoryReservationService;
 use App\Chron\Model\Order\Exception\OrderNotFound;
 use App\Chron\Model\Order\Order;
+use App\Chron\Model\Order\OrderId;
+use App\Chron\Model\Order\OrderOwner;
 use App\Chron\Model\Order\Repository\OrderList;
 use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',
-    handles: CustomerRequestsOrderCancellation::class,
+    handles: OwnerRequestsOrderCancellation::class,
 )]
 final readonly class CustomerRequestsOrderCancellationHandler
 {
     public function __construct(
         private OrderList $orders,
-        private CustomerCollection $customers,
+        private CustomerManagement $customers,
         private InventoryReservationService $reservationService,
     ) {
     }
 
-    public function __invoke(CustomerRequestsOrderCancellation $command): void
+    public function __invoke(OwnerRequestsOrderCancellation $command): void
     {
-        $customerId = $command->customerId();
+        $order = $this->checkOrderContext($command->orderId(), $command->orderOwner());
 
-        if ($this->customers->get($customerId) === null) {
-            throw CustomerNotFound::withId($customerId);
+        $order->cancelByOwner($this->reservationService);
+
+        $this->orders->save($order);
+    }
+
+    private function checkOrderContext(OrderId $orderId, OrderOwner $orderOwner): Order
+    {
+        if (! $this->customers->isIdentityUnique($orderOwner->toString())) {
+            throw OrderNotFound::withOrderOwner($orderOwner, $orderId);
         }
-
-        $orderId = $command->orderId();
 
         $order = $this->orders->get($orderId);
 
@@ -42,8 +48,6 @@ final readonly class CustomerRequestsOrderCancellationHandler
             throw OrderNotFound::withId($orderId);
         }
 
-        $order->cancelByCustomer($this->reservationService);
-
-        $this->orders->save($order);
+        return $order;
     }
 }

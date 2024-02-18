@@ -169,7 +169,7 @@ final class OrderBck implements AggregateRoot
 
     protected function applyOrderCreated(OrderCreated $event): void
     {
-        $this->customerId = $event->customerId();
+        $this->customerId = $event->orderOwner();
         $this->status = $event->orderStatus();
         $this->balance = Balance::newInstance();
         $this->orderItems = new ItemCollection();

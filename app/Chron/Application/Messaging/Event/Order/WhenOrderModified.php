@@ -21,8 +21,8 @@ final readonly class WhenOrderModified
     public function __invoke(OrderModified $event): void
     {
         $this->readModel->updateOrder(
-            $event->orderId()->toString(),
-            $event->customerId()->toString(),
+            $event->aggregateId()->toString(),
+            $event->orderOwner()->toString(),
             $event->balance()->value(),
             $event->quantity()->value,
             $event->orderStatus()->value

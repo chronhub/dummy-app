@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Messaging\Command\Order;
 
-use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Inventory\SkuId;
 use App\Chron\Model\Inventory\UnitPrice;
 use App\Chron\Model\Order\OrderId;
 use App\Chron\Model\Order\OrderItem;
 use App\Chron\Model\Order\OrderItemId;
+use App\Chron\Model\Order\OrderOwner;
 use App\Chron\Model\Order\Quantity;
 use Storm\Message\AbstractDomainCommand;
 
@@ -19,7 +19,7 @@ final class AddOrderItem extends AbstractDomainCommand
     {
         return new self([
             'order_id' => $orderId,
-            'customer_id' => $customerId,
+            'order_owner' => $customerId,
             'order_item_id' => $orderItemId,
             'sku_id' => $skuId,
             'unit_price' => $unitPrice,
@@ -52,9 +52,9 @@ final class AddOrderItem extends AbstractDomainCommand
         return SkuId::fromString($this->content['sku_id']);
     }
 
-    public function customerId(): CustomerId
+    public function orderOwner(): OrderOwner
     {
-        return CustomerId::fromString($this->content['customer_id']);
+        return OrderOwner::fromString($this->content['order_owner']);
     }
 
     public function unitPrice(): UnitPrice

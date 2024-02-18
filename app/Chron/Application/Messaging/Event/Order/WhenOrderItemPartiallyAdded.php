@@ -20,13 +20,15 @@ final readonly class WhenOrderItemPartiallyAdded
 
     public function __invoke(OrderItemPartiallyAdded $event): void
     {
+        $orderItem = $event->orderItem();
+
         $this->readModel->insertOrderItem(
             $event->orderItem()->orderItemId->toString(),
             $event->orderId()->toString(),
-            $event->customerId()->toString(),
-            $event->orderItem()->skuId->toString(),
-            $event->orderItem()->quantity->value,
-            $event->orderItem()->unitPrice->value,
+            $event->orderOwner()->toString(),
+            $orderItem->skuId->toString(),
+            $orderItem->quantity->value,
+            $orderItem->unitPrice->value,
         );
     }
 }

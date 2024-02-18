@@ -12,11 +12,11 @@ use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemPartiallyRe
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemRefilled;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemReleased;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemReserved;
-use App\Chron\Application\Messaging\Event\Order\WhenCustomerRequestedOrderCanceled;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCreated;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderItemAdded;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderItemPartiallyAdded;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderModified;
+use App\Chron\Application\Messaging\Event\Order\WhenOwnerRequestedOrderCanceled;
 use App\Chron\Application\Messaging\Event\Product\WhenProductCreated;
 use App\Chron\Infrastructure\Repository\CustomerAggregateRepository;
 use App\Chron\Infrastructure\Repository\InventoryAggregateRepository;
@@ -103,7 +103,7 @@ class Catalog
         WhenOrderCreated::class,
         WhenOrderModified::class,
         WhenOrderItemAdded::class,
-        WhenCustomerRequestedOrderCanceled::class,
+        WhenOwnerRequestedOrderCanceled::class,
 
         WhenInventoryItemAdded::class,
         WhenOrderItemPartiallyAdded::class,

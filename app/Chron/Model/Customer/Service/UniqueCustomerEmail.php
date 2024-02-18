@@ -8,5 +8,8 @@ use App\Chron\Model\Customer\CustomerEmail;
 
 interface UniqueCustomerEmail
 {
+    /**
+     * Check if the email is unique
+     */
     public function isUnique(CustomerEmail $email): bool;
 }

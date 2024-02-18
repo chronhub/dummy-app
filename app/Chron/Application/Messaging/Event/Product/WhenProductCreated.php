@@ -41,6 +41,6 @@ final readonly class WhenProductCreated
     )]
     public function reportNewProductToInventory(ProductCreated $event): void
     {
-        $this->inventoryService->addNewProductToInventory($event->aggregateId()->toString());
+        $this->inventoryService->feedInventory($event->aggregateId()->toString());
     }
 }

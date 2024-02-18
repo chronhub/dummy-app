@@ -4,34 +4,34 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order\Event;
 
-use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Order\Balance;
 use App\Chron\Model\Order\OrderId;
+use App\Chron\Model\Order\OrderOwner;
 use App\Chron\Model\Order\OrderStatus;
 use App\Chron\Model\Order\Quantity;
 use Storm\Message\AbstractDomainEvent;
 
 final class OrderModified extends AbstractDomainEvent
 {
-    public static function forCustomer(OrderId $orderId, CustomerId $customerId, Balance $balance, Quantity $quantity, OrderStatus $orderStatus): self
+    public static function forCustomer(OrderId $orderId, OrderOwner $orderOwner, Balance $balance, Quantity $quantity, OrderStatus $orderStatus): self
     {
         return new self([
             'order_id' => $orderId->toString(),
-            'customer_id' => $customerId->toString(),
-            'balance' => $balance->value(),
-            'quantity' => $quantity->value,
+            'order_owner' => $orderOwner->toString(),
+            'order_balance' => $balance->value(),
+            'order_quantity' => $quantity->value,
             'order_status' => $orderStatus->value,
         ]);
     }
 
-    public function orderId(): OrderId
+    public function aggregateId(): OrderId
     {
         return OrderId::fromString($this->content['order_id']);
     }
 
-    public function customerId(): CustomerId
+    public function orderOwner(): OrderOwner
     {
-        return CustomerId::fromString($this->content['customer_id']);
+        return OrderOwner::fromString($this->content['order_owner']);
     }
 
     public function orderStatus(): OrderStatus
@@ -41,11 +41,11 @@ final class OrderModified extends AbstractDomainEvent
 
     public function balance(): Balance
     {
-        return Balance::fromString($this->content['balance']);
+        return Balance::fromString($this->content['order_balance']);
     }
 
     public function quantity(): Quantity
     {
-        return Quantity::create($this->content['quantity']);
+        return Quantity::create($this->content['order_quantity']);
     }
 }
