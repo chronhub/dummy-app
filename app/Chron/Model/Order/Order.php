@@ -51,6 +51,7 @@ final class Order implements AggregateRoot
         $quantityReserved = $reservation->reserveItem($orderItem->skuId->toString(), $orderItem->quantity->value);
 
         if ($quantityReserved === false) {
+            // todo rename the exception better to reflect the reason
             throw ReservationOrderItemFailed::withReason(
                 $orderItem->skuId,
                 $this->orderId(),

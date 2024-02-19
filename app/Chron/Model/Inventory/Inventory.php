@@ -73,7 +73,6 @@ final class Inventory implements AggregateRoot
      *
      * @todo add rule for limit reservation in time
      * @todo add rule for limit reservation in quantity
-     * @todo add rule to send notification when stock is low
      */
     public function reserve(PositiveQuantity $requested): void
     {
