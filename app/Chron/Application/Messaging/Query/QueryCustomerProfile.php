@@ -6,7 +6,7 @@ namespace App\Chron\Application\Messaging\Query;
 
 use App\Chron\Model\Customer\CustomerId;
 
-final class QueryCustomerProfile
+final readonly class QueryCustomerProfile
 {
     public function __construct(private string $customerId)
     {

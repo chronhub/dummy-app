@@ -93,6 +93,7 @@ final class Order implements AggregateRoot
 
         // release the reserved stock
         $this->orderItems->getItems()->each(function (OrderItem $orderItem) use ($reservationService, $inventoryReason) {
+            // todo add release many items in reservation service
             $reservationService->releaseItem($orderItem->skuId->toString(), $orderItem->quantity->value, $inventoryReason);
         });
 

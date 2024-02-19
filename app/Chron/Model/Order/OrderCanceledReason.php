@@ -12,7 +12,7 @@ final class OrderCanceledReason
 
     public const OTHER = 'other';
 
-    public const REASON = [
+    public const ALL = [
         self::CUSTOMER_REQUESTED,
         self::ORDER_EXPIRED,
         self::OTHER,

@@ -7,7 +7,7 @@ namespace App\Chron\Projection\Provider;
 use App\Chron\Projection\ReadModel\InventoryReadModel;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Collection;
+use Illuminate\Support\LazyCollection;
 use stdClass;
 
 final readonly class InventoryProvider
@@ -21,9 +21,9 @@ final readonly class InventoryProvider
         return $this->query()->inRandomOrder()->first();
     }
 
-    public function findRandomItems(int $limit = 10): Collection
+    public function findRandomItems(int $limit = 10): LazyCollection
     {
-        return $this->query()->inRandomOrder()->limit($limit)->get();
+        return $this->query()->inRandomOrder()->limit($limit)->cursor();
     }
 
     public function getInventorySummary(): stdClass
