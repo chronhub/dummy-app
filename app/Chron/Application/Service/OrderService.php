@@ -27,6 +27,25 @@ final readonly class OrderService
     ) {
     }
 
+    public function addOrderItem(string $customerId, string $orderId): void
+    {
+        $order = $this->orderProvider->findOrderOfCustomer($customerId, $orderId);
+
+        if ($order === null) {
+            throw new RuntimeException('No order found');
+        }
+
+        if ($order->customer_id !== $customerId) {
+            throw new RuntimeException('Order does not belong to customer');
+        }
+
+        if (in_array($order->status, [OrderStatus::CREATED->value, OrderStatus::MODIFIED->value], true)) {
+            $this->makeOrderItem($order);
+        } else {
+            logger('Order is not in a state to be modified: '.$order->status);
+        }
+    }
+
     public function makeOrderForRandomCustomer(): void
     {
         $customer = $this->customerProvider->findRandomCustomer();

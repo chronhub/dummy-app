@@ -22,7 +22,7 @@ final readonly class WhenInventoryItemAdded
     {
         $this->readModel->insert(
             $event->aggregateId()->toString(),
-            $event->initialStock()->value,
+            $event->totalStock()->value,
             $event->unitPrice()->value,
         );
     }

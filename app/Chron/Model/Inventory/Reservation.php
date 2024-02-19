@@ -11,7 +11,7 @@ final readonly class Reservation
     private function __construct(public int $value)
     {
         if ($value < 0) {
-            throw new InvalidInventoryValue('Inventory reservation must be greater than or equal to 0');
+            throw new InvalidInventoryValue('Inventory reservation must be greater or equal to 0');
         }
     }
 

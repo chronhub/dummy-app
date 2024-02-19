@@ -23,13 +23,9 @@ final class Inventory implements AggregateRoot
 {
     use AggregateBehaviorTrait;
 
-    private Stock $stock;
+    private InventoryStock $inventoryStock;
 
     private UnitPrice $unitPrice;
-
-    private Reservation $reserved;
-
-    //@todo change stock object to stock value object to pass to events
 
     /**
      * Add unique inventory item with skuId, stock and unit price
@@ -38,24 +34,27 @@ final class Inventory implements AggregateRoot
     {
         $self = new self($skuId);
 
-        $stock = Stock::create($quantity->value);
-
-        $self->recordThat(InventoryItemAdded::withItem($skuId, $stock, $unitPrice));
+        $self->recordThat(InventoryItemAdded::withItem($skuId, Stock::create($quantity->value), $unitPrice));
 
         return $self;
     }
 
     /**
-     * Refill the inventory item
+     * Refill the inventory item.
      *
      * When product has been marked unavailable, and now it's refilled, adjusted.
      * Sole responsibility of the product management to get back the inventory item to the list of available items
      */
     public function refill(Quantity $quantity): void
     {
-        $stock = $this->stock->add($quantity);
+        $inventoryStock = $this->inventoryStock->addStock($quantity);
 
-        $this->recordThat(InventoryItemRefilled::withItem($this->skuId(), $stock, $this->stock, $quantity));
+        $this->recordThat(InventoryItemRefilled::withItem(
+            $this->skuId(),
+            $inventoryStock->getAvailableStock(),
+            $inventoryStock->stock,
+            $quantity
+        ));
     }
 
     /**
@@ -77,22 +76,20 @@ final class Inventory implements AggregateRoot
      */
     public function reserve(Quantity $requested): void
     {
-        $availableQuantity = $this->stock->getAvailableQuantity($requested);
+        $availableQuantity = $this->inventoryStock->getAvailableQuantity($requested);
 
-        if ($availableQuantity === false) {
+        if ($availableQuantity->value === 0) {
             throw InventoryOutOfStock::forSkuId($this->skuId());
         }
 
-        $availableStock = $this->stock->remove($availableQuantity);
-        $reserved = Reservation::create($availableQuantity->value);
-        $totalReserved = $this->reserved->add($reserved);
+        $inventoryStock = $this->inventoryStock->addReservation($availableQuantity);
 
         $availableQuantity->sameValueAs($requested)
-            ? $this->recordItemReserved($availableStock, $reserved, $requested)
-            : $this->recordItemPartiallyReserved($availableStock, $reserved, $requested);
+            ? $this->recordItemReserved($inventoryStock, $availableQuantity, $requested)
+            : $this->recordItemPartiallyReserved($inventoryStock, $availableQuantity, $requested);
 
-        if ($availableStock->isOutOfStock()) {
-            $this->recordThat(InventoryItemExhausted::withItem($this->skuId(), $availableStock, $totalReserved->toQuantity()));
+        if ($inventoryStock->isOutOfStock()) {
+            $this->recordThat(InventoryItemExhausted::withItem($this->skuId(), $inventoryStock->stock, $inventoryStock->reserved));
         }
     }
 
@@ -107,21 +104,18 @@ final class Inventory implements AggregateRoot
         }
 
         // todo compensation
-        if ($this->reserved->value < $requested->value) {
+        if ($this->inventoryStock->reserved->value < $requested->value) {
             throw new RuntimeException('Quantity in inventory to release is greater than reserved quantity');
         }
 
-        $availableStock = $this->stock->add($requested);
-        $reserved = Reservation::create($requested->value);
-        $totalReserved = $this->reserved->sub($reserved);
+        $inventoryStock = $this->inventoryStock->releaseReservation($requested);
 
         $this->recordThat(InventoryItemReleased::withItem(
             $this->skuId(),
-            $availableStock,
-            $this->stock,
-            $reserved->toQuantity(),
-            $totalReserved->toQuantity(),
-            Quantity::create($requested->value),
+            $inventoryStock->getAvailableStock(),
+            $inventoryStock->stock,
+            $requested,
+            $inventoryStock->reserved,
             $reason
         ));
     }
@@ -146,32 +140,34 @@ final class Inventory implements AggregateRoot
      */
     public function getAvailableQuantity(Quantity $requested): Quantity|false
     {
-        return $this->stock->getAvailableQuantity($requested);
+        $availableQuantity = $this->inventoryStock->getAvailableQuantity($requested);
+
+        return $availableQuantity->value === 0 ? false : $availableQuantity;
     }
 
-    private function recordItemReserved(Stock $availableStock, Reservation $reserved, Quantity $requested): void
+    private function recordItemReserved(InventoryStock $newStock, Quantity $reserved, Quantity $requested): void
     {
         $event = InventoryItemReserved::withItem(
             $this->skuId(),
-            $availableStock,
-            $this->stock,
-            $reserved->toQuantity(),
-            $this->reserved->add($reserved)->toQuantity(),
-            Quantity::create($requested->value)
+            $newStock->getAvailableStock(),
+            $newStock->stock,
+            $reserved,
+            $newStock->reserved,
+            $requested
         );
 
         $this->recordThat($event);
     }
 
-    private function recordItemPartiallyReserved(Stock $availableStock, Reservation $reserved, Quantity $requested): void
+    private function recordItemPartiallyReserved(InventoryStock $newStock, Quantity $reserved, Quantity $requested): void
     {
         $event = InventoryItemPartiallyReserved::withItem(
             $this->skuId(),
-            $availableStock,
-            $this->stock,
-            $reserved->toQuantity(),
-            $this->reserved->add($reserved)->toQuantity(),
-            Quantity::create($requested->value)
+            $newStock->getAvailableStock(),
+            $newStock->stock,
+            $reserved,
+            $newStock->reserved,
+            $requested
         );
 
         $this->recordThat($event);
@@ -181,32 +177,31 @@ final class Inventory implements AggregateRoot
     {
         switch (true) {
             case $event instanceof InventoryItemAdded:
-                $this->stock = $event->initialStock();
+                $this->inventoryStock = InventoryStock::create($event->totalStock(), Quantity::create(0));
                 $this->unitPrice = $event->unitPrice();
-                $this->reserved = Reservation::create(0);
 
                 break;
             case $event instanceof InventoryItemRefilled:
-                $this->stock = $event->availableStock();
+                // todo add total reserved to event
+                $this->inventoryStock = InventoryStock::create($event->totalStock(), $this->inventoryStock->reserved);
 
                 break;
             case $event instanceof InventoryItemReserved:
-                $this->reserved = Reservation::create($event->totalReserved()->value);
+                $this->inventoryStock = InventoryStock::create($event->totalStock(), $event->totalReserved());
 
                 break;
 
             case $event instanceof InventoryItemPartiallyReserved:
-                $this->reserved = Reservation::create($event->totalReserved()->value);
+                $this->inventoryStock = InventoryStock::create($event->totalStock(), $event->totalReserved());
 
                 break;
 
             case $event instanceof InventoryItemReleased:
-                $this->reserved = Reservation::create($event->totalReserved()->value);
+                $this->inventoryStock = InventoryStock::create($event->totalStock(), $event->totalReserved());
 
                 break;
             case $event instanceof InventoryItemExhausted:
-                $this->stock = $event->newStock();
-                $this->reserved = Reservation::create($event->totalReserved()->value);
+                $this->inventoryStock = InventoryStock::create($event->newStock(), $event->totalReserved());
 
                 break;
             default:

@@ -6,12 +6,12 @@ namespace App\Chron\Model\Inventory;
 
 use App\Chron\Model\Inventory\Exception\InvalidInventoryValue;
 
-final readonly class Stock
+final readonly class PositiveQuantity
 {
     private function __construct(public int $value)
     {
-        if ($value < 0) {
-            throw new InvalidInventoryValue('Inventory stock must be greater than or equal to 0');
+        if ($value < 1) {
+            throw new InvalidInventoryValue('Inventory quantity must be greater than 0.');
         }
     }
 
@@ -23,10 +23,5 @@ final readonly class Stock
     public function sameValueAs(self $other): bool
     {
         return $this->value === $other->value;
-    }
-
-    public function toArray(): array
-    {
-        return ['inventory_stock' => $this->value];
     }
 }

@@ -14,19 +14,17 @@ final class InventoryItemReleased extends AbstractDomainEvent
     public static function withItem(
         SkuId $skuId,
         Stock $availableStock,
-        Stock $initialStock,
-        Quantity $reserved,
+        Stock $totalStock,
+        Quantity $released,
         Quantity $totalReserved,
-        Quantity $requested,
         string $reason
     ): self {
         return new self([
             'sku_id' => $skuId->toString(),
             'available_stock' => $availableStock->value,
-            'initial_stock' => $initialStock->value,
-            'quantity_reserved' => $reserved->value,
+            'total_stock' => $totalStock->value,
+            'quantity_released' => $released->value,
             'total_reserved' => $totalReserved->value,
-            'quantity_requested' => $requested->value,
             'reason' => $reason,
         ]);
     }
@@ -41,9 +39,9 @@ final class InventoryItemReleased extends AbstractDomainEvent
         return Stock::create($this->content['available_stock']);
     }
 
-    public function initialStock(): Stock
+    public function totalStock(): Stock
     {
-        return Stock::create($this->content['initial_stock']);
+        return Stock::create($this->content['total_stock']);
     }
 
     public function reserved(): Quantity
@@ -54,11 +52,6 @@ final class InventoryItemReleased extends AbstractDomainEvent
     public function totalReserved(): Quantity
     {
         return Quantity::create($this->content['total_reserved']);
-    }
-
-    public function quantityRequested(): Quantity
-    {
-        return Quantity::create($this->content['quantity_requested']);
     }
 
     public function reason(): string

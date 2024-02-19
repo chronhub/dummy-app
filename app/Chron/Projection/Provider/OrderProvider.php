@@ -47,7 +47,6 @@ final readonly class OrderProvider
         $order = $this->orderQuery()
             ->where('id', $orderId)
             ->where('customer_id', $customerId)
-            ->orderBy('created_at', 'desc')
             ->first();
 
         if (! $order) {

@@ -11,11 +11,11 @@ use Storm\Message\AbstractDomainEvent;
 
 final class InventoryItemExhausted extends AbstractDomainEvent
 {
-    public static function withItem(SkuId $skuId, Stock $availableStock, Quantity $reserved): self
+    public static function withItem(SkuId $skuId, Stock $totalStock, Quantity $reserved): self
     {
         return new self([
             'sku_id' => $skuId,
-            'available_stock' => $availableStock->value,
+            'total_stock' => $totalStock->value,
             'quantity_reserved' => $reserved->value,
         ]);
     }
@@ -27,7 +27,7 @@ final class InventoryItemExhausted extends AbstractDomainEvent
 
     public function newStock(): Stock
     {
-        return Stock::create($this->content['available_stock']);
+        return Stock::create($this->content['total_stock']);
     }
 
     public function totalReserved(): Quantity

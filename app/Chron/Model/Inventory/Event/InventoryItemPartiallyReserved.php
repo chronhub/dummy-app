@@ -22,7 +22,7 @@ final class InventoryItemPartiallyReserved extends AbstractDomainEvent
         return new self([
             'sku_id' => $skuId->toString(),
             'available_stock' => $availableStock->value,
-            'initial_stock' => $initialStock->value,
+            'total_stock' => $initialStock->value,
             'quantity_reserved' => $reserved->value,
             'total_reserved' => $totalReserved->value,
             'quantity_requested' => $requested->value,
@@ -39,9 +39,9 @@ final class InventoryItemPartiallyReserved extends AbstractDomainEvent
         return Stock::create($this->content['available_stock']);
     }
 
-    public function initialStock(): Stock
+    public function totalStock(): Stock
     {
-        return Stock::create($this->content['initial_stock']);
+        return Stock::create($this->content['total_stock']);
     }
 
     public function reserved(): Quantity

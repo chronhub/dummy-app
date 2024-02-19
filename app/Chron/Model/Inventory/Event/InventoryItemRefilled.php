@@ -11,12 +11,12 @@ use Storm\Message\AbstractDomainEvent;
 
 final class InventoryItemRefilled extends AbstractDomainEvent
 {
-    public static function withItem(SkuId $skuId, Stock $availableStock, Stock $initialStock, Quantity $quantityRefilled): self
+    public static function withItem(SkuId $skuId, Stock $availableStock, Stock $totalStock, Quantity $quantityRefilled): self
     {
         return new self([
             'sku_id' => $skuId->toString(),
             'available_stock' => $availableStock->value,
-            'initial_stock' => $initialStock->value,
+            'total_stock' => $totalStock->value,
             'quantity_refilled' => $quantityRefilled->value,
         ]);
     }
@@ -31,9 +31,9 @@ final class InventoryItemRefilled extends AbstractDomainEvent
         return Stock::create($this->content['available_stock']);
     }
 
-    public function initialStock(): Stock
+    public function totalStock(): Stock
     {
-        return Stock::create($this->content['initial_stock']);
+        return Stock::create($this->content['total_stock']);
     }
 
     public function quantityRefilled(): Quantity
