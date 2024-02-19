@@ -86,9 +86,9 @@ return [
     */
 
     'waits' => [
-        'redis:default' => 60 * 60,
-        'rabbitmq:default' => 60 * 60,
-        'rabbitmq-high:default' => 60 * 60,
+        'redis:default' => 60 * 60 * 60,
+        'rabbitmq:default' => 60 * 60 * 60,
+        'rabbitmq-high:default' => 60 * 60 * 60,
     ],
 
     /*

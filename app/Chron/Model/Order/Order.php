@@ -66,7 +66,7 @@ final class Order implements AggregateRoot
                 $this->orderId(),
                 $this->owner,
                 $orderItemAdjusted,
-                Quantity::create($quantityReserved->value)
+                $orderItem->quantity
             ));
         } else {
             $this->recordThat(OrderItemAdded::forOrder($this->orderId(), $this->owner, $orderItem));

@@ -25,7 +25,7 @@ final class InventoryItemExhausted extends AbstractDomainEvent
         return SkuId::fromString($this->content['sku_id']);
     }
 
-    public function newStock(): Stock
+    public function totalStock(): Stock
     {
         return Stock::create($this->content['total_stock']);
     }

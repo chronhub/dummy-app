@@ -11,6 +11,7 @@ use App\Chron\Model\Inventory\PositiveQuantity;
 use App\Chron\Model\Inventory\Quantity;
 use App\Chron\Model\Inventory\Repository\InventoryList;
 use App\Chron\Model\Inventory\SkuId;
+use LogicException;
 
 // todo context mapping
 final readonly class InventoryReservationService
@@ -23,19 +24,27 @@ final readonly class InventoryReservationService
     {
         $inventory = $this->getInventory($skuId);
 
-        $availableQuantity = $inventory->getAvailableQuantity(
-            $this->reservationQuantity($requested)
-        );
-
-        if ($availableQuantity === false) {
+        if ($inventory->isOutOfStock()) {
             return false;
         }
 
-        $inventory->reserve($availableQuantity);
+        $quantityRequested = $this->reservationQuantity($requested);
+
+        $availableQuantity = $inventory->getAvailableQuantity($quantityRequested);
+
+        if ($availableQuantity === false || $availableQuantity->value === 0) {
+            throw new LogicException('Available quantity should not be false or zero.');
+        }
+
+        $inventory->reserve($quantityRequested);
 
         $this->inventoryList->save($inventory);
 
-        return $availableQuantity;
+        if ($quantityRequested->value > $availableQuantity->value) {
+            return $availableQuantity;
+        }
+
+        return $quantityRequested;
     }
 
     // todo handle case when quantity to release is greater than reserved quantity

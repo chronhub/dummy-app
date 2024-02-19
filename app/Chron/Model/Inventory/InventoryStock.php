@@ -53,14 +53,21 @@ final readonly class InventoryStock
 
     public function isOutOfStock(): bool
     {
-        return $this->stock->value === 0;
+        if ($this->stock->value === 0) {
+            return true;
+        }
+
+        return $this->stock->value === $this->reserved->value;
     }
 
     public function getAvailableQuantity(PositiveQuantity $requested): Quantity
     {
-        $availableStock = $this->stock->value - $this->reserved->value;
+        $availableStock = $this->getAvailableStock();
 
-        return Quantity::create(max(0, min($requested->value, $availableStock)));
+        // Calculate the available quantity as the minimum of requested and available stock
+        $availableQuantity = max(0, min($requested->value, $availableStock->value));
+
+        return Quantity::create($availableQuantity);
     }
 
     public function getAvailableStock(): Stock

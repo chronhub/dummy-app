@@ -10,7 +10,7 @@ use function sprintf;
 
 class InventoryOutOfStock extends InventoryException
 {
-    public static function forSkuId(SkuId $skuId): self
+    public static function withSkuId(SkuId $skuId): self
     {
         return new self(sprintf('Inventory is out of stock for item: %s', $skuId->toString()));
     }
