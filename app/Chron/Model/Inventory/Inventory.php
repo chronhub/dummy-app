@@ -140,11 +140,11 @@ final class Inventory implements AggregateRoot
      *
      * return full or partial available quantity or false if not available
      */
-    public function getAvailableQuantity(PositiveQuantity $requested): Quantity|false
+    public function getAvailableQuantity(PositiveQuantity $requested): PositiveQuantity|false
     {
         $availableQuantity = $this->inventoryStock->getAvailableQuantity($requested);
 
-        return $availableQuantity->value === 0 ? false : $availableQuantity;
+        return $availableQuantity->value === 0 ? false : $availableQuantity->toPositiveQuantity();
     }
 
     private function recordItemReserved(InventoryStock $newStock, PositiveQuantity $reserved, PositiveQuantity $requested): void

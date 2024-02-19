@@ -23,15 +23,13 @@ final readonly class InventoryReservationService
     {
         $inventory = $this->getInventory($skuId);
 
-        $requestedQuantity = $inventory->getAvailableQuantity(
+        $availableQuantity = $inventory->getAvailableQuantity(
             $this->reservationQuantity($requested)
         );
 
-        if ($requestedQuantity === false || $requestedQuantity->value === 0) {
+        if ($availableQuantity === false) {
             return false;
         }
-
-        $availableQuantity = $requestedQuantity->toPositiveQuantity();
 
         $inventory->reserve($availableQuantity);
 
