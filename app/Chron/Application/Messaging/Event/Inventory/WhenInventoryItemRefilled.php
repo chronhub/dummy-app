@@ -22,7 +22,7 @@ final readonly class WhenInventoryItemRefilled
     {
         $this->readModel->updateQuantity(
             $event->aggregateId()->toString(),
-            $event->availableStock()->value,
+            $event->totalStock()->value,
         );
     }
 }
