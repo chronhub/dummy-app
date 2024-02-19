@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Inventory\Event;
 
-use App\Chron\Model\Inventory\Quantity;
+use App\Chron\Model\Inventory\PositiveQuantity;
 use App\Chron\Model\Inventory\SkuId;
 use App\Chron\Model\Inventory\Stock;
 use Storm\Message\AbstractDomainEvent;
 
 final class InventoryItemRefilled extends AbstractDomainEvent
 {
-    public static function withItem(SkuId $skuId, Stock $availableStock, Stock $totalStock, Quantity $quantityRefilled): self
+    public static function withItem(SkuId $skuId, Stock $availableStock, Stock $totalStock, PositiveQuantity $quantityRefilled): self
     {
         return new self([
             'sku_id' => $skuId->toString(),
@@ -36,8 +36,8 @@ final class InventoryItemRefilled extends AbstractDomainEvent
         return Stock::create($this->content['total_stock']);
     }
 
-    public function quantityRefilled(): Quantity
+    public function quantityRefilled(): PositiveQuantity
     {
-        return Quantity::create($this->content['quantity_refilled']);
+        return PositiveQuantity::create($this->content['quantity_refilled']);
     }
 }

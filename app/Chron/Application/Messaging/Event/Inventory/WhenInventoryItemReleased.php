@@ -22,7 +22,7 @@ final readonly class WhenInventoryItemReleased
     {
         $this->readModel->decrement(
             $event->aggregateId()->toString(),
-            $event->reserved()->value,
+            $event->released()->value,
         );
     }
 }

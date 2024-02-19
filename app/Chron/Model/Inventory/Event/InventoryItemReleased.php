@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Inventory\Event;
 
+use App\Chron\Model\Inventory\PositiveQuantity;
 use App\Chron\Model\Inventory\Quantity;
 use App\Chron\Model\Inventory\SkuId;
 use App\Chron\Model\Inventory\Stock;
@@ -15,7 +16,7 @@ final class InventoryItemReleased extends AbstractDomainEvent
         SkuId $skuId,
         Stock $availableStock,
         Stock $totalStock,
-        Quantity $released,
+        PositiveQuantity $released,
         Quantity $totalReserved,
         string $reason
     ): self {
@@ -44,9 +45,9 @@ final class InventoryItemReleased extends AbstractDomainEvent
         return Stock::create($this->content['total_stock']);
     }
 
-    public function reserved(): Quantity
+    public function released(): PositiveQuantity
     {
-        return Quantity::create($this->content['quantity_reserved']);
+        return PositiveQuantity::create($this->content['quantity_released']);
     }
 
     public function totalReserved(): Quantity

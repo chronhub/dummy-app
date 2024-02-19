@@ -20,6 +20,11 @@ final readonly class PositiveQuantity
         return new self($quantity);
     }
 
+    public function toQuantity(): Quantity
+    {
+        return Quantity::create($this->value);
+    }
+
     public function sameValueAs(self $other): bool
     {
         return $this->value === $other->value;

@@ -7,6 +7,7 @@ namespace App\Chron\Model\Inventory\Service;
 use App\Chron\Model\Inventory\Exception\InventoryItemNotFound;
 use App\Chron\Model\Inventory\Inventory;
 use App\Chron\Model\Inventory\InventoryReleaseReason;
+use App\Chron\Model\Inventory\PositiveQuantity;
 use App\Chron\Model\Inventory\Quantity;
 use App\Chron\Model\Inventory\Repository\InventoryList;
 use App\Chron\Model\Inventory\SkuId;
@@ -18,18 +19,19 @@ final readonly class InventoryReservationService
     {
     }
 
-    public function reserveItem(string $skuId, int $requested): false|Quantity
+    public function reserveItem(string $skuId, int $requested): false|PositiveQuantity
     {
         $inventory = $this->getInventory($skuId);
 
-        $availableQuantity = $inventory->getAvailableQuantity(
+        $requestedQuantity = $inventory->getAvailableQuantity(
             $this->reservationQuantity($requested)
         );
 
-        // fixMe add VO for Quantity with no zero value
-        if ($availableQuantity === false || $availableQuantity->value === 0) {
+        if ($requestedQuantity === false || $requestedQuantity->value === 0) {
             return false;
         }
+
+        $availableQuantity = $requestedQuantity->toPositiveQuantity();
 
         $inventory->reserve($availableQuantity);
 
@@ -38,6 +40,7 @@ final readonly class InventoryReservationService
         return $availableQuantity;
     }
 
+    // todo handle case when quantity to release is greater than reserved quantity
     public function releaseItem(string $skuId, int $requested, string $reason = InventoryReleaseReason::OTHER): void
     {
         $inventory = $this->getInventory($skuId);
@@ -60,8 +63,8 @@ final readonly class InventoryReservationService
         return $inventory;
     }
 
-    private function reservationQuantity(int $requested): Quantity
+    private function reservationQuantity(int $requested): PositiveQuantity
     {
-        return Quantity::create($requested);
+        return PositiveQuantity::create($requested);
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Inventory\Event;
 
+use App\Chron\Model\Inventory\PositiveQuantity;
 use App\Chron\Model\Inventory\Quantity;
 use App\Chron\Model\Inventory\SkuId;
 use App\Chron\Model\Inventory\Stock;
@@ -15,17 +16,18 @@ final class InventoryItemReserved extends AbstractDomainEvent
         SkuId $skuId,
         Stock $availableStock,
         Stock $totalStock,
-        Quantity $reserved,
+        PositiveQuantity $reserved,
+        PositiveQuantity $requested,
         Quantity $totalReserved,
-        Quantity $requested
+
     ): self {
         return new self([
             'sku_id' => $skuId->toString(),
             'available_stock' => $availableStock->value,
             'total_stock' => $totalStock->value,
             'quantity_reserved' => $reserved->value,
-            'total_reserved' => $totalReserved->value,
             'quantity_requested' => $requested->value,
+            'total_reserved' => $totalReserved->value,
         ]);
     }
 
@@ -44,18 +46,18 @@ final class InventoryItemReserved extends AbstractDomainEvent
         return Stock::create($this->content['total_stock']);
     }
 
-    public function reserved(): Quantity
+    public function reserved(): PositiveQuantity
     {
-        return Quantity::create($this->content['quantity_reserved']);
+        return PositiveQuantity::create($this->content['quantity_reserved']);
+    }
+
+    public function requested(): PositiveQuantity
+    {
+        return PositiveQuantity::create($this->content['quantity_requested']);
     }
 
     public function totalReserved(): Quantity
     {
         return Quantity::create($this->content['total_reserved']);
-    }
-
-    public function quantityRequested(): Quantity
-    {
-        return Quantity::create($this->content['quantity_requested']);
     }
 }

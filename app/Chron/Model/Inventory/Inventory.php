@@ -30,7 +30,7 @@ final class Inventory implements AggregateRoot
     /**
      * Add unique inventory item with skuId, stock and unit price
      */
-    public static function add(SkuId $skuId, Quantity $quantity, UnitPrice $unitPrice): self
+    public static function add(SkuId $skuId, PositiveQuantity $quantity, UnitPrice $unitPrice): self
     {
         $self = new self($skuId);
 
@@ -45,7 +45,7 @@ final class Inventory implements AggregateRoot
      * When product has been marked unavailable, and now it's refilled, adjusted.
      * Sole responsibility of the product management to get back the inventory item to the list of available items
      */
-    public function refill(Quantity $quantity): void
+    public function refill(PositiveQuantity $quantity): void
     {
         $inventoryStock = $this->inventoryStock->addStock($quantity);
 
@@ -74,13 +74,15 @@ final class Inventory implements AggregateRoot
      * @todo add rule for limit reservation in quantity
      * @todo add rule to send notification when stock is low
      */
-    public function reserve(Quantity $requested): void
+    public function reserve(PositiveQuantity $requested): void
     {
         $availableQuantity = $this->inventoryStock->getAvailableQuantity($requested);
 
         if ($availableQuantity->value === 0) {
             throw InventoryOutOfStock::forSkuId($this->skuId());
         }
+
+        $availableQuantity = $availableQuantity->toPositiveQuantity();
 
         $inventoryStock = $this->inventoryStock->addReservation($availableQuantity);
 
@@ -96,7 +98,7 @@ final class Inventory implements AggregateRoot
     /**
      * Release the inventory item with a reason.
      */
-    public function release(Quantity $requested, string $reason): void
+    public function release(PositiveQuantity $requested, string $reason): void
     {
         // add VO
         if ($requested->value <= 0) {
@@ -138,36 +140,36 @@ final class Inventory implements AggregateRoot
      *
      * return full or partial available quantity or false if not available
      */
-    public function getAvailableQuantity(Quantity $requested): Quantity|false
+    public function getAvailableQuantity(PositiveQuantity $requested): Quantity|false
     {
         $availableQuantity = $this->inventoryStock->getAvailableQuantity($requested);
 
         return $availableQuantity->value === 0 ? false : $availableQuantity;
     }
 
-    private function recordItemReserved(InventoryStock $newStock, Quantity $reserved, Quantity $requested): void
+    private function recordItemReserved(InventoryStock $newStock, PositiveQuantity $reserved, PositiveQuantity $requested): void
     {
         $event = InventoryItemReserved::withItem(
             $this->skuId(),
             $newStock->getAvailableStock(),
             $newStock->stock,
             $reserved,
+            $requested,
             $newStock->reserved,
-            $requested
         );
 
         $this->recordThat($event);
     }
 
-    private function recordItemPartiallyReserved(InventoryStock $newStock, Quantity $reserved, Quantity $requested): void
+    private function recordItemPartiallyReserved(InventoryStock $newStock, PositiveQuantity $reserved, PositiveQuantity $requested): void
     {
         $event = InventoryItemPartiallyReserved::withItem(
             $this->skuId(),
             $newStock->getAvailableStock(),
             $newStock->stock,
             $reserved,
+            $requested,
             $newStock->reserved,
-            $requested
         );
 
         $this->recordThat($event);

@@ -23,28 +23,28 @@ final readonly class InventoryStock
         return new self($stock, $reserved);
     }
 
-    public function addStock(Quantity $quantity): self
+    public function addStock(PositiveQuantity $quantity): self
     {
         $newStock = Stock::create($this->stock->value + $quantity->value);
 
         return new self($newStock, $this->reserved);
     }
 
-    public function removeStock(Quantity $quantity): self
+    public function removeStock(PositiveQuantity $quantity): self
     {
         $newStock = Stock::create($this->stock->value - $quantity->value);
 
         return new self($newStock, $this->reserved);
     }
 
-    public function addReservation(Quantity $quantity): self
+    public function addReservation(PositiveQuantity $quantity): self
     {
         $newReserved = Quantity::create($this->reserved->value + $quantity->value);
 
         return new self($this->stock, $newReserved);
     }
 
-    public function releaseReservation(Quantity $quantity): self
+    public function releaseReservation(PositiveQuantity $quantity): self
     {
         $newReserved = Quantity::create($this->reserved->value - $quantity->value);
 
@@ -56,7 +56,7 @@ final readonly class InventoryStock
         return $this->stock->value === 0;
     }
 
-    public function getAvailableQuantity(Quantity $requested): Quantity
+    public function getAvailableQuantity(PositiveQuantity $requested): Quantity
     {
         $availableStock = $this->stock->value - $this->reserved->value;
 

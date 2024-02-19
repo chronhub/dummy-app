@@ -60,12 +60,12 @@ final class Order implements AggregateRoot
         }
 
         if ($quantityReserved->value !== $orderItem->quantity->value) {
-            $orderItem->withAdjustedQuantity(Quantity::create($quantityReserved->value));
+            $orderItemAdjusted = $orderItem->withAdjustedQuantity(Quantity::create($quantityReserved->value));
 
             $this->recordThat(OrderItemPartiallyAdded::forOrder(
                 $this->orderId(),
                 $this->owner,
-                $orderItem,
+                $orderItemAdjusted,
                 Quantity::create($quantityReserved->value)
             ));
         } else {
