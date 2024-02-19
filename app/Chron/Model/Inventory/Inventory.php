@@ -93,11 +93,10 @@ final class Inventory implements AggregateRoot
             $this->recordItemReserved($inventoryStock, $availableQuantity, $requested);
         }
 
-        // fixMe can not be ot of stock on reserve because stock is not changed
-        //  we need to check if stock is out of stock with reservation
-        //        if ($inventoryStock->isOutOfStock()) {
-        //            $this->recordThat(InventoryItemExhausted::withItem($this->skuId(), $inventoryStock->stock, $inventoryStock->reserved));
-        //        }
+        // need context depends on reservation
+        if ($inventoryStock->isOutOfStock()) {
+            $this->recordThat(InventoryItemExhausted::withItem($this->skuId(), $inventoryStock->stock, $inventoryStock->reserved));
+        }
     }
 
     /**
@@ -112,7 +111,7 @@ final class Inventory implements AggregateRoot
 
         // todo compensation
         if ($this->inventoryStock->reserved->value < $requested->value) {
-            throw new RuntimeException('Quantity in inventory to release is greater than reserved quantity');
+            throw new RuntimeException('Quantity in inventory to release is less than reserved quantity');
         }
 
         $inventoryStock = $this->inventoryStock->releaseReservation($requested);
@@ -145,11 +144,16 @@ final class Inventory implements AggregateRoot
      *
      * return full or partial available quantity or false if not available
      */
-    public function getAvailableQuantity(PositiveQuantity $requested): PositiveQuantity|false
+    public function determineAvailableQuantity(PositiveQuantity $requested): PositiveQuantity|false
     {
         $availableQuantity = $this->inventoryStock->getAvailableQuantity($requested);
 
         return $availableQuantity->value === 0 ? false : $availableQuantity->toPositiveQuantity();
+    }
+
+    public function getAvailableStock(): Stock
+    {
+        return $this->inventoryStock->getAvailableStock();
     }
 
     public function isOutOfStock(): bool

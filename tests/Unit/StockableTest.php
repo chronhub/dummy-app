@@ -15,9 +15,9 @@ it('calculates available quantity', function () {
 
     $inventoryValue = InventoryStock::create($stock, $reserved);
 
-    expect($inventoryValue->getAvailableQuantity(PositiveQuantity::create(3)))->toBe(3)
-        ->and($inventoryValue->getAvailableQuantity(PositiveQuantity::create(10)))->toBe(5)
-        ->and($inventoryValue->getAvailableQuantity(PositiveQuantity::create(20)))->toBe(5);
+    expect($inventoryValue->getAvailableQuantity(PositiveQuantity::create(3))->value)->toBe(3)
+        ->and($inventoryValue->getAvailableQuantity(PositiveQuantity::create(10))->value)->toBe(5)
+        ->and($inventoryValue->getAvailableQuantity(PositiveQuantity::create(20))->value)->toBe(5);
 });
 
 //with available quantity of 5, and requested quantity of 7, it should return 5

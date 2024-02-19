@@ -30,7 +30,7 @@ final readonly class InventoryReservationService
 
         $quantityRequested = $this->reservationQuantity($requested);
 
-        $availableQuantity = $inventory->getAvailableQuantity($quantityRequested);
+        $availableQuantity = $inventory->determineAvailableQuantity($quantityRequested);
 
         if ($availableQuantity === false || $availableQuantity->value === 0) {
             throw new LogicException('Available quantity should not be false or zero.');
