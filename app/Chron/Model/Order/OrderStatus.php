@@ -24,6 +24,17 @@ enum OrderStatus: string
 
     case CLOSED = 'closed';
 
+    /**
+     * @return array{OrderStatus::CREATED, OrderStatus::MODIFIED}
+     */
+    public static function pending(): array
+    {
+        return [
+            self::CREATED,
+            self::MODIFIED,
+        ];
+    }
+
     public static function toStrings(): array
     {
         return [

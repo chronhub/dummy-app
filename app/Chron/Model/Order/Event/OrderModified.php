@@ -13,7 +13,7 @@ use Storm\Message\AbstractDomainEvent;
 
 final class OrderModified extends AbstractDomainEvent
 {
-    public static function forCustomer(OrderId $orderId, OrderOwner $orderOwner, Balance $balance, Quantity $quantity, OrderStatus $orderStatus): self
+    public static function forOrder(OrderId $orderId, OrderOwner $orderOwner, Balance $balance, Quantity $quantity, OrderStatus $orderStatus): self
     {
         return new self([
             'order_id' => $orderId->toString(),

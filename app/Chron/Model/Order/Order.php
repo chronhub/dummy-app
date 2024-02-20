@@ -12,13 +12,15 @@ use App\Chron\Model\Order\Event\OrderItemAdded;
 use App\Chron\Model\Order\Event\OrderItemPartiallyAdded;
 use App\Chron\Model\Order\Event\OrderModified;
 use App\Chron\Model\Order\Event\OwnerRequestedOrderCanceled;
+use App\Chron\Model\Order\Exception\InsufficientStockForOrderItem;
 use App\Chron\Model\Order\Exception\InvalidOrderOperation;
 use App\Chron\Model\Order\Exception\OrderAlreadyExists;
-use App\Chron\Model\Order\Exception\ReservationOrderItemFailed;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
 use Storm\Contract\Message\DomainEvent;
+
+use function in_array;
 
 final class Order implements AggregateRoot
 {
@@ -43,7 +45,7 @@ final class Order implements AggregateRoot
     public function addOrderItem(OrderItem $orderItem, InventoryReservationService $reservation): void
     {
         if (! $this->isOrderPending()) {
-            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'modify', $this->status);
+            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'add order item', $this->status);
         }
 
         $this->assertOrderItemNotExists($orderItem);
@@ -51,13 +53,7 @@ final class Order implements AggregateRoot
         $quantityReserved = $reservation->reserveItem($orderItem->skuId->toString(), $orderItem->quantity->value);
 
         if ($quantityReserved === false) {
-            // todo rename the exception better to reflect the reason
-            throw ReservationOrderItemFailed::withReason(
-                $orderItem->skuId,
-                $this->orderId(),
-                $orderItem->orderItemId,
-                'Insufficient stock'
-            );
+            throw InsufficientStockForOrderItem::withId($this->orderId(), $orderItem->skuId, $orderItem->orderItemId);
         }
 
         if ($quantityReserved->value !== $orderItem->quantity->value) {
@@ -77,7 +73,7 @@ final class Order implements AggregateRoot
     }
 
     /**
-     * Cancel the order for the customer request
+     * Cancel the order requested by the owner
      *
      * The full order is canceled, and the reserved stock is released
      * Must be called only if the order is pending
@@ -88,16 +84,13 @@ final class Order implements AggregateRoot
             throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'cancel by customer', $this->status);
         }
 
-        $orderReason = OrderCanceledReason::CUSTOMER_REQUESTED;
-        $inventoryReason = InventoryReleaseReason::ORDER_CANCELED; // need to conform to the inventory reason
-
         // release the reserved stock
-        $this->orderItems->getItems()->each(function (OrderItem $orderItem) use ($reservationService, $inventoryReason) {
+        $this->orderItems->getItems()->each(function (OrderItem $orderItem) use ($reservationService) {
             // todo add release many items in reservation service
-            $reservationService->releaseItem($orderItem->skuId->toString(), $orderItem->quantity->value, $inventoryReason);
+            $reservationService->releaseItem($orderItem->skuId->toString(), $orderItem->quantity->value, InventoryReleaseReason::ORDER_CANCELED);
         });
 
-        $this->recordThat(OwnerRequestedOrderCanceled::forOrder($this->orderId(), $this->owner, OrderStatus::CANCELED, $orderReason));
+        $this->recordThat(OwnerRequestedOrderCanceled::forOrder($this->orderId(), $this->owner, OrderStatus::CANCELED, OrderCanceledReason::CUSTOMER_REQUESTED));
 
         $this->markOrderAsModified(OrderStatus::CANCELED);
     }
@@ -137,7 +130,7 @@ final class Order implements AggregateRoot
 
     private function markOrderAsModified(OrderStatus $orderStatus): void
     {
-        $event = OrderModified::forCustomer(
+        $event = OrderModified::forOrder(
             $this->orderId(),
             $this->owner,
             $this->orderItems->calculateBalance(),
@@ -150,7 +143,7 @@ final class Order implements AggregateRoot
 
     private function isOrderPending(): bool
     {
-        return $this->status === OrderStatus::CREATED || $this->status === OrderStatus::MODIFIED;
+        return in_array($this->status, [OrderStatus::CREATED, OrderStatus::MODIFIED], true);
     }
 
     private function assertOrderItemNotExists(OrderItem $orderItem): void
@@ -174,10 +167,6 @@ final class Order implements AggregateRoot
 
                 break;
             case $event instanceof OrderItemAdded:
-                $this->orderItems->put($event->orderItem());
-
-                break;
-
             case $event instanceof OrderItemPartiallyAdded:
                 $this->orderItems->put($event->orderItem());
 
