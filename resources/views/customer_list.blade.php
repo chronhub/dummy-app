@@ -1,31 +1,72 @@
 <x-layout>
 
-    <div class="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-red-500">
+    <div class="relative overflow-y-auto h-lvh shadow-md sm:rounded-lg pb-40">
 
-        <div>
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
 
-            @if($customers->isEmpty())
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
 
-                <h2 class="mt-3 text-xl font-semibold text-gray-900 dark:text-white">no customer registered</h2>
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    Name
+                </th>
 
-            @else
-                <h2 class="mt-3 text-xl font-semibold text-gray-900 dark:text-white">Customers {{ $customers->count() }}</h2>
+                <th scope="col" class="px-6 py-3">
+                    Email
+                </th>
 
-            <div class="mt-6 text-gray-900 dark:text-white">
+                <th scope="col" class="px-6 py-3">
+                    City
+                </th>
 
-                @foreach($customers as $customer)
+                <th scope="col" class="px-6 py-3">
+                    Country
+                </th>
 
-                    <a href="{{ route('customer.info.show',[$customer->id]) }}">
-                        <p class="mt-6">{{ $customer->name }}</p>
-                    </a>
+                <th scope="col" class="px-6 py-3">
+                    Action
+                </th>
 
-                @endforeach
+            </tr>
 
-            </div>
+            </thead>
 
-            @endif
+            <tbody>
 
-        </div>
+            @foreach($customers as $customer)
+
+                <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
+
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{ $customer->name }}
+                    </th>
+
+                    <td class="px-6 py-4">
+                        {{ $customer->email }}
+                    </td>
+
+                    <td class="px-6 py-4">
+                        {{ $customer->city }}
+                    </td>
+
+                    <td class="px-6 py-4">
+                        {{ $customer->country }}
+                    </td>
+
+                    <td class="px-6 py-4">
+                        <a
+                            href="{{ route('customer.info.show', $customer->id) }}"
+                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline">View
+                        </a>
+                    </td>
+
+                </tr>
+
+            @endforeach
+
+            </tbody>
+
+        </table>
 
     </div>
 

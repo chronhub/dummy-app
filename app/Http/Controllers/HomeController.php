@@ -28,7 +28,7 @@ final class HomeController
         $order = $orderProvider->getOrderSummary();
         $inventory = $inventoryProvider->getInventorySummary();
 
-        return view('home', [
+        return view('overview', [
             'order' => $order,
             'inventory' => $inventory,
         ]);

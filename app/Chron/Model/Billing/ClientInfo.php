@@ -16,6 +16,9 @@ final readonly class ClientInfo
     ) {
     }
 
+    /**
+     * @param array{street: string, city: string, postal_code: string, country: string} $address
+     */
     public static function fromArray(array $address): self
     {
         return new self(
@@ -26,6 +29,9 @@ final readonly class ClientInfo
         );
     }
 
+    /**
+     * @return array{street: string, city: string, postal_code: string, country: string}
+     */
     public function toArray(): array
     {
         return [

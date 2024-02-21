@@ -42,6 +42,10 @@ final class Order implements AggregateRoot
         return $order;
     }
 
+    /**
+     * @throws InvalidOrderOperation
+     * @throws InsufficientStockForOrderItem
+     */
     public function addOrderItem(OrderItem $orderItem, InventoryReservationService $reservation): void
     {
         if (! $this->isOrderPending()) {
@@ -84,13 +88,22 @@ final class Order implements AggregateRoot
             throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'cancel by customer', $this->status);
         }
 
-        // release the reserved stock
-        $this->orderItems->getItems()->each(function (OrderItem $orderItem) use ($reservationService) {
-            // todo add release many items in reservation service
-            $reservationService->releaseItem($orderItem->skuId->toString(), $orderItem->quantity->value, InventoryReleaseReason::ORDER_CANCELED);
-        });
+        $items = $this->orderItems->getItems()->map(static function (OrderItem $orderItem) {
+            return [
+                'sku_id' => $orderItem->skuId->toString(),
+                'quantity' => $orderItem->quantity->value,
+                'reason' => InventoryReleaseReason::ORDER_CANCELED,
+            ];
+        })->toArray();
 
-        $this->recordThat(OwnerRequestedOrderCanceled::forOrder($this->orderId(), $this->owner, OrderStatus::CANCELED, OrderCanceledReason::CUSTOMER_REQUESTED));
+        $reservationService->releaseManyItems($items);
+
+        $this->recordThat(OwnerRequestedOrderCanceled::forOrder(
+            $this->orderId(),
+            $this->owner,
+            OrderStatus::CANCELED,
+            OrderCanceledReason::CUSTOMER_REQUESTED
+        ));
 
         $this->markOrderAsModified(OrderStatus::CANCELED);
     }
@@ -143,7 +156,7 @@ final class Order implements AggregateRoot
 
     private function isOrderPending(): bool
     {
-        return in_array($this->status, [OrderStatus::CREATED, OrderStatus::MODIFIED], true);
+        return in_array($this->status, OrderStatus::pending(), true);
     }
 
     private function assertOrderItemNotExists(OrderItem $orderItem): void

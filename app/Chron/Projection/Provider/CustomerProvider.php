@@ -28,7 +28,7 @@ final readonly class CustomerProvider
 
     public function getPaginatedCustomers(int $page, int $perPage): Collection
     {
-        return $this->query()->forPage($page, $perPage)->get(['id', 'name', 'email']);
+        return $this->query()->forPage($page, $perPage)->get(['id', 'name', 'email', 'city', 'country']);
     }
 
     private function query(): Builder

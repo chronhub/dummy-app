@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Model\Customer;
 
 // todo validate address
+
 final readonly class CustomerAddress
 {
     private function __construct(
@@ -15,6 +16,9 @@ final readonly class CustomerAddress
     ) {
     }
 
+    /**
+     * @param array{street: string, city: string, postal_code: string, country: string} $address
+     */
     public static function fromArray(array $address): self
     {
         return new self(
@@ -25,6 +29,9 @@ final readonly class CustomerAddress
         );
     }
 
+    /**
+     * @return array{street: string, city: string, postal_code: string, country: string}
+     */
     public function toArray(): array
     {
         return [

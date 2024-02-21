@@ -17,6 +17,9 @@ final readonly class OrderItem
     ) {
     }
 
+    /**
+     * @param array{order_item_id: string, sku_id: string, unit_price: string, quantity: int} $item
+     */
     public static function fromArray(array $item): self
     {
         return new self(
@@ -38,7 +41,7 @@ final readonly class OrderItem
             $this->orderItemId,
             $this->skuId,
             $this->unitPrice,
-            Quantity::create($quantity->value),
+            $quantity,
         );
     }
 

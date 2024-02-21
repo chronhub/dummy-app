@@ -64,7 +64,6 @@ final readonly class InventoryStock
     {
         $availableStock = $this->getAvailableStock();
 
-        // Calculate the available quantity as the minimum of requested and available stock
         $availableQuantity = max(0, min($requested->value, $availableStock->value));
 
         return Quantity::create($availableQuantity);

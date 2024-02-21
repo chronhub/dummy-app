@@ -1,65 +1,33 @@
 <x-layout>
 
-    <div class="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-red-500">
+    <div class="flex gap-4 border-b dark:border-gray-700 mb-3 pb-3">
 
-        <div>
+        <div class="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
 
-            <h2 class="mt-3 text-xl font-semibold text-gray-900 dark:text-white">Profile</h2>
+            <svg
+                class="absolute w-12 h-12 text-gray-400 -left-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+            </svg>
 
-            <div class="mx-auto mt-3">
+        </div>
 
-                <div class="md:flex max-w-lg text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
 
-                    <div class="flex-grow md:text-left">
+        <div class="dark:text-white">
 
-                        <p class="font-bold">{{ $customer->email }}</p>
-                        <h3 class="text-xl heading">{{ $customer->name }}</h3>
-                        <p class="mt-2 mb-3">{{ $customer->street }}</p>
-                        <p class="mt-2 mb-3">{{ $customer->city }}</p>
-                        <p class="mt-2 mb-3">{{ $customer->postal_code }}</p>
-                        <p class="mt-2 mb-3">{{ $customer->country }}</p>
+            <div>{{ $customer->name }}</div>
+            <div>{{ $customer->email }}</div>
 
-                    </div>
+            <div class="text-sm text-gray-500 dark:text-white-400">
 
-                </div>
-
-            </div>
-
-            <h2 class="mt-6 text-xl font-semibold text-gray-900 dark:text-white">Orders</h2>
-
-            <div class="mx-auto mt-3">
-
-                <div class="card md:flex max-w-lg text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-
-                    <div class="flex-grow md:text-left">
-
-                        <div class="px-4 py-5">
-
-                            @if($orders->isEmpty())
-
-                                <p class="mt-2 mb-3">No orders</p>
-
-                            @else
-
-                                @foreach($orders as $order)
-
-                                    <p class="mt-2 mb-3">
-
-                                        <a href="{{ route('customer.order.show', [$order->customer_id, $order->id]) }}">
-                                            {{ $order->id }} - {{ $order->status }}
-                                        </a>
-
-                                    </p>
-
-                                @endforeach
-
-                            @endif
-
-                        </div>
-
-                    </div>
-
-                </div>
+                <ul class="mt-1.5 list-disc list-inside list-none">
+                    <li>{{ $customer->street }}</li>
+                    <li>{{ $customer->city }}</li>
+                    <li>{{ $customer->postal_code }}</li>
+                    <li>{{ $customer->country }}</li>
+                </ul>
 
             </div>
 
@@ -67,11 +35,40 @@
 
     </div>
 
-    <div class="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-red-500">
+    <div class="flex gap-4 border-b dark:border-gray-700 pb-3">
 
-        <div>
+        <h1 class="dark:text-white">Orders</h1>
 
 
+        <div class="text-md text-gray-500 dark:text-white-400">
+
+            <div class="flex-grow md:text-left">
+
+                <div class="px-4 py-5">
+
+                    @if($orders->isEmpty())
+
+                        <p class="mt-2 mb-3">No orders</p>
+
+                    @else
+
+                        @foreach($orders as $order)
+
+                            <p class="mt-2 mb-3">
+
+                                <a href="{{ route('customer.order.show', [$order->customer_id, $order->id]) }}">
+                                    {{ $order->id }} - {{ $order->status }}
+                                </a>
+
+                            </p>
+
+                        @endforeach
+
+                    @endif
+
+                </div>
+
+            </div>
 
         </div>
 

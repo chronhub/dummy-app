@@ -8,18 +8,21 @@ use App\Http\Controllers\Action\CustomerCancelOrderAction;
 use App\Http\Controllers\Action\MakeOrderAction;
 use App\Http\Controllers\Action\RegisterCustomerAction;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\View\Catalog\CatalogView;
 use App\Http\Controllers\View\Customer\CustomerInfoView;
 use App\Http\Controllers\View\Customer\CustomerListView;
 use App\Http\Controllers\View\Customer\CustomerOrderView;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', HomeController::class)->name('home');
+Route::get('/', HomeController::class)->name('dashboard');
 
 Route::get('/customer', CustomerListView::class)->name('customer.list');
 
 Route::get('/customer/{customer_id}', CustomerInfoView::class)->name('customer.info.show');
 
 Route::get('/customer/{customer_id}/order/{order_id}', CustomerOrderView::class)->name('customer.order.show');
+
+Route::get('/catalog', CatalogView::class)->name('catalog');
 
 // seed
 Route::group(['prefix' => 'seed'], function () {

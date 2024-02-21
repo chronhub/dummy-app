@@ -13,7 +13,6 @@ use App\Chron\Model\Inventory\Repository\InventoryList;
 use App\Chron\Model\Inventory\SkuId;
 use LogicException;
 
-// todo context mapping
 final readonly class InventoryReservationService
 {
     public function __construct(private InventoryList $inventoryList)
@@ -55,6 +54,16 @@ final readonly class InventoryReservationService
         $inventory->release($this->reservationQuantity($requested), $reason);
 
         $this->inventoryList->save($inventory);
+    }
+
+    /**
+     * @param array{array{sku_id: string, quantity: int, reason: string}} $items
+     */
+    public function releaseManyItems(array $items): void
+    {
+        foreach ($items as $item) {
+            $this->releaseItem($item['sku_id'], $item['quantity'], $item['reason']);
+        }
     }
 
     private function getInventory(string $skuId): Inventory

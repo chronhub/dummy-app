@@ -24,7 +24,7 @@ final class CustomerListView
 
     private function getCustomers(int $page): Collection
     {
-        $promise = Report::relay(new QueryPaginatedCustomers($page, 10));
+        $promise = Report::relay(new QueryPaginatedCustomers($page, 20));
 
         try {
             $customers = $this->handlePromise($promise);

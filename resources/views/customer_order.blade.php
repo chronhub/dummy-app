@@ -1,6 +1,6 @@
 <x-layout>
 
-    <div class="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-red-500">
+    <div class="">
 
         <div>
 
@@ -19,17 +19,17 @@
 
                 <div class="flex mt-6 gap-6">
 
-                    <a
-                        href="{{ route('seed.order.cancel',[$order->customer_id, $order->id]) }}"
-                        class="inline-block px-12 py-3 text-sm font-medium dark:text-white bg-violet-600 border border-violet-600 rounded active:text-violet-500 hover:bg-transparent hover:text-violet-600 focus:outline-none focus:ring">
-                        Cancel
-                    </a>
+                    <x-button
+                        :route="route('seed.order.cancel',[$order->customer_id, $order->id])"
+                        label="Cancel"
+                        color="violet"
+                    />
 
-                    <a
-                        href="{{ route('seed.order.add',[$order->customer_id, $order->id]) }}"
-                        class="inline-block px-12 py-3 text-sm font-medium dark:text-white border border-violet-600 rounded hover:bg-violet-600 hover:text-white active:bg-indigo-500 focus:outline-none focus:ring">
-                        Add random item
-                    </a>
+                    <x-button
+                        :route="route('seed.order.add',[$order->customer_id, $order->id])"
+                        label="Add random item"
+                        color="violet"
+                    />
 
                 </div>
 
@@ -39,7 +39,7 @@
 
     </div>
 
-    <div class="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-red-500">
+    <div class="overflow-y-auto h-lvh pb-40">
 
         <div>
 
