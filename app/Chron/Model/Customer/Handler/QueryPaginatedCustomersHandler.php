@@ -21,7 +21,7 @@ final readonly class QueryPaginatedCustomersHandler
 
     public function __invoke(QueryPaginatedCustomers $query, Deferred $promise): void
     {
-        $customers = $this->customerProvider->getPaginatedCustomers($query->page, $query->perPage);
+        $customers = $this->customerProvider->getPaginatedCustomers($query->perPage);
 
         $promise->resolve($customers);
     }

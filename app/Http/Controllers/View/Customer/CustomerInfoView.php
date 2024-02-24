@@ -19,7 +19,7 @@ final class CustomerInfoView
 
     public function __invoke(string $customerId): View
     {
-        return view('customer_info', [
+        return view('customer.info', [
             'customer' => $this->getCustomerInfo($customerId),
             'orders' => $this->getOrdersSummary($customerId),
         ]);

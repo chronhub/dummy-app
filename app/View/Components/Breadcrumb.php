@@ -8,12 +8,14 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class OverviewStats extends Component
+class Breadcrumb extends Component
 {
+    /**
+     * @param array<string, string> $steps
+     */
     public function __construct(
-        public string $label,
-        public string $value,
-        public string $path,
+        public string $lastStep,
+        public array $steps = [],
     ) {
         //
     }
@@ -23,6 +25,6 @@ class OverviewStats extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.overview.card_stat');
+        return view('components.breadcrumb');
     }
 }

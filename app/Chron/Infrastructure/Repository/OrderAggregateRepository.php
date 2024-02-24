@@ -10,6 +10,7 @@ use App\Chron\Model\Order\Repository\OrderList;
 use App\Chron\Package\Aggregate\Contract\AggregateRepository;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
 use App\Chron\Package\Attribute\AggregateRepository\AsAggregateRepository;
+use Generator;
 
 #[AsAggregateRepository(
     chronicler: 'chronicler.event.transactional.standard.pgsql',
@@ -34,5 +35,10 @@ final readonly class OrderAggregateRepository implements OrderList
     public function save(Order $order): void
     {
         $this->repository->store($order);
+    }
+
+    public function history(OrderId $orderId): Generator
+    {
+        return $this->repository->retrieveHistory($orderId, null);
     }
 }

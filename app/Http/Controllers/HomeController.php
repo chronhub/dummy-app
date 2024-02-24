@@ -6,14 +6,16 @@ namespace App\Http\Controllers;
 
 use App\Chron\Application\Messaging\Command\Order\AddOrderItem;
 use App\Chron\Package\Reporter\Report;
+use App\Chron\Projection\Provider\CustomerProvider;
 use App\Chron\Projection\Provider\InventoryProvider;
 use App\Chron\Projection\Provider\OrderProvider;
+use Illuminate\Contracts\View\View;
 use Symfony\Component\Uid\Uuid;
 
 final class HomeController
 {
     // todo make report queries
-    public function __invoke(OrderProvider $orderProvider, InventoryProvider $inventoryProvider)
+    public function __invoke(OrderProvider $orderProvider, InventoryProvider $inventoryProvider, CustomerProvider $customerProvider): View
     {
         //        Report::relay(AddOrderItem::forOrder(
         //            orderId: '2ac93e7a-4d36-41c2-841e-43236c309903',
@@ -27,10 +29,12 @@ final class HomeController
         //        return 'ok';
         $order = $orderProvider->getOrderSummary();
         $inventory = $inventoryProvider->getInventorySummary();
+        $lastTenCustomers = $customerProvider->lastTenCustomers();
 
         return view('overview', [
             'order' => $order,
             'inventory' => $inventory,
+            'lastTenCustomers' => $lastTenCustomers,
         ]);
     }
 }

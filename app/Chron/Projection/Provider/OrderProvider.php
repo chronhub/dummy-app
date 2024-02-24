@@ -67,7 +67,10 @@ final readonly class OrderProvider
      */
     public function getOrderSummaryOfCustomer(string $customerId): Collection
     {
-        return $this->orderQuery()->select('id', 'status', 'customer_id')->where('customer_id', $customerId)->get();
+        return $this->orderQuery()->select('id', 'status', 'customer_id', 'created_at')
+            ->where('customer_id', $customerId)
+            ->orderBy('updated_at', 'desc')
+            ->get();
     }
 
     /**

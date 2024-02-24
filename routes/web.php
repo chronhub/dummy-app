@@ -11,6 +11,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\View\Catalog\CatalogView;
 use App\Http\Controllers\View\Customer\CustomerInfoView;
 use App\Http\Controllers\View\Customer\CustomerListView;
+use App\Http\Controllers\View\Customer\CustomerOrderHistoryView;
 use App\Http\Controllers\View\Customer\CustomerOrderView;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,8 @@ Route::get('/', HomeController::class)->name('dashboard');
 Route::get('/customer', CustomerListView::class)->name('customer.list');
 
 Route::get('/customer/{customer_id}', CustomerInfoView::class)->name('customer.info.show');
+
+Route::get('/customer/{customer_id}/order/{order_id}/history', CustomerOrderHistoryView::class)->name('customer.order.history.show');
 
 Route::get('/customer/{customer_id}/order/{order_id}', CustomerOrderView::class)->name('customer.order.show');
 

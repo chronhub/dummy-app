@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\View\Catalog;
 
+use App\Chron\Projection\Provider\ProductProvider;
 use Illuminate\View\View;
 
 final class CatalogView
 {
-    public function __invoke(): View
+    public function __invoke(ProductProvider $productProvider): View
     {
-        return view('product_list');
+        $products = $productProvider->getPaginatedProducts(15);
+
+        return view('product.list')->with('products', $products);
     }
 }

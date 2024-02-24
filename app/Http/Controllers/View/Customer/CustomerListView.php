@@ -6,7 +6,7 @@ namespace App\Http\Controllers\View\Customer;
 
 use App\Chron\Application\Messaging\Query\QueryPaginatedCustomers;
 use App\Chron\Package\Reporter\Report;
-use Illuminate\Support\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\View\View;
 use Storm\Support\QueryPromiseTrait;
 use Throwable;
@@ -15,16 +15,16 @@ final class CustomerListView
 {
     use QueryPromiseTrait;
 
-    public function __invoke(string $customerId, int $page = 0): View
+    public function __invoke(): View
     {
-        return view('customer_list', [
-            'customers' => $this->getCustomers($page),
+        return view('customer.list', [
+            'customers' => $this->getCustomers(),
         ]);
     }
 
-    private function getCustomers(int $page): Collection
+    private function getCustomers(): LengthAwarePaginator
     {
-        $promise = Report::relay(new QueryPaginatedCustomers($page, 20));
+        $promise = Report::relay(new QueryPaginatedCustomers());
 
         try {
             $customers = $this->handlePromise($promise);
@@ -34,7 +34,7 @@ final class CustomerListView
             abort(404);
         }
 
-        if (! $customers instanceof Collection) {
+        if (! $customers instanceof LengthAwarePaginator) {
             abort(404);
         }
 

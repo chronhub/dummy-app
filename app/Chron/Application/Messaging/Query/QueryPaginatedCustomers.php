@@ -6,7 +6,7 @@ namespace App\Chron\Application\Messaging\Query;
 
 final class QueryPaginatedCustomers
 {
-    public function __construct(public int $page, public int $perPage)
+    public function __construct(public int $perPage = 15)
     {
     }
 }

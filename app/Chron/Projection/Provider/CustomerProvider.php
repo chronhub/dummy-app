@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Chron\Projection\Provider;
 
 use App\Chron\Projection\ReadModel\CustomerReadModel;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Collection;
+use Illuminate\Support\LazyCollection;
 use stdClass;
 
 final readonly class CustomerProvider
@@ -26,9 +27,14 @@ final readonly class CustomerProvider
         return $this->query()->inRandomOrder()->first(['id']);
     }
 
-    public function getPaginatedCustomers(int $page, int $perPage): Collection
+    public function lastTenCustomers(): LazyCollection
     {
-        return $this->query()->forPage($page, $perPage)->get(['id', 'name', 'email', 'city', 'country']);
+        return $this->query()->orderBy('created_at', 'desc')->take(10)->cursor();
+    }
+
+    public function getPaginatedCustomers(int $perPage): LengthAwarePaginator
+    {
+        return $this->query()->paginate($perPage, ['id', 'name', 'email', 'city', 'country']);
     }
 
     private function query(): Builder
