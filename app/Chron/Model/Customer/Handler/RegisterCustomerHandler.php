@@ -41,6 +41,9 @@ final readonly class RegisterCustomerHandler
             $customerId,
             $customerEmail,
             $command->customerName(),
+            $command->customerGender(),
+            $command->customerBirthday(),
+            $command->customerPhoneNumber(),
             $command->customerAddress(),
         );
 

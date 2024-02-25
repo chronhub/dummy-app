@@ -1,4 +1,4 @@
-<div class="bg-white dark:bg-gray-800 shadow-lg rounded-md flex items-center justify-between p-3 border-b-4 border-blue-600 dark:border-gray-600 text-white font-medium group">
+<div class="bg-white dark:bg-zinc-800 shadow-lg rounded-md flex items-center justify-between p-3 border-b-4 border-zinc-600 dark:border-zinc-600 text-white font-medium group">
 
     <div class="flex justify-center items-center w-14 h-14 dark:bg-gray-400 rounded-full transition-all duration-300 transform group-hover:rotate-12">
 
@@ -15,7 +15,6 @@
 
                 </path>
         </svg>
-
 
     </div>
 

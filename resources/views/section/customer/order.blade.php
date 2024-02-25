@@ -9,96 +9,38 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b dark:border-gray-700 pb-12">
 
-        <div class="">
+        <div>
 
-            <span class="flex items-center text-xl font-semibold text-gray-900 dark:text-white me-3">
+            <div class="flex items-center gap-4 mb-6">
 
-                <span class="flex w-2.5 h-2.5 bg-teal-500 rounded-full me-1.5 flex-shrink-0"></span>
+                <div class="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
 
-                Order of {{ $customer->name }}
-
-            </span>
-
-            <div class="flex mt-3">
-
-                <div class="flex-none w-24 ms-4">
-
-                    <p class="text-sm text-gray-900 dark:text-white underline decoration-dashed underline-offset-8 decoration-white">
-
-                        Status
-
-                    </p>
+                    <svg class="absolute w-12 h-12 text-gray-400 -left-1"
+                         fill="currentColor"
+                         viewBox="0 0 20 20"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                    </svg>
 
                 </div>
 
-                <span class="flew-shrink w-auto bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
+                <div class="font-medium dark:text-white">
 
-                    {{ $order->status }}
+                    <div>Order of {{ $customer->name }}</div>
 
-                </span>
-
-            </div>
-
-
-            <div class="flex mt-3">
-
-                <div class="flex-none w-24 ms-4">
-
-                    <p class="text-sm text-gray-900 dark:text-white underline decoration-dashed underline-offset-8 decoration-white">
-
-                        Balance
-
-                    </p>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">registered at {{ date('F d Y', strtotime($order->created_at))  }}</div>
 
                 </div>
 
-                <span class="flew-shrink w-auto bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
-
-                    {{ $order->balance }}
-
-                </span>
-
             </div>
 
-            <div class="flex mt-3">
+            <x-two_col_info label="status" :value="$order->status"/>
 
-                <div class="flex-none w-24 ms-4">
+            <x-two_col_info label="balance" :value="$order->balance"/>
 
-                    <p class="text-sm text-gray-900 dark:text-white underline decoration-dashed underline-offset-8 decoration-white">
+            <x-two_col_info label="quantity" :value="$order->quantity"/>
 
-                        Quantity
-
-                    </p>
-
-                </div>
-
-                <span class="flew-shrink w-auto bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
-
-                    {{ $order->quantity }}
-
-                </span>
-
-            </div>
-
-            <div class="flex mt-3">
-
-                <div class="flex-none w-24 ms-4">
-
-                    <p class="text-sm text-gray-900 dark:text-white underline decoration-dashed underline-offset-8 decoration-white">
-
-                        Id
-
-                    </p>
-
-                </div>
-
-                <span class="flew-shrink w-auto bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300 select-all">
-
-                    {{ $order->id }}
-
-                </span>
-
-            </div>
+            <x-two_col_info label="id" :value="$order->id"/>
 
             <div class="flex items-center gap-4 mt-8 text-gray-700 dark:text-gray-200">
 
@@ -130,7 +72,7 @@
 
         {{-- Orders summary timeline --}}
 
-        <div class="overflow-hidden h-64 overflow-y-auto">
+        <div class="h-64 overflow-y-auto">
 
             @include('section.customer.partials.order_item', ['orderItems' => $order->items])
 

@@ -22,13 +22,26 @@ final class Customer implements AggregateRoot
 
     private CustomerName $name;
 
+    private Gender $gender;
+
+    private Birthday $birthday;
+
+    private PhoneNumber $phoneNumber;
+
     private CustomerAddress $address;
 
-    public static function register(CustomerId $customerId, CustomerEmail $email, CustomerName $name, CustomerAddress $address): self
-    {
+    public static function register(
+        CustomerId $customerId,
+        CustomerEmail $email,
+        CustomerName $name,
+        Gender $gender,
+        Birthday $birthday,
+        PhoneNumber $phoneNumber,
+        CustomerAddress $address
+    ): self {
         $self = new self($customerId);
 
-        $self->recordThat(CustomerRegistered::fromData($customerId, $email, $name, $address));
+        $self->recordThat(CustomerRegistered::fromData($customerId, $email, $name, $gender, $birthday, $phoneNumber, $address));
 
         return $self;
     }
@@ -60,6 +73,21 @@ final class Customer implements AggregateRoot
         return $this->name;
     }
 
+    public function gender(): Gender
+    {
+        return $this->gender;
+    }
+
+    public function birthday(): Birthday
+    {
+        return $this->birthday;
+    }
+
+    public function phoneNumber(): PhoneNumber
+    {
+        return $this->phoneNumber;
+    }
+
     public function address(): CustomerAddress
     {
         return $this->address;
@@ -71,7 +99,10 @@ final class Customer implements AggregateRoot
             case $event instanceof CustomerRegistered:
                 $this->email = $event->email();
                 $this->name = $event->name();
+                $this->gender = $event->gender();
+                $this->birthday = $event->birthday();
                 $this->address = $event->address();
+                $this->phoneNumber = $event->phoneNumber();
 
                 break;
             case $event instanceof CustomerEmailChanged:

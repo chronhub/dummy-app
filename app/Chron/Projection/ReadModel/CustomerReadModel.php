@@ -18,12 +18,25 @@ final readonly class CustomerReadModel
     ) {
     }
 
-    public function insert(string $customerId, string $email, string $name, string $street, string $city, string $postalCode, string $country): void
-    {
+    public function insert(
+        string $customerId,
+        string $email,
+        string $name,
+        string $gender,
+        string $birthday,
+        string $phoneNumber,
+        string $street,
+        string $city,
+        string $postalCode,
+        string $country
+    ): void {
         $this->query()->insert([
             'id' => $customerId,
             'email' => $email,
             'name' => $name,
+            'gender' => $gender,
+            'birthday' => $birthday,
+            'phone_number' => $phoneNumber,
             'street' => $street,
             'city' => $city,
             'postal_code' => $postalCode,

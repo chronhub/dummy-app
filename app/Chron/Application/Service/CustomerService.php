@@ -6,6 +6,7 @@ namespace App\Chron\Application\Service;
 
 use App\Chron\Application\Messaging\Command\Customer\ChangeCustomerEmail;
 use App\Chron\Application\Messaging\Command\Customer\RegisterCustomer;
+use App\Chron\Model\Customer\Gender;
 use App\Chron\Package\Reporter\Report;
 use App\Chron\Projection\Provider\CustomerProvider;
 use Illuminate\Support\Str;
@@ -33,8 +34,11 @@ final readonly class CustomerService
     {
         $command = RegisterCustomer::withData(
             fake()->uuid,
-            $this->ensureUniqueEmail(),
+            fake()->email,
             fake()->name,
+            fake()->randomElement(Gender::toStrings()),
+            $this->generateBirthday(),
+            fake()->phoneNumber,
             [
                 'street' => fake()->streetAddress,
                 'city' => fake()->city,
@@ -68,6 +72,15 @@ final readonly class CustomerService
 
     protected function ensureUniqueEmail(): string
     {
-        return Str::random(32).'@'.fake()->domainName;
+        return Str::random(16).'@'.fake()->domainName;
+    }
+
+    protected function generateBirthday(): string
+    {
+        $year = fake()->numberBetween(1940, 2006);
+        $month = fake()->numberBetween(1, 12);
+        $day = fake()->numberBetween(1, 28);
+
+        return $year.'-'.$month.'-'.$day;
     }
 }

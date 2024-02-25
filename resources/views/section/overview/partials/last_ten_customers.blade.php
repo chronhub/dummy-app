@@ -1,6 +1,6 @@
 <div>
 
-    <div class="block py-2 px-4 text-base font-extrabold text-center text-gray-700 bg-gray-50 dark:bg-gray-800 dark:text-gray-300">
+    <div class="block py-2 px-4 text-base font-extrabold text-center text-zinc-700 bg-zinc-50 dark:bg-zinc-800 dark:text-zinc-300">
 
         Last ten customers
 
@@ -11,7 +11,7 @@
         @foreach($lastTenCustomers as $customer)
 
             <a href="{{ route('customer.info.show',[$customer->id]) }}"
-               class="flex py-3 px-4 border-b hover:bg-gray-100 dark:hover:bg-gray-800 dark:border-gray-600">
+               class="flex py-3 px-4 border-b hover:bg-gray-100 dark:hover:bg-zinc-800 dark:border-zinc-600">
 
                 <div class="flex-shrink-0">
 
@@ -71,7 +71,7 @@
 
     <a
         href="{{ route('customer.list') }}"
-        class="block py-2 text-md font-medium text-center text-gray-900 bg-gray-50 hover:bg-gray-900 dark:bg-gray-800 dark:text-white dark:hover:underline"
+        class="block py-2 text-md font-medium text-center text-gray-900 bg-gray-50 hover:bg-zinc-900 dark:bg-zinc-800 dark:text-white dark:hover:underline"
     >
         <div class="inline-flex items-center">
 

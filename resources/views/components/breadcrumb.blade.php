@@ -1,5 +1,5 @@
 <!-- Breadcrumb -->
-<nav class="flex px-5 py-3 mb-6 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
+<nav class="flex px-5 py-3 mb-6 text-gray-700 bg-gray-50 dark:bg-neutral-800"
      aria-label="Breadcrumb"
 >
 

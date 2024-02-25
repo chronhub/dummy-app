@@ -98,7 +98,7 @@ final readonly class OrderService
             $inventoryItem->id,
             $order->customer_id,
             $inventoryItem->unit_price,
-            fake()->numberBetween(1, 10)
+            fake()->numberBetween(1, 3)
         ));
     }
 

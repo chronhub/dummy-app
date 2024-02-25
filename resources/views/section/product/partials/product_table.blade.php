@@ -4,7 +4,7 @@
 
     <table class="w-full table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
 
-        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-zinc-700 dark:text-gray-400">
 
         <tr>
 
@@ -43,7 +43,7 @@
 
             @foreach($products->items() as $product)
 
-                <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
+                <tr class="odd:bg-white odd:dark:bg-zinc-900 even:bg-zinc-50 even:dark:bg-zinc-800 border-b dark:border-zinc-600">
 
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         {{ $product->name }}
@@ -77,7 +77,7 @@
 
                     <td class="px-6 py-4">
 
-                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                        <a href="#" class="font-medium text-blue-600 dark:text-blue-400 hover:underline">
 
                             View
 

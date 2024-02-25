@@ -14,7 +14,7 @@
 
 </head>
 
-<body class="antialiased bg-gray-50 dark:bg-gray-900">
+<body class="antialiased bg-gray-50 dark:bg-zinc-900">
 
 <div class="antialiased">
 
