@@ -17,7 +17,7 @@ final class CustomerListView
 
     public function __invoke(): View
     {
-        return view('customer.list', [
+        return view('section.customer.list', [
             'customers' => $this->getCustomers(),
         ]);
     }

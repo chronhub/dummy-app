@@ -1,3 +1,5 @@
+{{-- Product Table --}}
+
 <div class="relative shadow-md">
 
     <table class="w-full table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
@@ -90,5 +92,13 @@
         </tbody>
 
     </table>
+
+    {{-- Pagination --}}
+
+    <nav class="m-2 p-4">
+
+        {{ $products->links() }}
+
+    </nav>
 
 </div>

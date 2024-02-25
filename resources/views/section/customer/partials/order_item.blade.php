@@ -1,3 +1,5 @@
+{{-- Customer order items  --}}
+
 <div class="pl-3">
 
     <span class="flex items-center text-xl font-semibold text-gray-900 dark:text-white me-3">

@@ -13,6 +13,6 @@ final class CatalogView
     {
         $products = $productProvider->getPaginatedProducts(15);
 
-        return view('product.list')->with('products', $products);
+        return view('section.product.list')->with('products', $products);
     }
 }

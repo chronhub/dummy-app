@@ -29,3 +29,4 @@
 {{--<p class="mt-2 mb-3">total: {{ $inventory->total_items }}</p>--}}
 {{--<p class="mt-2 mb-3">stock: {{ $inventory->total_stock }}</p>--}}
 {{--<p class="mt-2 mb-3">reserved: {{ $inventory->total_reserved }}</p>--}}
+

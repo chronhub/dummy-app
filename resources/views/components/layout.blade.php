@@ -16,19 +16,15 @@
 
 <body class="antialiased bg-gray-50 dark:bg-gray-900">
 
-<div class="antialiased overflow-y-hidden">
+<div class="antialiased">
 
-    <x-navbar/>
+    <x-layout.navbar/>
 
-    <x-sidebar/>
+    <x-layout.sidebar/>
 
-    <main class="px-8 mt-20 md:ml-64 dark:text-gray-300 relative h-screen">
+    <main class="px-8 mt-20 md:ml-64 dark:text-gray-300 relative">
 
-        <div class="overflow-y-auto h-screen">
-
-            {{ $slot }}
-
-        </div>
+        {{ $slot }}
 
     </main>
 

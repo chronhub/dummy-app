@@ -1,3 +1,4 @@
+{{-- Product header table --}}
 <div class="relative bg-white shadow-md dark:bg-gray-800">
     <div class="flex flex-col items-center justify-between p-4 space-y-3 md:flex-row md:space-y-0 md:space-x-4">
         <div class="w-full md:w-1/2">

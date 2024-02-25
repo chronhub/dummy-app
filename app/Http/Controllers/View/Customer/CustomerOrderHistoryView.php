@@ -19,7 +19,7 @@ class CustomerOrderHistoryView
 
     public function __invoke(string $customerId, string $orderId, OrderList $orderList): View
     {
-        return view('customer.order_history', [
+        return view('section.customer.order_history', [
             'orderHistory' => $orderList->history($this->getOrderId($orderId)),
             'customer_id' => $customerId,
             'customer' => $this->getCustomerInfo($customerId),

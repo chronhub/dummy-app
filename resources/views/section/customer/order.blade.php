@@ -132,7 +132,7 @@
 
         <div class="overflow-hidden h-64 overflow-y-auto">
 
-            <x-timeline.order_item :orderItems="$order->items"/>
+            @include('section.customer.partials.order_item', ['orderItems' => $order->items])
 
         </div>
 

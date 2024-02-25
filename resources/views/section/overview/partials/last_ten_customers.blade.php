@@ -6,7 +6,7 @@
 
     </div>
 
-    <div class="">
+    <div>
 
         @foreach($lastTenCustomers as $customer)
 
@@ -16,8 +16,19 @@
                 <div class="flex-shrink-0">
 
                     <div class="relative w-8 h-8 bg-gray-100 rounded-full dark:bg-gray-600">
-                        <svg class="absolute w-10 h-10 text-gray-400 -left-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+
+                        <svg class="absolute w-10 h-10 text-gray-400 -left-1"
+                             fill="currentColor"
+                             viewBox="0 0 20 20"
+                             xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                      clip-rule="evenodd">
+                                </path>
+                        </svg>
+
                         <span class="top-0 left-6 absolute w-3.5 h-3.5 bg-green-600 border-2 border-white dark:border-gray-800 rounded-full"></span>
+
                     </div>
 
                 </div>
@@ -75,8 +86,8 @@
 
                 <path
                     fill-rule="evenodd"
-                    d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
                     clip-rule="evenodd"
+                    d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
                 />
             </svg>
 

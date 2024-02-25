@@ -31,7 +31,7 @@ final class HomeController
         $inventory = $inventoryProvider->getInventorySummary();
         $lastTenCustomers = $customerProvider->lastTenCustomers();
 
-        return view('overview', [
+        return view('section.overview.index', [
             'order' => $order,
             'inventory' => $inventory,
             'lastTenCustomers' => $lastTenCustomers,

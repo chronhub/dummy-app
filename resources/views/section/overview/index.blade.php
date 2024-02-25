@@ -4,13 +4,13 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 justify-between">
 
-        <x-overview.stats :order="$order" :inventory="$inventory"></x-overview.stats>
+        @include('section.overview.partials.stats', ['order' => $order, 'inventory' => $inventory])
 
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 justify-between mt-8">
 
-        <x-overview.last_ten_customers :lastTenCustomers="$lastTenCustomers"></x-overview.last_ten_customers>
+        @include('section.overview.partials.last_ten_customers', ['lastTenCustomers' => $lastTenCustomers])
 
     </div>
 

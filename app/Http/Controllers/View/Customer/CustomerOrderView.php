@@ -18,7 +18,7 @@ final class CustomerOrderView
 
     public function __invoke(string $customerId, string $orderId): View
     {
-        return view('customer.order', [
+        return view('section.customer.order', [
             'order' => $this->findOrderOfCustomer($customerId, $orderId),
             'customer_id' => $customerId,
             'customer' => $this->getCustomerInfo($customerId),
