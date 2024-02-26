@@ -34,7 +34,7 @@ final readonly class CustomerProvider
 
     public function getPaginatedCustomers(int $perPage): LengthAwarePaginator
     {
-        return $this->query()->paginate($perPage, ['id', 'name', 'email', 'city', 'country', 'phone_number']);
+        return $this->query()->paginate($perPage, ['id', 'name', 'email', 'city', 'country']);
     }
 
     private function query(): Builder
