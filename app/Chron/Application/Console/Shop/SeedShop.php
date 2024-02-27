@@ -21,6 +21,7 @@ class SeedShop extends Command
         'customer',
         'product',
         'inventory',
+        'cart',
         'order',
     ];
 

@@ -16,6 +16,11 @@ final readonly class InventoryProvider
     {
     }
 
+    public function findInventoryById(string $skuId): ?stdClass
+    {
+        return $this->query()->find($skuId);
+    }
+
     public function findRandomItem(): ?stdClass
     {
         return $this->query()->inRandomOrder()->first();

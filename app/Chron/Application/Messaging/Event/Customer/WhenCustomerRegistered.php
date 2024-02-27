@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Messaging\Event\Customer;
 
-use App\Chron\Application\Service\OrderService;
+use App\Chron\Application\Service\CartApplicationService;
 use App\Chron\Model\Customer\Event\CustomerRegistered;
 use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Projection\ReadModel\CustomerEmailReadModel;
@@ -15,7 +15,7 @@ final readonly class WhenCustomerRegistered
     public function __construct(
         private CustomerReadModel $customerReadModel,
         private CustomerEmailReadModel $customerEmailReadModel,
-        private OrderService $orderService,
+        private CartApplicationService $cartApplicationService,
     ) {
     }
 
@@ -68,11 +68,8 @@ final readonly class WhenCustomerRegistered
         handles: CustomerRegistered::class,
         priority: 3
     )]
-    /**
-     * simplify order creation for new customer till no application cart.
-     */
-    public function createOrderForCustomer(CustomerRegistered $event): void
+    public function createCartForCustomer(CustomerRegistered $event): void
     {
-        $this->orderService->createOrder($event->aggregateId()->toString());
+        $this->cartApplicationService->openCart($event->aggregateId()->toString());
     }
 }
