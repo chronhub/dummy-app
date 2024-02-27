@@ -46,9 +46,7 @@ final class Cart implements AggregateRoot
             throw CartAlreadyExists::withCartItemId($this->items->getCartItemIdFromSku($cartItem->sku), $this->cartId());
         }
 
-        // todo move collection to entity and add balance and quantity as properties
-        $items = $this->items;
-        $items->add($cartItem);
+        $items = $this->items->add($cartItem);
 
         $this->recordThat(CartItemAdded::forCart(
             $this->cartId(),
@@ -59,15 +57,17 @@ final class Cart implements AggregateRoot
         ));
     }
 
-    public function removeItem(CartItemSku $cartItemSku): void
+    public function removeItem(CartItemId $cartItemId, CartItemSku $cartItemSku): void
     {
         $this->assertCartOpenForModification();
-        $this->assertCartItemSkuExists($cartItemSku);
+
+        if (! $this->items->hasCartItem($cartItemId, $cartItemSku)) {
+            throw CartNotFound::withCartItemSku($cartItemSku, $cartItemId, $this->cartId());
+        }
 
         $cartItem = $this->items->getCartItemBySku($cartItemSku);
 
-        $items = $this->items;
-        $items->remove($cartItemSku);
+        $items = $this->items->remove($cartItemSku);
 
         $this->recordThat(CartItemRemoved::forCart(
             $this->cartId(),
@@ -86,9 +86,7 @@ final class Cart implements AggregateRoot
             throw CartNotFound::withCartItemSku($cartItem->sku, $cartItem->id, $this->cartId());
         }
 
-        $items = $this->items;
-        $items->remove($cartItem->sku);
-        $items->add($cartItem);
+        $items = $this->items->remove($cartItem->sku)->add($cartItem);
 
         $this->recordThat(CartItemQuantityUpdated::forCart(
             $this->cartId(),
@@ -139,13 +137,6 @@ final class Cart implements AggregateRoot
         }
     }
 
-    private function assertCartItemSkuExists(CartItemSku $sku): void
-    {
-        if (! $this->items->hasSku($sku)) {
-            throw CartNotFound::withCartItemSku($sku, $this->items->getCartItemIdFromSku($sku), $this->cartId());
-        }
-    }
-
     protected function apply(DomainEvent $event): void
     {
         switch (true) {
@@ -157,18 +148,17 @@ final class Cart implements AggregateRoot
                 break;
 
             case $event instanceof CartItemAdded:
-                $this->items->add($event->cartItem());
+                $this->items = $this->items->add($event->cartItem());
 
                 break;
 
             case $event instanceof CartItemRemoved:
-                $this->items->remove($event->oldCartItem()->sku);
+                $this->items = $this->items->remove($event->oldCartItem()->sku);
 
                 break;
 
             case $event instanceof CartItemQuantityUpdated:
-                $this->items->remove($event->cartItem()->sku);
-                $this->items->add($event->cartItem());
+                $this->items = $this->items->remove($event->cartItem()->sku)->add($event->cartItem());
 
                 break;
 

@@ -12,6 +12,7 @@ use Storm\Message\AbstractDomainCommand;
 final class UpdateCartItemQuantity extends AbstractDomainCommand
 {
     public static function toCart(
+        string $cartItemId,
         string $cartId,
         string $cartOwner,
         string $sku,
@@ -19,6 +20,7 @@ final class UpdateCartItemQuantity extends AbstractDomainCommand
         int $updatedQuantity
     ): self {
         return new self([
+            'cart_item_id' => $cartItemId,
             'cart_owner' => $cartOwner,
             'cart_id' => $cartId,
             'cart_item_sku' => $sku,

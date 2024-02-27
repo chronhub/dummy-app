@@ -41,14 +41,14 @@ final readonly class CartApplicationService
     }
 
     // todo add cart item id
-    public function removeCartItem(string $cartId, string $customerId, string $sku): void
+    public function removeCartItem(string $cartItemId, string $cartId, string $customerId, string $sku): void
     {
-        $command = RemoveCartItem::forCart($cartId, $customerId, $sku);
+        $command = RemoveCartItem::forCart($cartItemId, $cartId, $customerId, $sku);
 
         $this->dispatchCommand($command);
     }
 
-    public function updateCartItemQuantity(string $cartId, string $customerId, string $sku, int $quantity): void
+    public function updateCartItemQuantity(string $cartItemId, string $cartId, string $customerId, string $sku, int $quantity): void
     {
         // todo remove price when aggregate pricing is implemented
         $product = $this->inventoryProvider->findInventoryById($sku);
@@ -58,6 +58,7 @@ final readonly class CartApplicationService
         }
 
         $command = UpdateCartItemQuantity::toCart(
+            $cartItemId,
             $cartId,
             $customerId,
             $sku,

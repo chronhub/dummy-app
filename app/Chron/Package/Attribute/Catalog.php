@@ -22,6 +22,7 @@ use App\Chron\Application\Messaging\Event\Order\WhenOrderItemPartiallyAdded;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderModified;
 use App\Chron\Application\Messaging\Event\Order\WhenOwnerRequestedOrderCanceled;
 use App\Chron\Application\Messaging\Event\Product\WhenProductCreated;
+use App\Chron\Infrastructure\Repository\CartAggregateRepository;
 use App\Chron\Infrastructure\Repository\CustomerAggregateRepository;
 use App\Chron\Infrastructure\Repository\InventoryAggregateRepository;
 use App\Chron\Infrastructure\Repository\OrderAggregateRepository;
@@ -187,6 +188,7 @@ class Catalog
         OrderAggregateRepository::class,
         InventoryAggregateRepository::class,
         ProductAggregateRepository::class,
+        CartAggregateRepository::class,
     ];
 
     public function find(): iterable

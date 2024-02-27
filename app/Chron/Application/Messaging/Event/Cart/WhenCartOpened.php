@@ -8,16 +8,16 @@ use App\Chron\Model\Cart\Event\CartOpened;
 use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Projection\ReadModel\CartReadModel;
 
-#[AsEventHandler(
-    reporter: 'reporter.event.default',
-    handles: CartOpened::class,
-)]
 final readonly class WhenCartOpened
 {
     public function __construct(private CartReadModel $cartReadModel)
     {
     }
 
+    #[AsEventHandler(
+        reporter: 'reporter.event.default',
+        handles: CartOpened::class,
+    )]
     public function createNewCart(CartOpened $event): void
     {
         $this->cartReadModel->insert(

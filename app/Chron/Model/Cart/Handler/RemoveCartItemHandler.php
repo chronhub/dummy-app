@@ -28,7 +28,7 @@ final readonly class RemoveCartItemHandler
             throw CartNotFound::withCartId($command->cartId());
         }
 
-        $cart->removeItem($command->cartItemSku());
+        $cart->removeItem($command->cartItemId(), $command->cartItemSku());
 
         $this->cartList->save($cart);
     }

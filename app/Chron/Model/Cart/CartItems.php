@@ -17,16 +17,20 @@ final class CartItems
         return new self(new Collection());
     }
 
-    public function add(CartItem $item): void
+    public function add(CartItem $item): self
     {
-        $this->items->push($item);
+        $items = $this->items->push($item);
+
+        return new self($items);
     }
 
-    public function remove(CartItemSku $sku): void
+    public function remove(CartItemSku $sku): self
     {
-        $this->items = $this->items->reject(
+        $items = $this->items->reject(
             fn (CartItem $cartItem) => $cartItem->sku->equalsTo($sku)
         );
+
+        return new self($items);
     }
 
     public function hasSku(CartItemSku $sku): bool
@@ -70,9 +74,7 @@ final class CartItems
 
     public function calculateQuantity(): CartQuantity
     {
-        $total = $this->items->sum(
-            fn (CartItem $item) => $item->quantity->value
-        );
+        $total = $this->items->sum(fn (CartItem $item) => $item->quantity->value);
 
         return CartQuantity::fromInteger($total);
     }

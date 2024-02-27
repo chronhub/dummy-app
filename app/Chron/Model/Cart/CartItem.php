@@ -17,7 +17,11 @@ final readonly class CartItem
     public static function fromArray(array $data): self
     {
         // fixMe
-        $cartItemId = $data['cart_item_id'] ?? CartItemId::create();
+        if (isset($data['cart_item_id'])) {
+            $cartItemId = $data['cart_item_id'] instanceof CartItemId ? $data['cart_item_id'] : CartItemId::fromString($data['cart_item_id']);
+        } else {
+            $cartItemId = CartItemId::create();
+        }
 
         return new self(
             $cartItemId,

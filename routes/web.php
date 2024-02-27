@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Action\AddCartItemAction;
 use App\Http\Controllers\Action\AddOrderItemAction;
 use App\Http\Controllers\Action\ChangeCustomerEmailAction;
 use App\Http\Controllers\Action\CustomerCancelOrderAction;
 use App\Http\Controllers\Action\MakeOrderAction;
 use App\Http\Controllers\Action\RegisterCustomerAction;
+use App\Http\Controllers\Action\RemoveCartItemAction;
+use App\Http\Controllers\Action\UpdateCartItemQuantityAction;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\View\Catalog\CatalogView;
 use App\Http\Controllers\View\Customer\CustomerInfoView;
@@ -26,6 +29,13 @@ Route::get('/customer/{customer_id}/order/{order_id}/history', CustomerOrderHist
 Route::get('/customer/{customer_id}/order/{order_id}', CustomerOrderView::class)->name('customer.order.show');
 
 Route::get('/catalog', CatalogView::class)->name('catalog');
+
+// cart
+Route::group(['prefix' => 'cart'], function () {
+    Route::get('/add', AddCartItemAction::class)->name('cart.add');
+    Route::get('/remove', RemoveCartItemAction::class)->name('cart.remove');
+    Route::get('/update', UpdateCartItemQuantityAction::class)->name('cart.update');
+});
 
 // seed
 Route::group(['prefix' => 'seed'], function () {

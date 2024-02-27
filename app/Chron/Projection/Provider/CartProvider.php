@@ -34,14 +34,22 @@ final readonly class CartProvider
             ->first();
     }
 
-    private function withCartItems(Builder $query): Builder
+    public function findRandomOpenedCart(): ?stdClass
     {
-        return $query->leftJoin(
-            CartReadModel::TABLE_CART_ITEM,
-            'read_cart.id',
-            '=',
-            'read_cart_item.cart_id'
-        );
+        $cart = $this->queryCart()
+            ->where('status', CartStatus::OPENED->value)
+            ->inRandomOrder()
+            ->first();
+
+        if ($cart === null) {
+            return null;
+        }
+
+        $cart->items = $this->queryCartItem()
+            ->where('cart_id', $cart->id)
+            ->get();
+
+        return $cart;
     }
 
     private function queryCart(): Builder

@@ -48,7 +48,7 @@ final readonly class CartReadModel
             'customer_id' => $customerId,
             'sku_id' => $skuId,
             'quantity' => $quantity,
-            'unit_price' => $unitPrice,
+            'price' => $unitPrice,
         ]);
     }
 
