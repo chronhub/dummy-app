@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Action;
 use App\Chron\Application\Service\OrderService;
 use Symfony\Component\HttpFoundation\Response;
 
-final class MakeOrderAction
+final class MakeRandomOrderAction
 {
     public function __invoke(OrderService $orderService): Response
     {

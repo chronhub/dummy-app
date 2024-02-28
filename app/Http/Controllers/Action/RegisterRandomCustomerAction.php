@@ -7,11 +7,11 @@ namespace App\Http\Controllers\Action;
 use App\Chron\Application\Service\CustomerService;
 use Symfony\Component\HttpFoundation\Response;
 
-final class ChangeCustomerEmailAction
+final class RegisterRandomCustomerAction
 {
     public function __invoke(CustomerService $customerService): Response
     {
-        $customerService->changeCustomerEmail();
+        $customerService->registerCustomer();
 
         return new Response('ok');
     }

@@ -81,7 +81,7 @@ final readonly class OrderProvider
     public function getOrderSummary(): stdClass
     {
         return $this->orderQuery()
-            ->selectRaw('count(*) as total_orders, SUM(balance::numeric) as total_balance, SUM(quantity) as total_quantity')
+            ->selectRaw('COALESCE(count(*), 0) as total_orders, COALESCE(SUM(balance::numeric), 0) as total_balance, COALESCE(SUM(quantity), 0) as total_quantity')
             ->whereIn('status', $this->pendingOrderStatuses)
             ->first();
     }

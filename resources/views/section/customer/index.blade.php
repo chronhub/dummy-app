@@ -5,9 +5,17 @@
         lastStep="{{ $customer->name }}"
     />
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 justify-evenly pb-12">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 justify-evenly pb-12">
 
         @include('section.customer.partials.profile', ['customer' => $customer])
+
+        {{-- Cart summary --}}
+
+        <div class="">
+
+            @include('section.customer.partials.cart', ['cart' => $cart])
+
+        </div>
 
         {{-- Orders summary timeline --}}
 

@@ -7,11 +7,14 @@ namespace App\Chron\Application\Messaging\Event\Cart;
 use App\Chron\Model\Cart\Event\CartItemRemoved;
 use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Projection\ReadModel\CartReadModel;
+use App\Http\Controllers\Action\Cart\CacheCart;
 
 final readonly class WhenCartItemRemoved
 {
-    public function __construct(private CartReadModel $cartReadModel)
-    {
+    public function __construct(
+        private CartReadModel $cartReadModel,
+        private CacheCart $cacheCart
+    ) {
     }
 
     #[AsEventHandler(
@@ -44,5 +47,15 @@ final readonly class WhenCartItemRemoved
             $event->cartBalance()->value,
             $event->cartQuantity()->value
         );
+    }
+
+    #[AsEventHandler(
+        reporter: 'reporter.event.default',
+        handles: CartItemRemoved::class,
+        priority: 2
+    )]
+    public function updateCartCache(CartItemRemoved $event): void
+    {
+        $this->cacheCart->update($event->cartId()->toString());
     }
 }

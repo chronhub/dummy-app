@@ -34,7 +34,7 @@ final readonly class CustomerService
     {
         $command = RegisterCustomer::withData(
             fake()->uuid,
-            fake()->email,
+            $this->ensureUniqueEmail(),
             fake()->name,
             fake()->randomElement(Gender::toStrings()),
             $this->generateBirthday(),
@@ -72,7 +72,10 @@ final readonly class CustomerService
 
     protected function ensureUniqueEmail(): string
     {
-        return Str::random(16).'@'.fake()->domainName;
+        $name = Str::of(fake()->name)->replace(' ', '')->lower();
+        $name .= Str::random(4);
+
+        return $name.'@'.fake()->domainName;
     }
 
     protected function generateBirthday(): string

@@ -31,6 +31,11 @@ final readonly class InventoryProvider
         return $this->query()->inRandomOrder()->limit($limit)->cursor();
     }
 
+    public function getFirstTenItems(): LazyCollection
+    {
+        return $this->query()->limit(10)->orderBy('created_at')->cursor();
+    }
+
     public function getInventorySummary(): stdClass
     {
         return $this->query()

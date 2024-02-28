@@ -47,13 +47,13 @@
                 @if($order->status === 'created' || $order->status === 'modified')
 
                     <x-button
-                        :route="route('seed.order.cancel',[$order->customer_id, $order->id])"
+                        :route="route('seed.order.cancel', [$order->customer_id, $order->id])"
                         label="Cancel"
                         color="violet"
                     />
 
                     <x-button
-                        :route="route('seed.order.add',[$order->customer_id, $order->id])"
+                        :route="route('seed.order.add', [$order->customer_id, $order->id])"
                         label="Add random item"
                         color="violet"
                     />
@@ -61,7 +61,7 @@
                @endif
 
                 <x-button
-                    :route="route('customer.order.history.show',[$order->customer_id, $order->id])"
+                    :route="route('customer.order.history.show', [$order->customer_id, $order->id])"
                     label="History"
                     color="violet"
                 />

@@ -18,12 +18,32 @@ final readonly class CartProvider
 
     public function findCartById(string $cartId): ?stdClass
     {
-        return $this->queryCart()->find($cartId);
+        $cart = $this->queryCart()->find($cartId);
+
+        if ($cart === null) {
+            return null;
+        }
+
+        $cart->items = $this->queryCartItem()
+            ->where('cart_id', $cart->id)
+            ->get();
+
+        return $cart;
     }
 
     public function findCartByCustomerId(string $customerId): ?stdClass
     {
-        return $this->queryCart()->where('customer_id', $customerId)->first();
+        $cart = $this->queryCart()->where('customer_id', $customerId)->first();
+
+        if ($cart === null) {
+            return null;
+        }
+
+        $cart->items = $this->queryCartItem()
+            ->where('cart_id', $cart->id)
+            ->get();
+
+        return $cart;
     }
 
     public function findOpenedCartByCustomerId(string $customerId): ?stdClass

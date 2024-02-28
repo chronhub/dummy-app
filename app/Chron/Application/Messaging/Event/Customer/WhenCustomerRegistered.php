@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Messaging\Event\Customer;
 
+use App\Chron\Application\Service\AuthApplicationService;
 use App\Chron\Application\Service\CartApplicationService;
 use App\Chron\Model\Customer\Event\CustomerRegistered;
 use App\Chron\Package\Attribute\Messaging\AsEventHandler;
@@ -16,6 +17,7 @@ final readonly class WhenCustomerRegistered
         private CustomerReadModel $customerReadModel,
         private CustomerEmailReadModel $customerEmailReadModel,
         private CartApplicationService $cartApplicationService,
+        private AuthApplicationService $authApplicationService
     ) {
     }
 
@@ -67,6 +69,20 @@ final readonly class WhenCustomerRegistered
         reporter: 'reporter.event.default',
         handles: CustomerRegistered::class,
         priority: 3
+    )]
+    public function createAuthUser(CustomerRegistered $event): void
+    {
+        $this->authApplicationService->createAuthUser(
+            $event->aggregateId()->toString(),
+            $event->name()->value,
+            $event->email()->value
+        );
+    }
+
+    #[AsEventHandler(
+        reporter: 'reporter.event.default',
+        handles: CustomerRegistered::class,
+        priority: 4
     )]
     public function createCartForCustomer(CustomerRegistered $event): void
     {

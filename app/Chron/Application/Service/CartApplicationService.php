@@ -40,7 +40,6 @@ final readonly class CartApplicationService
         $this->dispatchCommand($command);
     }
 
-    // todo add cart item id
     public function removeCartItem(string $cartItemId, string $cartId, string $customerId, string $sku): void
     {
         $command = RemoveCartItem::forCart($cartItemId, $cartId, $customerId, $sku);

@@ -7,11 +7,14 @@ namespace App\Chron\Application\Messaging\Event\Cart;
 use App\Chron\Model\Cart\Event\CartItemQuantityUpdated;
 use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Projection\ReadModel\CartReadModel;
+use App\Http\Controllers\Action\Cart\CacheCart;
 
 final readonly class WhenCartItemQuantityUpdated
 {
-    public function __construct(private CartReadModel $cartReadModel)
-    {
+    public function __construct(
+        private CartReadModel $cartReadModel,
+        private CacheCart $cacheCart
+    ) {
     }
 
     #[AsEventHandler(
@@ -45,5 +48,15 @@ final readonly class WhenCartItemQuantityUpdated
             $event->cartBalance()->value,
             $event->cartQuantity()->value
         );
+    }
+
+    #[AsEventHandler(
+        reporter: 'reporter.event.default',
+        handles: CartItemQuantityUpdated::class,
+        priority: 2
+    )]
+    public function updateCartCache(CartItemQuantityUpdated $event): void
+    {
+        $this->cacheCart->update($event->cartId()->toString());
     }
 }
