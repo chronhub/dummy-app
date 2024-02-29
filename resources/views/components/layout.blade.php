@@ -22,7 +22,7 @@
 
     <x-layout.sidebar/>
 
-    <main class="px-8 mt-20 md:ml-64 dark:text-gray-300 relative">
+    <main class="md:ml-64 relative">
 
         {{ $slot }}
 

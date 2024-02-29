@@ -7,9 +7,8 @@ namespace App\Http\Controllers\View\Customer;
 use App\Chron\Application\Messaging\Query\QueryCustomerProfile;
 use App\Chron\Application\Messaging\Query\QueryOrderOfCustomer;
 use App\Chron\Package\Reporter\Report;
+use App\Chron\Package\Support\QueryPromiseTrait;
 use Illuminate\View\View;
-use stdClass;
-use Storm\Support\QueryPromiseTrait;
 use Throwable;
 
 final class CustomerOrderView
@@ -18,48 +17,26 @@ final class CustomerOrderView
 
     public function __invoke(string $customerId, string $orderId): View
     {
+        $result = $this->getData($customerId, $orderId);
+
         return view('section.customer.order', [
-            'order' => $this->findOrderOfCustomer($customerId, $orderId),
+            'customer' => $result[0],
+            'order' => $result[1],
             'customer_id' => $customerId,
-            'customer' => $this->getCustomerInfo($customerId),
         ]);
     }
 
-    private function findOrderOfCustomer(string $customerId, string $orderId): stdClass
+    private function getData(string $customerId, string $orderId): array
     {
-        $promise = Report::relay(new QueryOrderOfCustomer($customerId, $orderId));
-
         try {
-            $order = $this->handlePromise($promise);
+            return $this->handleQueries([
+                Report::relay(new QueryCustomerProfile($customerId)),
+                Report::relay(new QueryOrderOfCustomer($customerId, $orderId)),
+            ]);
         } catch (Throwable $e) {
             report($e);
 
-            abort(404);
+            abort(501);
         }
-
-        if (! $order instanceof stdClass) {
-            abort(404);
-        }
-
-        return $order;
-    }
-
-    private function getCustomerInfo(string $customerId): stdClass
-    {
-        $promise = Report::relay(new QueryCustomerProfile($customerId));
-
-        try {
-            $customer = $this->handlePromise($promise);
-        } catch (Throwable $e) {
-            report($e);
-
-            abort(404);
-        }
-
-        if (! $customer instanceof stdClass) {
-            abort(404);
-        }
-
-        return $customer;
     }
 }

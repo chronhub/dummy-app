@@ -15,9 +15,17 @@
 
         <div class="font-medium dark:text-white">
 
-            <div>{{ $customer->name }}</div>
+            <div>
 
-            <div class="text-sm text-gray-500 dark:text-gray-400">Joined in {{ date('F Y', strtotime($customer->created_at))  }}</div>
+                {{ $customer->name }}
+
+            </div>
+
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+
+                Joined in {{ date('F Y', strtotime($customer->created_at)) }}
+
+            </div>
 
         </div>
 

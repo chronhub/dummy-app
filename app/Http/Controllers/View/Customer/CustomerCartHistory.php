@@ -4,36 +4,34 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\View\Customer;
 
+use App\Chron\Application\Messaging\Query\QueryCartHistory;
 use App\Chron\Application\Messaging\Query\QueryCustomerProfile;
-use App\Chron\Application\Messaging\Query\QueryOpenedCartByCustomerId;
-use App\Chron\Application\Messaging\Query\QueryOrdersSummaryOfCustomer;
 use App\Chron\Package\Reporter\Report;
 use App\Chron\Package\Support\QueryPromiseTrait;
 use Illuminate\View\View;
 use Throwable;
 
-final class CustomerInfoView
+final class CustomerCartHistory
 {
     use QueryPromiseTrait;
 
-    public function __invoke(string $customerId): View
+    public function __invoke(string $customerId, string $cartId): View
     {
-        $result = $this->getData($customerId);
+        $result = $this->getData($customerId, $cartId);
 
-        return view('section.customer.index', [
+        return view('section.customer.cart_history', [
             'customer' => $result[0],
-            'orders' => $result[1],
-            'cart' => $result[2],
+            'cart_history' => $result[1],
+            'cart_id' => $cartId,
         ]);
     }
 
-    private function getData(string $customerId): array
+    private function getData(string $customerId, string $cartId): array
     {
         try {
             return $this->handleQueries([
                 Report::relay(new QueryCustomerProfile($customerId)),
-                Report::relay(new QueryOrdersSummaryOfCustomer($customerId)),
-                Report::relay(new QueryOpenedCartByCustomerId($customerId)),
+                Report::relay(new QueryCartHistory($cartId, $customerId)),
             ]);
         } catch (Throwable $e) {
             report($e);

@@ -39,7 +39,7 @@ final readonly class InventoryProvider
     public function getInventorySummary(): stdClass
     {
         return $this->query()
-            ->selectRaw('count(*) as total_items, SUM(stock) as total_stock ,SUM(reserved) as total_reserved')
+            ->selectRaw('count(*) as total_items, SUM(stock) as total_stock, SUM(reserved) as total_reserved')
             ->first();
     }
 

@@ -1,6 +1,6 @@
 {{-- segment details --}}
 
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1 mb-8 bg-zinc-900">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1 mb-8 bg-zinc-900 text-gray-400 dark:text-gray-200">
 
     {{-- demographic segment --}}
 

@@ -15,6 +15,7 @@ use App\Http\Controllers\Action\Random\Cart\UpdateRandomCartItemQuantityAction;
 use App\Http\Controllers\Action\RegisterRandomCustomerAction;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\View\Catalog\CatalogView;
+use App\Http\Controllers\View\Customer\CustomerCartHistory;
 use App\Http\Controllers\View\Customer\CustomerCartView;
 use App\Http\Controllers\View\Customer\CustomerInfoView;
 use App\Http\Controllers\View\Customer\CustomerListView;
@@ -32,6 +33,7 @@ Route::get('/customer/{customer_id}/order/{order_id}/history', CustomerOrderHist
 Route::get('/customer/{customer_id}/order/{order_id}', CustomerOrderView::class)->name('customer.order.show');
 
 Route::get('/customer/{customer_id}/cart/{cart_id}/', CustomerCartView::class)->name('customer.cart.view');
+Route::get('/customer/{customer_id}/cart/{cart_id}/history', CustomerCartHistory::class)->name('customer.cart.history');
 Route::get('/customer/{customer_id}/cart/{cart_id}/add/{sku}/{quantity}', AddCartItemAction::class)->name('customer.cart.add');
 Route::get('/customer/{customer_id}/cart/{cart_id}/{cart_item_id}/remove/{sku}', RemoveCartItemAction::class)->name('customer.cart.remove');
 Route::get('/customer/{customer_id}/cart/{cart_id}/{cart_item_id}/update/{sku}/{quantity}', UpdateCartItemQuantityAction::class)->name('customer.cart.update');

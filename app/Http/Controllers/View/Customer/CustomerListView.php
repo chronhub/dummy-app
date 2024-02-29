@@ -31,7 +31,7 @@ final class CustomerListView
         } catch (Throwable $e) {
             report($e);
 
-            abort(404);
+            abort(501);
         }
 
         if (! $customers instanceof LengthAwarePaginator) {

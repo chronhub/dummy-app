@@ -5,43 +5,40 @@ declare(strict_types=1);
 namespace App\Http\Controllers\View\Customer;
 
 use App\Chron\Application\Messaging\Query\QueryCustomerProfile;
+use App\Chron\Application\Messaging\Query\QueryFirstTenInventoryItems;
+use App\Chron\Application\Messaging\Query\QueryOpenedCartByCustomerId;
 use App\Chron\Package\Reporter\Report;
-use App\Chron\Projection\Provider\CartProvider;
-use App\Chron\Projection\Provider\InventoryProvider;
+use App\Chron\Package\Support\QueryPromiseTrait;
 use Illuminate\View\View;
-use stdClass;
-use Storm\Support\QueryPromiseTrait;
 use Throwable;
 
 final class CustomerCartView
 {
     use QueryPromiseTrait;
 
-    public function __invoke(string $customerId, CartProvider $cartProvider, InventoryProvider $inventoryProvider): View
+    public function __invoke(string $customerId): View
     {
+        $result = $this->getData($customerId);
+
         return view('section.customer.cart', [
-            'customer' => $this->getCustomerInfo($customerId),
-            'cart' => $cartProvider->findCartByCustomerId($customerId),
-            'catalog' => $inventoryProvider->getFirstTenItems(),
+            'customer' => $result[0],
+            'cart' => $result[1],
+            'catalog' => $result[2],
         ]);
     }
 
-    private function getCustomerInfo(string $customerId): stdClass
+    private function getData(string $customerId): array
     {
-        $promise = Report::relay(new QueryCustomerProfile($customerId));
-
         try {
-            $customer = $this->handlePromise($promise);
+            return $this->handleQueries([
+                Report::relay(new QueryCustomerProfile($customerId)),
+                Report::relay(new QueryOpenedCartByCustomerId($customerId)),
+                Report::relay(new QueryFirstTenInventoryItems()),
+            ]);
         } catch (Throwable $e) {
             report($e);
 
-            abort(404);
+            abort(501);
         }
-
-        if (! $customer instanceof stdClass) {
-            abort(404);
-        }
-
-        return $customer;
     }
 }

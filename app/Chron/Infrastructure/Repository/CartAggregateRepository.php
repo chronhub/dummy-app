@@ -10,6 +10,7 @@ use App\Chron\Model\Cart\Repository\CartList;
 use App\Chron\Package\Aggregate\Contract\AggregateRepository;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
 use App\Chron\Package\Attribute\AggregateRepository\AsAggregateRepository;
+use Generator;
 
 #[AsAggregateRepository(
     chronicler: 'chronicler.event.transactional.standard.pgsql',
@@ -34,5 +35,10 @@ final readonly class CartAggregateRepository implements CartList
     public function save(Cart $cart): void
     {
         $this->repository->store($cart);
+    }
+
+    public function history(CartId $cartId): Generator
+    {
+        return $this->repository->retrieveHistory($cartId, null);
     }
 }

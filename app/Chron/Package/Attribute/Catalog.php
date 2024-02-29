@@ -29,6 +29,8 @@ use App\Chron\Infrastructure\Repository\OrderAggregateRepository;
 use App\Chron\Infrastructure\Repository\ProductAggregateRepository;
 use App\Chron\Model\Cart\Handler\AddCartItemHandler;
 use App\Chron\Model\Cart\Handler\OpenCartHandler;
+use App\Chron\Model\Cart\Handler\QueryCartHistoryHandler;
+use App\Chron\Model\Cart\Handler\QueryOpenedCartByCustomerIdHandler;
 use App\Chron\Model\Cart\Handler\RemoveCartItemHandler;
 use App\Chron\Model\Cart\Handler\UpdateCartItemHandler;
 use App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler;
@@ -36,6 +38,7 @@ use App\Chron\Model\Customer\Handler\QueryCustomerProfileHandler;
 use App\Chron\Model\Customer\Handler\QueryPaginatedCustomersHandler;
 use App\Chron\Model\Customer\Handler\RegisterCustomerHandler;
 use App\Chron\Model\Inventory\Handler\AddInventoryItemHandler;
+use App\Chron\Model\Inventory\Handler\QueryFirstTenInventoryItemsHandler;
 use App\Chron\Model\Inventory\Handler\RefillInventoryItemHandler;
 use App\Chron\Model\Inventory\Handler\ReserveInventoryItemHandler;
 use App\Chron\Model\Order\Handler\AddOrderItemHandler;
@@ -44,6 +47,7 @@ use App\Chron\Model\Order\Handler\CustomerRequestsOrderCancellationHandler;
 use App\Chron\Model\Order\Handler\QueryOrderOfCustomerHandler;
 use App\Chron\Model\Order\Handler\QueryOrdersSummaryOfCustomerHandler;
 use App\Chron\Model\Product\Handler\CreateProductHandler;
+use App\Chron\Model\Product\Handler\QueryPaginatedProductsHandler;
 use App\Chron\Package\Chronicler\PgsqlTransactionalChronicler;
 use App\Chron\Package\Chronicler\Subscribers\AppendOnlyStream;
 use App\Chron\Package\Chronicler\Subscribers\BeginTransaction;
@@ -142,6 +146,10 @@ class Catalog
         QueryOrderOfCustomerHandler::class,
         QueryOrdersSummaryOfCustomerHandler::class,
         QueryPaginatedCustomersHandler::class,
+        QueryCartHistoryHandler::class,
+        QueryOpenedCartByCustomerIdHandler::class,
+        QueryFirstTenInventoryItemsHandler::class,
+        QueryPaginatedProductsHandler::class,
     ];
 
     /**

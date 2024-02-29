@@ -2,8 +2,12 @@
 
     <x-breadcrumb lastStep="products"/>
 
-    @include('section.product.partials.product_header_table')
+    <x-layout.main>
 
-    @include('section.product.partials.product_table', ['products' => $products])
+        @include('section.product.partials.product_header_table')
+
+        @include('section.product.partials.product_table', ['products' => $products])
+
+    </x-layout.main>
 
 </x-layout>

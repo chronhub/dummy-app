@@ -1,4 +1,4 @@
-{{-- Customer cart  --}}
+{{-- Customer cart --}}
 
 <div class="pl-3">
 
@@ -21,7 +21,7 @@
 
         <div class="font-medium dark:text-white">
 
-            <div>Cart</div>
+            <span>Cart</span>
 
         </div>
 
@@ -37,10 +37,10 @@
             <x-two_col_info label="items" :value="$cart->items->count()"/>
             <x-two_col_info label="status" :value="$cart->status"/>
 
-            <a href="{{ route('customer.cart.view',[$cart->customer_id, $cart->id]) }}">
+            <a href="{{ route('customer.cart.view',[$cart->customer_id, $cart->id]) }}" class="inline-block sm:mr-8">
 
                 <button type="button"
-                        class="text-gray-700 w-full mt-6 hover:text-white border border-gray-700 hover:bg-zinc-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-gray-500 dark:text-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800">
+                        class="inline-block text-gray-700 mt-6 hover:text-white border border-gray-700 hover:bg-zinc-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-gray-500 dark:text-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800">
 
                     View cart
 
@@ -48,11 +48,23 @@
 
             </a>
 
+            <a href="{{ route('customer.cart.history', [$cart->customer_id, $cart->id]) }}" class="inline-block">
+
+                <button type="button"
+                        class="text-gray-700 mt-6 hover:text-white border border-gray-700 hover:bg-zinc-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-gray-500 dark:text-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800">
+
+                    Cart history
+
+                </button>
+
+            </a>
+
         @else
 
-            <p>NO CART</p>
+            <x-empty_content text="No cart"/>
 
         @endif
+
     </div>
 
 </div>

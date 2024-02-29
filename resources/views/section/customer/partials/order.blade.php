@@ -1,4 +1,4 @@
-{{-- Customer orders list  --}}
+{{-- Customer orders list --}}
 <div class="pl-3">
 
     <div class="flex items-center gap-4 mb-6">

@@ -2,7 +2,7 @@
 
     <x-breadcrumb lastStep="Customers"/>
 
-    <div class="">
+    <x-layout.main>
 
         @include('section.product.partials.product_header_table')
 
@@ -78,6 +78,6 @@
 
         </div>
 
-    </div>
+    </x-layout.main>
 
 </x-layout>
