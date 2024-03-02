@@ -26,8 +26,28 @@ final readonly class CartItem
         return new self(
             $cartItemId,
             CartItemSku::fromString($data['cart_item_sku']),
-            CartItemQuantity::from($data['cart_item_quantity']),
+            CartItemQuantity::fromInteger($data['cart_item_quantity']),
             CartItemPrice::fromString($data['cart_item_price'])
+        );
+    }
+
+    public static function fromStrings(string $itemId, string $sku, int $quantity, string $price): self
+    {
+        return new self(
+            CartItemId::fromString($itemId),
+            CartItemSku::fromString($sku),
+            CartItemQuantity::fromInteger($quantity),
+            CartItemPrice::fromString($price)
+        );
+    }
+
+    public function withAdjustedQuantity(CartItemQuantity $quantity): self
+    {
+        return new self(
+            $this->id,
+            $this->sku,
+            $quantity,
+            $this->price
         );
     }
 

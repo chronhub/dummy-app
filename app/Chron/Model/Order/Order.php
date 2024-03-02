@@ -92,7 +92,7 @@ final class Order implements AggregateRoot
             return [
                 'sku_id' => $orderItem->skuId->toString(),
                 'quantity' => $orderItem->quantity->value,
-                'reason' => InventoryReleaseReason::ORDER_CANCELED,
+                'reason' => InventoryReleaseReason::RESERVATION_CANCELED,
             ];
         })->toArray();
 

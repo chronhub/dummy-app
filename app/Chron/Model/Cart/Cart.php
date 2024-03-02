@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\Chron\Model\Cart;
 
 use App\Chron\Model\Cart\Event\CartItemAdded;
+use App\Chron\Model\Cart\Event\CartItemPartiallyAdded;
 use App\Chron\Model\Cart\Event\CartItemQuantityUpdated;
 use App\Chron\Model\Cart\Event\CartItemRemoved;
 use App\Chron\Model\Cart\Event\CartOpened;
 use App\Chron\Model\Cart\Exception\CartAlreadyExists;
 use App\Chron\Model\Cart\Exception\CartNotFound;
+use App\Chron\Model\Cart\Exception\InsufficientStockForCartItem;
 use App\Chron\Model\InvalidDomainException;
 use App\Chron\Model\Inventory\Exception\InvalidCartOperation;
+use App\Chron\Model\Inventory\InventoryReleaseReason;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
@@ -27,8 +30,6 @@ final class Cart implements AggregateRoot
 
     private CartStatus $status;
 
-    private CartItems $items;
-
     public static function open(CartId $cartId, CartOwner $cartOwner): self
     {
         $cart = new self($cartId);
@@ -38,62 +39,79 @@ final class Cart implements AggregateRoot
         return $cart;
     }
 
-    public function addItem(CartItem $cartItem): void
+    public function addItem(CartItem $cartItem, CartItemsManager $itemsManager): void
     {
         $this->assertCartOpenForModification();
 
-        if ($this->items->hasSku($cartItem->sku)) {
-            throw CartAlreadyExists::withCartItemId($this->items->getCartItemIdFromSku($cartItem->sku), $this->cartId());
+        $itemsManager->load($this->cartId(), $this->owner);
+
+        $this->assertCartItemNotExists($cartItem, $itemsManager);
+
+        $newCartItem = $itemsManager->addItem($cartItem);
+
+        if ($newCartItem === null) {
+            throw InsufficientStockForCartItem::withId($this->cartId(), $cartItem->sku);
         }
 
-        $items = $this->items->add($cartItem);
+        if ($cartItem->sameValueAs($newCartItem)) {
+            $this->recordThat(CartItemAdded::forCart(
+                $this->cartId(),
+                $this->owner,
+                $newCartItem,
+                $itemsManager->calculateBalance(),
+                $itemsManager->calculateQuantity()
+            ));
 
-        $this->recordThat(CartItemAdded::forCart(
+            return;
+        }
+
+        $this->recordThat(CartItemPartiallyAdded::forCart(
             $this->cartId(),
             $this->owner,
-            $cartItem,
-            $items->calculateBalance(),
-            $items->calculateQuantity()
+            $newCartItem,
+            $itemsManager->calculateBalance(),
+            $itemsManager->calculateQuantity(),
+            $cartItem->quantity
         ));
     }
 
-    public function removeItem(CartItemId $cartItemId, CartItemSku $cartItemSku): void
+    public function removeItem(CartItemId $cartItemId, CartItemSku $cartItemSku, CartItemsManager $itemsManager): void
     {
         $this->assertCartOpenForModification();
 
-        if (! $this->items->hasCartItem($cartItemId, $cartItemSku)) {
-            throw CartNotFound::withCartItemSku($cartItemSku, $cartItemId, $this->cartId());
-        }
+        $itemsManager->load($this->cartId(), $this->owner);
 
-        $cartItem = $this->items->getCartItemBySku($cartItemSku);
+        $this->assertCartItemExists($cartItemId, $cartItemSku, $itemsManager);
 
-        $items = $this->items->remove($cartItemSku);
+        $cartItem = $itemsManager->getCartItemFromSku($cartItemSku);
+
+        $itemsManager->removeItem($cartItem->sku, $cartItem->quantity, InventoryReleaseReason::RESERVATION_CANCELED);
 
         $this->recordThat(CartItemRemoved::forCart(
             $this->cartId(),
             $this->owner,
             $cartItem,
-            $items->calculateBalance(),
-            $items->calculateQuantity()
+            $itemsManager->calculateBalance(),
+            $itemsManager->calculateQuantity()
         ));
     }
 
-    public function updateItemQuantity(CartItem $cartItem): void
+    public function updateItemQuantity(CartItem $cartItem, CartItemsManager $itemsManager): void
     {
         $this->assertCartOpenForModification();
 
-        if (! $this->items->hasCartItem($cartItem->id, $cartItem->sku)) {
-            throw CartNotFound::withCartItemSku($cartItem->sku, $cartItem->id, $this->cartId());
-        }
+        $itemsManager->load($this->cartId(), $this->owner);
 
-        $items = $this->items->remove($cartItem->sku)->add($cartItem);
+        $this->assertCartItemExists($cartItem->id, $cartItem->sku, $itemsManager);
+
+        $adjust = $itemsManager->adjustItem($cartItem);
 
         $this->recordThat(CartItemQuantityUpdated::forCart(
             $this->cartId(),
             $this->owner,
-            $cartItem,
-            $items->calculateBalance(),
-            $items->calculateQuantity()
+            $adjust,
+            $itemsManager->calculateBalance(),
+            $itemsManager->calculateQuantity()
         ));
     }
 
@@ -125,15 +143,27 @@ final class Cart implements AggregateRoot
         return $this->status;
     }
 
-    public function items(): CartItems
-    {
-        return clone $this->items;
-    }
-
     private function assertCartOpenForModification(): void
     {
         if ($this->status !== CartStatus::OPENED) {
             throw new InvalidCartOperation(sprintf('Cart with id %s is not opened', $this->cartId()));
+        }
+    }
+
+    private function assertCartItemExists(CartItemId $cartItemId, CartItemSku $cartItemSku, CartItemsManager $itemsManager): void
+    {
+        if (! $itemsManager->hasCartItem($cartItemId, $cartItemSku)) {
+            throw CartNotFound::withCartItemSku($cartItemSku, $cartItemId, $this->cartId());
+        }
+    }
+
+    private function assertCartItemNotExists(CartItem $cartItem, CartItemsManager $itemsManager): void
+    {
+        if ($itemsManager->hasSku($cartItem->sku)) {
+            throw CartAlreadyExists::withCartItemId(
+                $itemsManager->getCartItemFromSku($cartItem->sku)->id,
+                $this->cartId()
+            );
         }
     }
 
@@ -143,23 +173,13 @@ final class Cart implements AggregateRoot
             case $event instanceof CartOpened:
                 $this->owner = $event->cartOwner();
                 $this->status = $event->cartStatus();
-                $this->items = CartItems::create();
 
                 break;
 
             case $event instanceof CartItemAdded:
-                $this->items = $this->items->add($event->cartItem());
-
-                break;
-
+            case $event instanceof CartItemPartiallyAdded:
             case $event instanceof CartItemRemoved:
-                $this->items = $this->items->remove($event->oldCartItem()->sku);
-
-                break;
-
             case $event instanceof CartItemQuantityUpdated:
-                $this->items = $this->items->remove($event->cartItem()->sku)->add($event->cartItem());
-
                 break;
 
             default:

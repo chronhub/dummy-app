@@ -9,19 +9,21 @@ use function in_array;
 class InventoryReleaseReason
 {
     /**
-     * The order associated with the reservation was canceled
+     * The reservation was canceled
      */
-    public const ORDER_CANCELED = 'Order canceled';
+    public const RESERVATION_CANCELED = 'reservation canceled';
+
+    public const RESERVATION_ADJUSTED = 'reservation adjusted';
 
     /**
-     * The reservation associated with the order expired
+     * The reservation expired before the customer could purchase the product
      */
-    public const ORDER_EXPIRED = 'Order expired';
+    public const RESERVATION_EXPIRED = 'reservation expired';
 
     /**
      * The product was returned by the customer
      */
-    public const ORDER_RETURNED = 'Order returned';
+    public const RESERVATION_RETURNED = 'reservation returned';
 
     /**
      * Manual adjustment or correction of inventory levels
@@ -31,7 +33,7 @@ class InventoryReleaseReason
     /**
      * The product was recalled for safety or quality reasons
      */
-    public const PRODUCT_RECALLED = 'Product recalled';
+    public const PRODUCT_RECALLED = 'product recalled';
 
     /**
      * The product reached its expiration date
@@ -41,7 +43,7 @@ class InventoryReleaseReason
     /**
      * The product was damaged and cannot be sold
      */
-    public const DAMAGED_PRODUCT = 'Damaged product';
+    public const DAMAGED_PRODUCT = 'damaged product';
 
     /**
      * Excess inventory that needs to be cleared
@@ -54,11 +56,6 @@ class InventoryReleaseReason
     public const STOCK_TAKE_CORRECTION = 'Stock-take correction';
 
     /**
-     * The product is no longer available for sale
-     */
-    public const OUT_OF_STOCK = 'Out of stock';
-
-    /**
      * Any other reason not covered by the above
      */
     public const OTHER = 'Other';
@@ -66,16 +63,16 @@ class InventoryReleaseReason
     public static function all(): array
     {
         return [
-            self::ORDER_CANCELED,
-            self::ORDER_EXPIRED,
-            self::ORDER_RETURNED,
+            self::RESERVATION_CANCELED,
+            self::RESERVATION_ADJUSTED,
+            self::RESERVATION_EXPIRED,
+            self::RESERVATION_RETURNED,
             self::MANUAL_ADJUSTMENT,
             self::PRODUCT_RECALLED,
             self::EXPIRED_PRODUCT,
             self::DAMAGED_PRODUCT,
             self::EXCESS_INVENTORY,
             self::STOCK_TAKE_CORRECTION,
-            self::OUT_OF_STOCK,
             self::OTHER,
         ];
     }

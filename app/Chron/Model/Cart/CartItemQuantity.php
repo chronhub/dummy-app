@@ -15,7 +15,7 @@ final class CartItemQuantity
         }
     }
 
-    public static function from(int $value): self
+    public static function fromInteger(int $value): self
     {
         return new self($value);
     }

@@ -6,6 +6,7 @@ namespace App\Chron\Model\Cart\Handler;
 
 use App\Chron\Application\Messaging\Command\Cart\RemoveCartItem;
 use App\Chron\Model\Cart\Cart;
+use App\Chron\Model\Cart\CartItemsManager;
 use App\Chron\Model\Cart\Exception\CartNotFound;
 use App\Chron\Model\Cart\Repository\CartList;
 use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
@@ -16,8 +17,10 @@ use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
 )]
 final readonly class RemoveCartItemHandler
 {
-    public function __construct(private CartList $cartList)
-    {
+    public function __construct(
+        private CartList $cartList,
+        private CartItemsManager $cartItemsManager,
+    ) {
     }
 
     public function __invoke(RemoveCartItem $command): void
@@ -28,7 +31,7 @@ final readonly class RemoveCartItemHandler
             throw CartNotFound::withCartId($command->cartId());
         }
 
-        $cart->removeItem($command->cartItemId(), $command->cartItemSku());
+        $cart->removeItem($command->cartItemId(), $command->cartItemSku(), $this->cartItemsManager);
 
         $this->cartList->save($cart);
     }

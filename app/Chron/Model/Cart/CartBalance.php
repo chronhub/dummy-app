@@ -28,6 +28,11 @@ final readonly class CartBalance
         return new self($value);
     }
 
+    public static function fromDefault(): self
+    {
+        return new self('0.00');
+    }
+
     public function add(string $value, int $quantity): self
     {
         $floatValue = (float) $value;

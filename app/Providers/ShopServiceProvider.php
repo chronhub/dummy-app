@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Chron\Infrastructure\Service\CartItemsFromRead;
 use App\Chron\Infrastructure\Service\CustomerEmailMustBeUnique;
 use App\Chron\Infrastructure\Service\OwnerPendingOrderMustBeUnique;
+use App\Chron\Model\Cart\Service\ReadCartItems;
 use App\Chron\Model\Customer\Service\UniqueCustomerEmail;
 use App\Chron\Model\Order\Service\UniqueOwnerPendingOrder;
 use Illuminate\Support\ServiceProvider;
@@ -16,5 +18,6 @@ class ShopServiceProvider extends ServiceProvider
     {
         $this->app->bind(UniqueCustomerEmail::class, CustomerEmailMustBeUnique::class);
         $this->app->bind(UniqueOwnerPendingOrder::class, OwnerPendingOrderMustBeUnique::class);
+        $this->app->bind(ReadCartItems::class, CartItemsFromRead::class);
     }
 }

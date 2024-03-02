@@ -34,6 +34,19 @@ final readonly class CartProvider
     /**
      * @return stdClass{TCart}|null
      */
+    public function findCartWithOwner(string $cartId, string $customerId): ?stdClass
+    {
+        $cart = $this->queryCart()
+            ->where('id', $cartId)
+            ->where('customer_id', $customerId)
+            ->first();
+
+        return $this->withCartItems($cart);
+    }
+
+    /**
+     * @return stdClass{TCart}|null
+     */
     public function findCartByCustomerId(string $customerId): ?stdClass
     {
         $cart = $this->queryCart()->where('customer_id', $customerId)->first();
