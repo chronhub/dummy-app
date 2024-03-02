@@ -8,6 +8,7 @@ use App\Chron\Model\Cart\Exception\CartNotFound;
 use App\Chron\Model\Cart\Service\ReadCartItems;
 use App\Chron\Model\Inventory\InventoryReleaseReason;
 use Illuminate\Support\Collection;
+use LogicException;
 use stdClass;
 
 use function abs;
@@ -77,12 +78,13 @@ final class CartItemsManager
     }
 
     /**
-     * @throws CartNotFound when cart is not found
+     * @throws CartNotFound   when cart is not found
+     * @throws LogicException when cart items already loaded
      */
     public function load(CartId $cartId, CartOwner $ownerId): void
     {
         if ($this->items !== null) {
-            return;
+            throw new LogicException('Cart items already loaded');
         }
 
         $items = $this->readCartItems->get($cartId->toString(), $ownerId->toString());

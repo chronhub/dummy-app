@@ -31,10 +31,10 @@ final readonly class CartReadModel
         $this->queryCart()
             ->where('id', $cartId)
             ->where('customer_id', $customerId)
-            ->update(['quantity' => $quantity, 'balance' => $balance]);
+            ->update(['balance' => $balance, 'quantity' => $quantity]);
     }
 
-    public function addCartItem(
+    public function insertCartItem(
         string $cartItemId,
         string $cartId,
         string $customerId,

@@ -10,15 +10,10 @@ use App\Chron\Model\Cart\CartItemSku;
 
 use function sprintf;
 
-class CartNotFound extends CartException
+class CartItemNotFound extends CartNotFound
 {
-    public static function withCartId(CartId $cartId): self
-    {
-        return new self(sprintf('Cart with id %s not found', $cartId));
-    }
-
     public static function withCartItem(CartItemSku $sku, CartItemId $cartItemId, CartId $cartId): self
     {
-        return new self(sprintf('Cart item with sku %s not found in cart %s with id %s', $sku, $cartItemId, $cartId));
+        return new self(sprintf('Cart item with sku "%s" not found with item id "%s" in cart id "%s"', $sku, $cartItemId, $cartId));
     }
 }

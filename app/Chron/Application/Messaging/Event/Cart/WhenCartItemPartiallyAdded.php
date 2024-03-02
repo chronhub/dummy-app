@@ -26,7 +26,7 @@ final readonly class WhenCartItemPartiallyAdded
     {
         $cartItem = $event->cartItem();
 
-        $this->cartReadModel->addCartItem(
+        $this->cartReadModel->insertCartItem(
             $cartItem->id->toString(),
             $event->cartId()->toString(),
             $event->cartOwner()->toString(),

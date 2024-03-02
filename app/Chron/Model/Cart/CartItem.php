@@ -14,17 +14,20 @@ final readonly class CartItem
     ) {
     }
 
-    public static function fromArray(array $data): self
+    public static function make(CartItemId $cartItemId, array $data): self
     {
-        // fixMe
-        if (isset($data['cart_item_id'])) {
-            $cartItemId = $data['cart_item_id'] instanceof CartItemId ? $data['cart_item_id'] : CartItemId::fromString($data['cart_item_id']);
-        } else {
-            $cartItemId = CartItemId::create();
-        }
-
         return new self(
             $cartItemId,
+            CartItemSku::fromString($data['cart_item_sku']),
+            CartItemQuantity::fromInteger($data['cart_item_quantity']),
+            CartItemPrice::fromString($data['cart_item_price'])
+        );
+    }
+
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            CartItemId::fromString($data['cart_item_id']),
             CartItemSku::fromString($data['cart_item_sku']),
             CartItemQuantity::fromInteger($data['cart_item_quantity']),
             CartItemPrice::fromString($data['cart_item_price'])
@@ -43,12 +46,7 @@ final readonly class CartItem
 
     public function withAdjustedQuantity(CartItemQuantity $quantity): self
     {
-        return new self(
-            $this->id,
-            $this->sku,
-            $quantity,
-            $this->price
-        );
+        return new self($this->id, $this->sku, $quantity, $this->price);
     }
 
     public function sameValueAs(self $other): bool

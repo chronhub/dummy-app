@@ -6,6 +6,8 @@ namespace App\Chron\Model\Cart\Handler;
 
 use App\Chron\Application\Messaging\Command\Cart\AddCartItem;
 use App\Chron\Model\Cart\Cart;
+use App\Chron\Model\Cart\CartItem;
+use App\Chron\Model\Cart\CartItemId;
 use App\Chron\Model\Cart\CartItemsManager;
 use App\Chron\Model\Cart\Exception\CartNotFound;
 use App\Chron\Model\Cart\Repository\CartList;
@@ -31,8 +33,17 @@ final readonly class AddCartItemHandler
             throw CartNotFound::withCartId($command->cartId());
         }
 
-        $cart->addItem($command->cartItem(), $this->cartItemsManager);
+        $cartItem = $this->makeCartItem($command->content);
+
+        $cart->addItem($cartItem, $this->cartItemsManager);
 
         $this->cartList->save($cart);
+    }
+
+    private function makeCartItem(array $content): CartItem
+    {
+        $cartItemId = CartItemId::create();
+
+        return CartItem::make($cartItemId, $content);
     }
 }

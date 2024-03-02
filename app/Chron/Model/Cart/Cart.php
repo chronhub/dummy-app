@@ -9,8 +9,8 @@ use App\Chron\Model\Cart\Event\CartItemPartiallyAdded;
 use App\Chron\Model\Cart\Event\CartItemQuantityUpdated;
 use App\Chron\Model\Cart\Event\CartItemRemoved;
 use App\Chron\Model\Cart\Event\CartOpened;
-use App\Chron\Model\Cart\Exception\CartAlreadyExists;
-use App\Chron\Model\Cart\Exception\CartNotFound;
+use App\Chron\Model\Cart\Exception\CartItemAlreadyExists;
+use App\Chron\Model\Cart\Exception\CartItemNotFound;
 use App\Chron\Model\Cart\Exception\InsufficientStockForCartItem;
 use App\Chron\Model\InvalidDomainException;
 use App\Chron\Model\Inventory\Exception\InvalidCartOperation;
@@ -34,6 +34,9 @@ final class Cart implements AggregateRoot
 
     private CartQuantity $quantity;
 
+    /**
+     * Open a new cart for the owner.
+     */
     public static function open(CartId $cartId, CartOwner $cartOwner): self
     {
         $cart = new self($cartId);
@@ -49,6 +52,13 @@ final class Cart implements AggregateRoot
         return $cart;
     }
 
+    /**
+     * Add a new item to an opened cart.
+     *
+     * @throws CartItemAlreadyExists        when the item already exists in the cart
+     * @throws InsufficientStockForCartItem when the stock is not enough to add the item
+     * @throws InvalidCartOperation         when the cart is not opened
+     */
     public function addItem(CartItem $cartItem, CartItemsManager $itemsManager): void
     {
         $this->assertCartOpenForModification();
@@ -85,6 +95,12 @@ final class Cart implements AggregateRoot
         ));
     }
 
+    /**
+     * Remove an item from an opened cart.
+     *
+     * @throws CartItemNotFound     when the item is not found in the cart
+     * @throws InvalidCartOperation when the cart is not opened
+     */
     public function removeItem(CartItemId $cartItemId, CartItemSku $cartItemSku, CartItemsManager $itemsManager): void
     {
         $this->assertCartOpenForModification();
@@ -106,6 +122,14 @@ final class Cart implements AggregateRoot
         ));
     }
 
+    /**
+     * Adjust the quantity of an item in an opened cart.
+     * It cannot be decreased to zero, use removeItem instead.
+     *
+     * @throws CartItemNotFound             when the item is not found in the cart
+     * @throws InsufficientStockForCartItem when the stock is not enough to adjust the quantity
+     * @throws InvalidCartOperation         when the cart is not opened
+     */
     public function updateItemQuantity(CartItem $cartItem, CartItemsManager $itemsManager): void
     {
         $this->assertCartOpenForModification();
@@ -155,6 +179,16 @@ final class Cart implements AggregateRoot
         return $this->status;
     }
 
+    public function balance(): CartBalance
+    {
+        return $this->balance;
+    }
+
+    public function quantity(): CartQuantity
+    {
+        return $this->quantity;
+    }
+
     private function assertCartOpenForModification(): void
     {
         if ($this->status !== CartStatus::OPENED) {
@@ -165,14 +199,14 @@ final class Cart implements AggregateRoot
     private function assertCartItemExists(CartItemId $cartItemId, CartItemSku $cartItemSku, CartItemsManager $itemsManager): void
     {
         if (! $itemsManager->hasCartItem($cartItemId, $cartItemSku)) {
-            throw CartNotFound::withCartItemSku($cartItemSku, $cartItemId, $this->cartId());
+            throw CartItemNotFound::withCartItem($cartItemSku, $cartItemId, $this->cartId());
         }
     }
 
     private function assertCartItemNotExists(CartItem $cartItem, CartItemsManager $itemsManager): void
     {
         if ($itemsManager->hasSku($cartItem->sku)) {
-            throw CartAlreadyExists::withCartItemId(
+            throw CartItemAlreadyExists::withCartItemId(
                 $itemsManager->getCartItemFromSku($cartItem->sku)->id,
                 $this->cartId()
             );
