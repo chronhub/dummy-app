@@ -30,11 +30,21 @@ final class Cart implements AggregateRoot
 
     private CartStatus $status;
 
+    private CartBalance $balance;
+
+    private CartQuantity $quantity;
+
     public static function open(CartId $cartId, CartOwner $cartOwner): self
     {
         $cart = new self($cartId);
 
-        $cart->recordThat(CartOpened::forOwner($cartId, $cartOwner, CartStatus::OPENED));
+        $cart->recordThat(CartOpened::forOwner(
+            $cartId,
+            $cartOwner,
+            CartStatus::OPENED,
+            CartBalance::fromDefault(),
+            CartQuantity::fromDefault()
+        ));
 
         return $cart;
     }
@@ -175,6 +185,8 @@ final class Cart implements AggregateRoot
             case $event instanceof CartOpened:
                 $this->owner = $event->cartOwner();
                 $this->status = $event->cartStatus();
+                $this->balance = $event->cartBalance();
+                $this->quantity = $event->cartQuantity();
 
                 break;
 
@@ -182,6 +194,9 @@ final class Cart implements AggregateRoot
             case $event instanceof CartItemPartiallyAdded:
             case $event instanceof CartItemRemoved:
             case $event instanceof CartItemQuantityUpdated:
+                $this->balance = $event->cartBalance();
+                $this->quantity = $event->cartQuantity();
+
                 break;
 
             default:

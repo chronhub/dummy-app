@@ -22,31 +22,6 @@ final class CartItemsManager
     ) {
     }
 
-    /**
-     * @throws CartNotFound when cart is not found
-     */
-    public function load(CartId $cartId, CartOwner $ownerId): void
-    {
-        if ($this->items !== null) {
-            return;
-        }
-
-        $items = $this->readCartItems->get($cartId->toString(), $ownerId->toString());
-
-        if ($items === null) {
-            throw CartNotFound::withCartId($cartId);
-        }
-
-        $this->items = $items->map(function (stdClass $item): CartItem {
-            return CartItem::fromStrings(
-                $item->id,
-                $item->sku_id,
-                $item->quantity,
-                $item->price,
-            );
-        });
-    }
-
     public function addItem(CartItem $cartItem): ?CartItem
     {
         $reserved = $this->reservation->reserveItem($cartItem->sku->toString(), $cartItem->quantity->value);
@@ -99,6 +74,31 @@ final class CartItemsManager
             ),
             CartBalance::fromDefault()
         );
+    }
+
+    /**
+     * @throws CartNotFound when cart is not found
+     */
+    public function load(CartId $cartId, CartOwner $ownerId): void
+    {
+        if ($this->items !== null) {
+            return;
+        }
+
+        $items = $this->readCartItems->get($cartId->toString(), $ownerId->toString());
+
+        if ($items === null) {
+            throw CartNotFound::withCartId($cartId);
+        }
+
+        $this->items = $items->map(function (stdClass $item): CartItem {
+            return CartItem::fromStrings(
+                $item->id,
+                $item->sku_id,
+                $item->quantity,
+                $item->price,
+            );
+        });
     }
 
     public function calculateQuantity(): CartQuantity
