@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Package\Attribute;
 
 use App\Chron\Application\Messaging\Event\Cart\WhenCartItemAdded;
+use App\Chron\Application\Messaging\Event\Cart\WhenCartItemPartiallyAdded;
 use App\Chron\Application\Messaging\Event\Cart\WhenCartItemQuantityUpdated;
 use App\Chron\Application\Messaging\Event\Cart\WhenCartItemRemoved;
 use App\Chron\Application\Messaging\Event\Cart\WhenCartOpened;
@@ -131,6 +132,7 @@ class Catalog
         WhenOrderCreated::class,
         WhenOrderModified::class,
         WhenOrderItemAdded::class,
+        WhenCartItemPartiallyAdded::class,
         WhenOwnerRequestedOrderCanceled::class,
 
         WhenInventoryItemAdded::class,

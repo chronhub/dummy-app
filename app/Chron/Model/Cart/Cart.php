@@ -106,6 +106,8 @@ final class Cart implements AggregateRoot
 
         $adjust = $itemsManager->adjustItem($cartItem);
 
+        // todo add partial update event when increasing quantity
+
         $this->recordThat(CartItemQuantityUpdated::forCart(
             $this->cartId(),
             $this->owner,

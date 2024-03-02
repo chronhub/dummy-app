@@ -55,9 +55,9 @@ final class CartItemsManager
             return null;
         }
 
-        $adjust = $this->processCartItemAddition($cartItem, $reserved);
+        $adjust = $cartItem->withAdjustedQuantity(CartItemQuantity::fromInteger($reserved));
 
-        $this->replaceCartItem($adjust);
+        $this->upsertCartItem($adjust);
 
         return $adjust;
     }
@@ -67,7 +67,7 @@ final class CartItemsManager
         $currentCartItem = $this->getCartItemFromSku($cartItem->sku);
         $quantityDifference = $currentCartItem->quantity->value - $cartItem->quantity->value;
 
-        // assume increase quantity if the difference is 0
+        // assume increase quantity
         if ($quantityDifference === 0) {
             $quantityDifference = -1;
         }
@@ -129,11 +129,16 @@ final class CartItemsManager
         );
     }
 
-    private function replaceCartItem(CartItem $cartItem): void
+    private function upsertCartItem(CartItem $cartItem): void
     {
-        $this->items = $this->items->map(
-            fn (CartItem $item) => $item->sku->equalsTo($cartItem->sku) ? $cartItem : $item
-        );
+        $this->items = $this->items
+            ->when(
+                $this->hasSku($cartItem->sku),
+                fn (Collection $items) => $items->map(
+                    fn (CartItem $item) => $item->sku->equalsTo($cartItem->sku) ? $cartItem : $item
+                ),
+                fn (Collection $items) => $items->push($cartItem)
+            );
     }
 
     /**
@@ -143,9 +148,9 @@ final class CartItemsManager
     {
         $reserved = $this->reservation->reserveItem($cartItem->sku->toString(), abs($quantity));
 
-        $adjust = $this->processCartItemAddition($cartItem, $reserved);
+        $adjust = $this->adjustCartItem($cartItem, $reserved);
 
-        $this->replaceCartItem($adjust);
+        $this->upsertCartItem($adjust);
 
         return $adjust;
     }
@@ -155,22 +160,25 @@ final class CartItemsManager
      */
     private function decreaseQuantity(CartItem $cartItem, int $quantity): CartItem
     {
+        // todo handle case when release failed to release the reserved item quantity.
         $this->reservation->releaseItem($cartItem->sku->toString(), $quantity, InventoryReleaseReason::RESERVATION_ADJUSTED);
 
-        $adjust = $cartItem->withAdjustedQuantity(CartItemQuantity::fromInteger($cartItem->quantity->value - $quantity));
+        $adjust = $this->adjustCartItem($cartItem, -$quantity);
 
-        $this->replaceCartItem($adjust);
+        $this->upsertCartItem($adjust);
 
         return $adjust;
     }
 
     /**
-     * @param positive-int $quantityReserved
+     * @param positive-int|negative-int $quantity
      */
-    private function processCartItemAddition(CartItem $cartItem, int $quantityReserved): CartItem
+    private function adjustCartItem(CartItem $cartItem, int $quantity): CartItem
     {
-        return $cartItem->withAdjustedQuantity(CartItemQuantity::fromInteger(
-            $cartItem->quantity->value + $quantityReserved
-        ));
+        $adjustQuantity = $cartItem->quantity->value + $quantity;
+
+        $newQuantity = CartItemQuantity::fromInteger($adjustQuantity);
+
+        return $cartItem->withAdjustedQuantity($newQuantity);
     }
 }
