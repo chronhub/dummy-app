@@ -62,6 +62,14 @@ final readonly class CartReadModel
             ->delete();
     }
 
+    public function deleteItems(string $cartId, string $customerId): void
+    {
+        $this->queryCartItem()
+            ->where('cart_id', $cartId)
+            ->where('customer_id', $customerId)
+            ->delete();
+    }
+
     public function updateItemQuantity(string $cartItemId, string $cartId, string $customerId, string $skuId, int $quantity): void
     {
         $this->queryCartItem()

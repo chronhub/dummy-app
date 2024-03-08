@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Cart;
 
+use App\Chron\Model\Cart\Event\CartCanceled;
 use App\Chron\Model\Cart\Event\CartItemAdded;
 use App\Chron\Model\Cart\Event\CartItemPartiallyAdded;
 use App\Chron\Model\Cart\Event\CartItemQuantityUpdated;
 use App\Chron\Model\Cart\Event\CartItemRemoved;
 use App\Chron\Model\Cart\Event\CartOpened;
+use App\Chron\Model\Cart\Event\CartSubmitted;
+use App\Chron\Model\Cart\Exception\CanNotCheckoutEmptyCart;
 use App\Chron\Model\Cart\Exception\CartItemAlreadyExists;
 use App\Chron\Model\Cart\Exception\CartItemNotFound;
 use App\Chron\Model\Cart\Exception\InsufficientStockForCartItem;
@@ -151,9 +154,61 @@ final class Cart implements AggregateRoot
         ));
     }
 
+    /**
+     * Cancel the cart and release all items.
+     *
+     * By now, we just empty the cart and keep it open.
+     *
+     * @todo add reason for canceling the cart
+     *
+     * @throws InvalidCartOperation when the cart is closed.
+     */
+    public function cancel(CartItemsManager $itemsManager): void
+    {
+        if ($this->status === CartStatus::CLOSED) {
+            throw new InvalidCartOperation('Cart is closed and cannot be canceled');
+        }
+
+        $itemsManager->load($this->cartId(), $this->owner);
+        $itemsManager->removeAllItems(InventoryReleaseReason::RESERVATION_CANCELED);
+
+        $this->recordThat(CartCanceled::forCart(
+            $this->cartId(),
+            $this->owner,
+            CartBalance::fromDefault(),
+            CartQuantity::fromDefault(),
+            $this->balance,
+            $this->quantity,
+            CartStatus::OPENED,
+            $this->status
+        ));
+    }
+
+    /**
+     * Checkout and lock cart.
+     *
+     * No rule by now to handle conflicts
+     *
+     * @throws CanNotCheckoutEmptyCart when the cart is empty
+     * @throws InvalidCartOperation    when the cart is not opened
+     */
     public function checkout(): void
     {
+        if ($this->status !== CartStatus::OPENED) {
+            throw new InvalidCartOperation('Cart is not opened');
+        }
 
+        if ($this->quantity->value === 0) {
+            throw new CanNotCheckoutEmptyCart('Cart is empty');
+        }
+
+        $this->recordThat(CartSubmitted::forCart(
+            $this->cartId(),
+            $this->owner,
+            $this->balance,
+            $this->quantity,
+            CartStatus::SUBMITTED
+        ));
     }
 
     public function close(string $reason): void
@@ -230,6 +285,17 @@ final class Cart implements AggregateRoot
             case $event instanceof CartItemQuantityUpdated:
                 $this->balance = $event->cartBalance();
                 $this->quantity = $event->cartQuantity();
+
+                break;
+
+            case $event instanceof CartSubmitted:
+                $this->status = $event->cartStatus();
+
+                break;
+            case $event instanceof CartCanceled:
+                $this->status = $event->newCartStatus();
+                $this->balance = $event->newCartBalance();
+                $this->quantity = $event->newCartQuantity();
 
                 break;
 

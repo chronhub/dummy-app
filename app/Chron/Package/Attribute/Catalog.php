@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Package\Attribute;
 
+use App\Chron\Application\Messaging\Event\Cart\WhenCartCanceled;
 use App\Chron\Application\Messaging\Event\Cart\WhenCartItemAdded;
 use App\Chron\Application\Messaging\Event\Cart\WhenCartItemPartiallyAdded;
 use App\Chron\Application\Messaging\Event\Cart\WhenCartItemQuantityUpdated;
@@ -29,6 +30,7 @@ use App\Chron\Infrastructure\Repository\InventoryAggregateRepository;
 use App\Chron\Infrastructure\Repository\OrderAggregateRepository;
 use App\Chron\Infrastructure\Repository\ProductAggregateRepository;
 use App\Chron\Model\Cart\Handler\AddCartItemHandler;
+use App\Chron\Model\Cart\Handler\CancelCartHandler;
 use App\Chron\Model\Cart\Handler\OpenCartHandler;
 use App\Chron\Model\Cart\Handler\QueryCartHistoryHandler;
 use App\Chron\Model\Cart\Handler\QueryOpenedCartByCustomerIdHandler;
@@ -102,6 +104,7 @@ class Catalog
         AddCartItemHandler::class,
         RemoveCartItemHandler::class,
         UpdateCartItemHandler::class,
+        CancelCartHandler::class,
 
         // product
         CreateOrderHandler::class,
@@ -128,6 +131,7 @@ class Catalog
         WhenCartItemAdded::class,
         WhenCartItemRemoved::class,
         WhenCartItemQuantityUpdated::class,
+        WhenCartCanceled::class,
 
         WhenOrderCreated::class,
         WhenOrderModified::class,

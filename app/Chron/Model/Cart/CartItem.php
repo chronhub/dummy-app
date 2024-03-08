@@ -34,10 +34,10 @@ final readonly class CartItem
         );
     }
 
-    public static function fromStrings(string $itemId, string $sku, int $quantity, string $price): self
+    public static function fromValues(string $cartItemId, string $sku, int $quantity, string $price): self
     {
         return new self(
-            CartItemId::fromString($itemId),
+            CartItemId::fromString($cartItemId),
             CartItemSku::fromString($sku),
             CartItemQuantity::fromInteger($quantity),
             CartItemPrice::fromString($price)

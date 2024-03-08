@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Application\Service;
 
 use App\Chron\Application\Messaging\Command\Cart\AddCartItem;
+use App\Chron\Application\Messaging\Command\Cart\CancelCart;
 use App\Chron\Application\Messaging\Command\Cart\OpenCart;
 use App\Chron\Application\Messaging\Command\Cart\RemoveCartItem;
 use App\Chron\Application\Messaging\Command\Cart\UpdateCartItemQuantity;
@@ -64,6 +65,13 @@ final readonly class CartApplicationService
             $product->unit_price,
             $quantity
         );
+
+        $this->dispatchCommand($command);
+    }
+
+    public function cancelCart(string $customerId, string $cartId): void
+    {
+        $command = CancelCart::forCustomer($customerId, $cartId);
 
         $this->dispatchCommand($command);
     }

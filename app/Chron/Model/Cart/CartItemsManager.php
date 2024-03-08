@@ -66,6 +66,19 @@ final class CartItemsManager
         return $cartItem;
     }
 
+    public function removeAllItems(string $reason): void
+    {
+        if ($this->calculateQuantity()->value < 1) {
+            return;
+        }
+
+        $this->items->each(
+            fn (CartItem $item) => $this->reservation->releaseItem($item->sku->toString(), $item->quantity->value, $reason)
+        );
+
+        $this->items = collect();
+    }
+
     public function calculateBalance(): CartBalance
     {
         return $this->items->reduce(
@@ -91,7 +104,7 @@ final class CartItemsManager
         }
 
         $this->items = $items->map(function (stdClass $item): CartItem {
-            return CartItem::fromStrings(
+            return CartItem::fromValues(
                 $item->id,
                 $item->sku_id,
                 $item->quantity,
@@ -160,6 +173,7 @@ final class CartItemsManager
     private function decreaseQuantity(CartItem $cartItem, int $quantity): CartItem
     {
         // todo handle case when release failed to release the reserved item quantity.
+        // todo map reason to InventoryReleaseReason
         $this->reservation->releaseItem($cartItem->sku->toString(), $quantity, InventoryReleaseReason::RESERVATION_ADJUSTED);
 
         $adjust = $this->adjustCartItem($cartItem, -$quantity);
