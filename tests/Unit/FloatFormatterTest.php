@@ -4,90 +4,43 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\Chron\Model\FloatFormatter;
+use App\Chron\Model\InvalidPriceValue;
+use App\Chron\Model\Price;
 
-it('formats float to string', function (float $value, string $expected) {
-    $formatted = FloatFormatter::toString($value);
-
-    expect($formatted)->toBe($expected);
+it('can validate a valid price', function (string $value) {
+    expect(Price::fromString($value))->toBe($value);
 })->with([
-    [10.00, '10.00'],
-    [10.0, '10.00'],
-    [10.25, '10.25'],
-    [10.50, '10.50'],
-    [10.75, '10.75'],
-    [10.755, '10.76'],
-    [10.75555555, '10.76'],
+    ['0.00'],
+    ['0.01'],
+    ['0.99'],
+    ['1.00'],
+    ['1.01'],
+    ['1.99'],
+    ['10.00'],
+    ['10.01'],
+    ['10.99'],
+    ['100.00'],
+    ['100.01'],
+    ['100.99'],
+    ['1000.00'],
+    ['1000.01'],
+    ['1000.99'],
 ]);
 
-it('formats int to string', function () {
-    $int = 10;
+it('raise exception when price has not two decimals', function (string $value) {
+    Price::fromString($value);
+})->with([
+    ['0'],
+    ['10'],
+    ['10.1'],
+    ['10.75555555'],
+])->throws(InvalidPriceValue::class, 'Price value must be a decimal number with two decimals');
 
-    $formatted = FloatFormatter::toString($int);
-
-    expect($formatted)->toBe('10.00');
-});
-
-it('formats string to string', function () {
-    $string = '10.00';
-
-    $formatted = FloatFormatter::toString($string);
-
-    expect($formatted)->toBe('10.00');
-});
-
-it('formats float to float', function () {
-    $float = 10.00;
-
-    $formatted = FloatFormatter::toFloat($float);
-
-    expect($formatted)->toBe(10.00);
-});
-
-it('formats int to float', function () {
-    $int = 10;
-
-    $formatted = FloatFormatter::toFloat($int);
-
-    expect($formatted)->toBe(10.00);
-});
-
-it('formats string to float', function () {
-    $string = '10.00';
-
-    $formatted = FloatFormatter::toFloat($string);
-
-    expect($formatted)->toBe(10.00);
-});
-
-it('format zero to string', function () {
-    $zero = 0;
-
-    $formatted = FloatFormatter::toString($zero);
-
-    expect($formatted)->toBe('0.00');
-});
-
-it('format zero to float', function () {
-    $zero = 0;
-
-    $formatted = FloatFormatter::toFloat($zero);
-
-    expect($formatted)->toBe(0.00);
-});
-
-it('format negative to string', function () {
-    $negative = -10;
-
-    $formatted = FloatFormatter::toString($negative);
-
-    expect($formatted)->toBe('-10.00');
-});
-
-it('format negative to float', function () {
-    $negative = -10;
-
-    $formatted = FloatFormatter::toFloat($negative);
-
-    expect($formatted)->toBe(-10.00);
-});
+it('raise exception when price has a negative dash', function (string $value) {
+    Price::fromString($value);
+})->with([
+    ['-1.00'],
+    ['-1.01'],
+    ['-0.00'],
+    ['-0'],
+])->throws(InvalidPriceValue::class, 'Price value must be a decimal number with two decimals');

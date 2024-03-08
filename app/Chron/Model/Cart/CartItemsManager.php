@@ -69,10 +69,7 @@ final class CartItemsManager
     public function calculateBalance(): CartBalance
     {
         return $this->items->reduce(
-            fn (CartBalance $carry, CartItem $item) => $carry->add(
-                $item->price->value,
-                $item->quantity->value
-            ),
+            fn (CartBalance $carry, CartItem $item) => $carry->add($item->price, $item->quantity),
             CartBalance::fromDefault()
         );
     }

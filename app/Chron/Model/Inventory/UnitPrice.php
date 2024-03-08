@@ -5,27 +5,24 @@ declare(strict_types=1);
 namespace App\Chron\Model\Inventory;
 
 use App\Chron\Model\Inventory\Exception\InvalidInventoryValue;
-
-use function number_format;
+use App\Chron\Model\Price;
 
 final readonly class UnitPrice
 {
     public string $value;
 
-    private function __construct(string $value)
+    private function __construct(Price $price)
     {
-        $floatUnitPrice = (float) $value;
-
-        if ($floatUnitPrice < 0) {
-            throw new InvalidInventoryValue('Inventory unit price must be greater than or equal to 0');
+        if (! $price->greaterThanZero()) {
+            throw new InvalidInventoryValue('Inventory unit price must be greater than 0');
         }
 
-        $this->value = number_format($floatUnitPrice, 2, '.', '');
+        $this->value = $price->value;
     }
 
     public static function create(string $unitPrice): self
     {
-        return new self($unitPrice);
+        return new self(Price::fromString($unitPrice));
     }
 
     public function sameValueAs(self $other): bool

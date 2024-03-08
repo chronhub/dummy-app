@@ -123,7 +123,7 @@ final class Cart implements AggregateRoot
     }
 
     /**
-     * Adjust the quantity of an item in an opened cart.
+     * Adjust the quantity of an item for an opened cart.
      * It cannot be decreased to zero, use removeItem instead.
      *
      * @throws CartItemNotFound             when the item is not found in the cart
