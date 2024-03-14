@@ -9,7 +9,6 @@ use App\Chron\Projection\Provider\CustomerProvider;
 use App\Chron\Projection\Provider\InventoryProvider;
 use App\Chron\Projection\Provider\OrderProvider;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Str;
 
 final class HomeController
 {
@@ -25,13 +24,5 @@ final class HomeController
             'inventory' => $inventory,
             'lastTenCustomers' => $lastTenCustomers,
         ]);
-    }
-
-    protected function ensureUniqueEmail(): string
-    {
-        $name = Str::of(fake()->name)->replace(' ', '')->lower();
-        $name .= Str::random(4);
-
-        return $name.'@'.fake()->domainName;
     }
 }

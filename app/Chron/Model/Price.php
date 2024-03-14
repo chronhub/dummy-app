@@ -17,7 +17,7 @@ final readonly class Price
      * Price disallow negative and integer values
      * Price must exactly have two decimals
      *
-     * @throws InvalidPriceValue when the value is not a positive number with two decimals
+     * @throws InvalidPriceValue when the value is not a number with two decimals
      */
     public static function fromString(string $value): self
     {

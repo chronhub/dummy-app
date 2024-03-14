@@ -16,12 +16,7 @@ final readonly class CartItem
 
     public static function make(CartItemId $cartItemId, array $data): self
     {
-        return new self(
-            $cartItemId,
-            CartItemSku::fromString($data['cart_item_sku']),
-            CartItemQuantity::fromInteger($data['cart_item_quantity']),
-            CartItemPrice::fromString($data['cart_item_price'])
-        );
+        return self::fromArray($data + ['cart_item_id' => $cartItemId->toString()]);
     }
 
     public static function fromArray(array $data): self

@@ -12,7 +12,7 @@ enum CartStatus: string
     // The cart has been submitted for processing
     case SUBMITTED = 'submitted';
 
-    // The cart has been abandoned, canceled, or otherwise not completed
+    // The cart has been abandoned, or otherwise not completed
     case CLOSED = 'closed';
 
     public static function toStrings(): array
