@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Action;
+namespace App\Http\Controllers\Action\Random\Customer;
 
 use App\Chron\Application\Service\CustomerService;
 use Symfony\Component\HttpFoundation\Response;
 
-final class RegisterRandomCustomerAction
+final class ChangeRandomCustomerEmailAction
 {
     public function __invoke(CustomerService $customerService): Response
     {
-        $customerService->registerCustomer();
+        $customerService->changeCustomerEmail();
 
         return new Response('ok');
     }

@@ -19,18 +19,25 @@ final readonly class CustomerService
     {
     }
 
-    public function registerCustomers(int $limit = 1000): void
+    public function registerRandomCustomers(int $limit = 1000): void
     {
         $i = 1;
 
         while ($i <= $limit) {
-            $this->registerCustomer();
+            $this->registerRandomCustomer();
 
             $i++;
         }
     }
 
-    public function registerCustomer(): void
+    public function registerCustomer(array $data): void
+    {
+        $command = RegisterCustomer::withData(...$data);
+
+        Report::relay($command);
+    }
+
+    public function registerRandomCustomer(): void
     {
         $command = RegisterCustomer::withData(
             fake()->uuid,

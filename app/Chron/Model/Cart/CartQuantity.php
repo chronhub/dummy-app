@@ -25,6 +25,11 @@ final readonly class CartQuantity
         return new self(0);
     }
 
+    public function isEmpty(): bool
+    {
+        return $this->value === 0;
+    }
+
     public function sameValueAs(self $other): bool
     {
         return $this->value === $other->value;
