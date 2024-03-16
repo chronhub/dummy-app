@@ -14,7 +14,6 @@ final class HomeController
     // todo make report queries
     public function __invoke(OrderProvider $orderProvider, InventoryProvider $inventoryProvider, CustomerProvider $customerProvider): View
     {
-
         $order = $orderProvider->getOrderSummary();
         $inventory = $inventoryProvider->getInventorySummary();
         $lastTenCustomers = $customerProvider->lastTenCustomers();

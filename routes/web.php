@@ -13,6 +13,7 @@ use App\Http\Controllers\Action\CustomerCancelOrderAction;
 use App\Http\Controllers\Action\MakeRandomOrderAction;
 use App\Http\Controllers\Action\Random\Cart\AddRandomCartItemAction;
 use App\Http\Controllers\Action\Random\Cart\CheckoutCartRandomAction;
+use App\Http\Controllers\Action\Random\Cart\PayOrderRandomAction;
 use App\Http\Controllers\Action\Random\Cart\RemoveRandomCartItemAction;
 use App\Http\Controllers\Action\Random\Cart\UpdateRandomCartItemQuantityAction;
 use App\Http\Controllers\Action\Random\Customer\ChangeRandomCustomerEmailAction;
@@ -62,4 +63,5 @@ Route::group(['prefix' => 'seed'], function () {
     Route::get('/cart/remove', RemoveRandomCartItemAction::class)->name('seed.cart.remove');
     Route::get('/cart/update', UpdateRandomCartItemQuantityAction::class)->name('seed.cart.update');
     Route::get('/cart/checkout', CheckoutCartRandomAction::class)->name('seed.cart.checkout');
+    Route::get('/cart/pay', PayOrderRandomAction::class)->name('seed.cart.pay');
 });

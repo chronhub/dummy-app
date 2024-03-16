@@ -40,6 +40,17 @@ final readonly class OrderProvider
     }
 
     /**
+     * @return stdClass{TOrder}|null
+     */
+    public function findRandomPendingOwnerOrder(): ?stdClass
+    {
+        return $this->orderQuery()
+            ->whereIn('status', $this->pendingOrderStatuses)
+            ->inRandomOrder()
+            ->first();
+    }
+
+    /**
      * @return stdClass{TOrderItem}|null
      */
     public function findOrderOfCustomer(string $customerId, string $orderId): ?stdClass
