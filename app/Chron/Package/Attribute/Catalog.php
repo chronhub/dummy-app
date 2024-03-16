@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Package\Attribute;
 
 use App\Chron\Application\Messaging\Event\Cart\WhenCartCanceled;
+use App\Chron\Application\Messaging\Event\Cart\WhenCartCheckout;
 use App\Chron\Application\Messaging\Event\Cart\WhenCartItemAdded;
 use App\Chron\Application\Messaging\Event\Cart\WhenCartItemPartiallyAdded;
 use App\Chron\Application\Messaging\Event\Cart\WhenCartItemQuantityUpdated;
@@ -19,10 +20,6 @@ use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemRefilled;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemReleased;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemReserved;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCreated;
-use App\Chron\Application\Messaging\Event\Order\WhenOrderItemAdded;
-use App\Chron\Application\Messaging\Event\Order\WhenOrderItemPartiallyAdded;
-use App\Chron\Application\Messaging\Event\Order\WhenOrderModified;
-use App\Chron\Application\Messaging\Event\Order\WhenOwnerRequestedOrderCanceled;
 use App\Chron\Application\Messaging\Event\Product\WhenProductCreated;
 use App\Chron\Infrastructure\Repository\CartAggregateRepository;
 use App\Chron\Infrastructure\Repository\CustomerAggregateRepository;
@@ -31,6 +28,7 @@ use App\Chron\Infrastructure\Repository\OrderAggregateRepository;
 use App\Chron\Infrastructure\Repository\ProductAggregateRepository;
 use App\Chron\Model\Cart\Handler\AddCartItemHandler;
 use App\Chron\Model\Cart\Handler\CancelCartHandler;
+use App\Chron\Model\Cart\Handler\CheckoutCartHandler;
 use App\Chron\Model\Cart\Handler\OpenCartHandler;
 use App\Chron\Model\Cart\Handler\QueryCartHistoryHandler;
 use App\Chron\Model\Cart\Handler\QueryOpenedCartByCustomerIdHandler;
@@ -105,6 +103,7 @@ class Catalog
         RemoveCartItemHandler::class,
         UpdateCartItemHandler::class,
         CancelCartHandler::class,
+        CheckoutCartHandler::class,
 
         // product
         CreateOrderHandler::class,
@@ -132,15 +131,12 @@ class Catalog
         WhenCartItemRemoved::class,
         WhenCartItemQuantityUpdated::class,
         WhenCartCanceled::class,
+        WhenCartCheckout::class,
 
         WhenOrderCreated::class,
-        WhenOrderModified::class,
-        WhenOrderItemAdded::class,
         WhenCartItemPartiallyAdded::class,
-        WhenOwnerRequestedOrderCanceled::class,
 
         WhenInventoryItemAdded::class,
-        WhenOrderItemPartiallyAdded::class,
         WhenInventoryItemRefilled::class,
         WhenInventoryItemReserved::class,
         WhenInventoryItemPartiallyReserved::class,

@@ -20,41 +20,15 @@ final readonly class OrderReadModel
     ) {
     }
 
-    public function insertOrder(string $orderId, string $orderOwner, string $status): void
+    public function insertOrder(string $orderId, string $orderOwner, string $status, string $balance, int $quantity): void
     {
         $this->queryOrder()->insert([
             'id' => $orderId,
             'customer_id' => $orderOwner,
             'status' => $status,
-        ]);
-    }
-
-    public function updateOrder(string $orderId, string $orderOwner, string $balance, int $quantity, string $status): void
-    {
-        $this->queryOrder()
-            ->where('id', $orderId)
-            ->where('customer_id', $orderOwner)
-            ->update(['quantity' => $quantity, 'balance' => $balance, 'status' => $status, 'updated_at' => $this->clock->generate()]);
-    }
-
-    public function insertOrderItem(string $orderItemId, string $orderId, string $orderOwner, string $skuId, int $quantity, string $unitPrice): void
-    {
-        $this->queryOrderItem()->insert([
-            'id' => $orderItemId,
-            'order_id' => $orderId,
-            'customer_id' => $orderOwner,
-            'sku_id' => $skuId,
+            'balance' => $balance,
             'quantity' => $quantity,
-            'unit_price' => $unitPrice,
         ]);
-    }
-
-    public function deleteOrderItem(string $orderId, string $orderOwner): void
-    {
-        $this->queryOrderItem()
-            ->where('order_id', $orderId)
-            ->where('customer_id', $orderOwner)
-            ->delete();
     }
 
     public function queryOrder(): Builder

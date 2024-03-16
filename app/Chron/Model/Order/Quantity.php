@@ -10,8 +10,8 @@ final readonly class Quantity
 {
     private function __construct(public int $value)
     {
-        if ($value < 0) {
-            throw new InvalidOrderValue('Order quantity must be greater than or equal to 0');
+        if ($value < 1) {
+            throw new InvalidOrderValue('Order quantity must be greater than 0');
         }
     }
 

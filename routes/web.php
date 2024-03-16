@@ -5,11 +5,13 @@ declare(strict_types=1);
 use App\Http\Controllers\Action\AddOrderItemAction;
 use App\Http\Controllers\Action\Cart\AddCartItemAction;
 use App\Http\Controllers\Action\Cart\CancelCartItemAction;
+use App\Http\Controllers\Action\Cart\CheckoutCartAction;
 use App\Http\Controllers\Action\Cart\RemoveCartItemAction;
 use App\Http\Controllers\Action\Cart\UpdateCartItemQuantityAction;
 use App\Http\Controllers\Action\CustomerCancelOrderAction;
 use App\Http\Controllers\Action\MakeRandomOrderAction;
 use App\Http\Controllers\Action\Random\Cart\AddRandomCartItemAction;
+use App\Http\Controllers\Action\Random\Cart\CheckoutCartRandomAction;
 use App\Http\Controllers\Action\Random\Cart\RemoveRandomCartItemAction;
 use App\Http\Controllers\Action\Random\Cart\UpdateRandomCartItemQuantityAction;
 use App\Http\Controllers\Action\Random\Customer\ChangeRandomCustomerEmailAction;
@@ -36,6 +38,7 @@ Route::get('/customer/{customer_id}/order/{order_id}', CustomerOrderView::class)
 Route::get('/customer/{customer_id}/cart/{cart_id}/', CustomerCartView::class)->name('customer.cart.view');
 Route::get('/customer/{customer_id}/cart/{cart_id}/history', CustomerCartHistory::class)->name('customer.cart.history');
 Route::get('/customer/{customer_id}/cart/{cart_id}/cancel', CancelCartItemAction::class)->name('customer.cart.cancel');
+Route::get('/customer/{customer_id}/cart/{cart_id}/checkout', CheckoutCartAction::class)->name('customer.cart.checkout');
 Route::get('/customer/{customer_id}/cart/{cart_id}/add/{sku}/{quantity}', AddCartItemAction::class)->name('customer.cart.add');
 Route::get('/customer/{customer_id}/cart/{cart_id}/{cart_item_id}/remove/{sku}', RemoveCartItemAction::class)->name('customer.cart.remove');
 Route::get('/customer/{customer_id}/cart/{cart_id}/{cart_item_id}/update/{sku}/{quantity}', UpdateCartItemQuantityAction::class)->name('customer.cart.update');
@@ -56,4 +59,5 @@ Route::group(['prefix' => 'seed'], function () {
     Route::get('/cart/add', AddRandomCartItemAction::class)->name('seed.cart.add');
     Route::get('/cart/remove', RemoveRandomCartItemAction::class)->name('seed.cart.remove');
     Route::get('/cart/update', UpdateRandomCartItemQuantityAction::class)->name('seed.cart.update');
+    Route::get('/cart/checkout', CheckoutCartRandomAction::class)->name('seed.cart.checkout');
 });

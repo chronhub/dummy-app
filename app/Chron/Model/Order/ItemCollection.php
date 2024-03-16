@@ -68,8 +68,26 @@ final readonly class ItemCollection
         return Quantity::create($quantity);
     }
 
+    public static function fromArray(OrderId $orderId, array $items): self
+    {
+        $collection = new self($orderId);
+
+        foreach ($items as $item) {
+            $orderItem = OrderItem::fromArray($item);
+
+            $collection->put($orderItem);
+        }
+
+        return $collection;
+    }
+
     public function getItems(): Collection
     {
         return clone $this->items;
+    }
+
+    public function toArray(): array
+    {
+        return $this->items->map(fn (OrderItem $item) => $item->toArray())->toArray();
     }
 }

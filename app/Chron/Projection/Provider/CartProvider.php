@@ -61,7 +61,7 @@ final readonly class CartProvider
     {
         $cart = $this->queryCart()
             ->where('customer_id', $customerId)
-            ->where('status', CartStatus::OPENED->value)
+            ->whereIn('status', [CartStatus::OPENED->value, CartStatus::SUBMITTED->value])
             ->first();
 
         return $this->withCartItems($cart);

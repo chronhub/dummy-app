@@ -34,6 +34,14 @@ final readonly class CartReadModel
             ->update(['balance' => $balance, 'quantity' => $quantity]);
     }
 
+    public function updateCartStatus(string $cartId, string $customerId, string $status): void
+    {
+        $this->queryCart()
+            ->where('id', $cartId)
+            ->where('customer_id', $customerId)
+            ->update(['status' => $status]);
+    }
+
     public function insertCartItem(
         string $cartItemId,
         string $cartId,

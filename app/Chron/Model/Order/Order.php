@@ -5,16 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order;
 
 use App\Chron\Model\InvalidDomainException;
-use App\Chron\Model\Inventory\InventoryReleaseReason;
-use App\Chron\Model\Inventory\Service\InventoryReservationService;
 use App\Chron\Model\Order\Event\OrderCreated;
-use App\Chron\Model\Order\Event\OrderItemAdded;
-use App\Chron\Model\Order\Event\OrderItemPartiallyAdded;
-use App\Chron\Model\Order\Event\OrderModified;
-use App\Chron\Model\Order\Event\OwnerRequestedOrderCanceled;
-use App\Chron\Model\Order\Exception\InsufficientStockForOrderItem;
-use App\Chron\Model\Order\Exception\InvalidOrderOperation;
-use App\Chron\Model\Order\Exception\OrderAlreadyExists;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
 use App\Chron\Package\Aggregate\Contract\AggregateRoot;
@@ -28,84 +19,19 @@ final class Order implements AggregateRoot
 
     private OrderOwner $owner;
 
-    private OrderStatus $status;
-
     private ItemCollection $orderItems;
+
+    private OrderStatus $status;
 
     private ?string $closedReason = null;
 
-    public static function create(OrderId $orderId, OrderOwner $owner): self
+    public static function create(OrderId $orderId, OrderOwner $owner, ItemCollection $items): self
     {
         $order = new self($orderId);
-        $order->recordThat(OrderCreated::forCustomer($orderId, $owner, OrderStatus::CREATED));
+
+        $order->recordThat(OrderCreated::forCustomer($orderId, $owner, $items, OrderStatus::CREATED));
 
         return $order;
-    }
-
-    /**
-     * @throws InvalidOrderOperation
-     * @throws InsufficientStockForOrderItem
-     */
-    public function addOrderItem(OrderItem $orderItem, InventoryReservationService $reservation): void
-    {
-        if (! $this->isOrderPending()) {
-            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'add order item', $this->status);
-        }
-
-        $this->assertOrderItemNotExists($orderItem);
-
-        $quantityReserved = $reservation->reserveItem($orderItem->skuId->toString(), $orderItem->quantity->value);
-
-        if ($quantityReserved === false) {
-            throw InsufficientStockForOrderItem::withId($this->orderId(), $orderItem->skuId, $orderItem->orderItemId);
-        }
-
-        if ($quantityReserved->value !== $orderItem->quantity->value) {
-            $orderItemAdjusted = $orderItem->withAdjustedQuantity(Quantity::create($quantityReserved->value));
-
-            $this->recordThat(OrderItemPartiallyAdded::forOrder(
-                $this->orderId(),
-                $this->owner,
-                $orderItemAdjusted,
-                $orderItem->quantity
-            ));
-        } else {
-            $this->recordThat(OrderItemAdded::forOrder($this->orderId(), $this->owner, $orderItem));
-        }
-
-        $this->markOrderAsModified(OrderStatus::MODIFIED);
-    }
-
-    /**
-     * Cancel the order requested by the owner
-     *
-     * The full order is canceled, and the reserved stock is released
-     * Must be called only if the order is pending
-     */
-    public function cancelByOwner(InventoryReservationService $reservationService): void
-    {
-        if (! $this->isOrderPending()) {
-            throw InvalidOrderOperation::withInvalidStatus($this->orderId(), 'cancel by customer', $this->status);
-        }
-
-        $items = $this->orderItems->getItems()->map(static function (OrderItem $orderItem) {
-            return [
-                'sku_id' => $orderItem->skuId->toString(),
-                'quantity' => $orderItem->quantity->value,
-                'reason' => InventoryReleaseReason::RESERVATION_CANCELED,
-            ];
-        })->toArray();
-
-        $reservationService->releaseManyItems($items);
-
-        $this->recordThat(OwnerRequestedOrderCanceled::forOrder(
-            $this->orderId(),
-            $this->owner,
-            OrderStatus::CANCELED,
-            OrderCanceledReason::CUSTOMER_REQUESTED
-        ));
-
-        $this->markOrderAsModified(OrderStatus::CANCELED);
     }
 
     public function orderId(): OrderId
@@ -141,29 +67,9 @@ final class Order implements AggregateRoot
         return $this->closedReason;
     }
 
-    private function markOrderAsModified(OrderStatus $orderStatus): void
-    {
-        $event = OrderModified::forOrder(
-            $this->orderId(),
-            $this->owner,
-            $this->orderItems->calculateBalance(),
-            $this->orderItems->calculateQuantity(),
-            $orderStatus
-        );
-
-        $this->recordThat($event);
-    }
-
     private function isOrderPending(): bool
     {
         return in_array($this->status, OrderStatus::pending(), true);
-    }
-
-    private function assertOrderItemNotExists(OrderItem $orderItem): void
-    {
-        if ($this->orderItems->has($orderItem)) {
-            throw OrderAlreadyExists::withOrderItemId($this->orderId(), $orderItem->orderItemId);
-        }
     }
 
     protected function apply(DomainEvent $event): void
@@ -171,22 +77,7 @@ final class Order implements AggregateRoot
         switch (true) {
             case $event instanceof OrderCreated:
                 $this->owner = $event->orderOwner();
-                $this->orderItems = new ItemCollection($this->orderId());
-                $this->status = $event->orderStatus();
-
-                break;
-            case $event instanceof OrderModified:
-                $this->status = $event->orderStatus();
-
-                break;
-            case $event instanceof OrderItemAdded:
-            case $event instanceof OrderItemPartiallyAdded:
-                $this->orderItems->put($event->orderItem());
-
-                break;
-
-            case $event instanceof OwnerRequestedOrderCanceled:
-                $this->orderItems = new ItemCollection($this->orderId());
+                $this->orderItems = $event->orderItems();
                 $this->status = $event->orderStatus();
 
                 break;

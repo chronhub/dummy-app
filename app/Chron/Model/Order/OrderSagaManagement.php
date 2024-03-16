@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order;
 
-use App\Chron\Application\Service\OrderService;
+use App\Chron\Application\Service\OrderApplicationService;
 use App\Chron\Infrastructure\Service\CustomerOrderProvider;
 use RuntimeException;
 use stdClass;
@@ -14,7 +14,7 @@ use function sprintf;
 final readonly class OrderSagaManagement
 {
     public function __construct(
-        private OrderService $orderService,
+        private OrderApplicationService $orderService,
         private CustomerOrderProvider $customerOrderProvider
     ) {
     }

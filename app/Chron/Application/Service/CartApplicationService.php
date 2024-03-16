@@ -6,6 +6,7 @@ namespace App\Chron\Application\Service;
 
 use App\Chron\Application\Messaging\Command\Cart\AddCartItem;
 use App\Chron\Application\Messaging\Command\Cart\CancelCart;
+use App\Chron\Application\Messaging\Command\Cart\CheckoutCart;
 use App\Chron\Application\Messaging\Command\Cart\OpenCart;
 use App\Chron\Application\Messaging\Command\Cart\RemoveCartItem;
 use App\Chron\Application\Messaging\Command\Cart\UpdateCartItemQuantity;
@@ -74,6 +75,11 @@ final readonly class CartApplicationService
         $command = CancelCart::forCustomer($customerId, $cartId);
 
         $this->dispatchCommand($command);
+    }
+
+    public function checkout(string $customerId, string $cartId): void
+    {
+        Report::relay(CheckoutCart::fromCart($cartId, $customerId));
     }
 
     private function dispatchCommand(object $command): void

@@ -49,10 +49,14 @@
 
         <div class="mb-6">
 
-            <a href="javascript:alert('checkout')"
-               class="w-1/2 inline-block text-center px-4 py-2 text-xs font-medium text-white bg-violet-600 rounded active:bg-violet-500 hover:bg-violet-500 focus:outline-none focus:ring">
-                Checkout
-            </a>
+            @if($cart->status === \App\Chron\Model\Cart\CartStatus::OPENED->value)
+
+                <a href="{{ route('customer.cart.checkout', [$customer->id, $cart->id]) }}"
+                   class="w-1/2 inline-block text-center px-4 py-2 text-xs font-medium text-white bg-violet-600 rounded active:bg-violet-500 hover:bg-violet-500 focus:outline-none focus:ring">
+                    Checkout
+                </a>
+
+            @endif
 
             <a href="{{ route('customer.cart.cancel', [$customer->id, $cart->id]) }}"
                class="w-1/2 inline-block text-center px-4 py-2 text-xs font-medium text-white bg-violet-600 rounded active:bg-violet-500 hover:bg-violet-500 focus:outline-none focus:ring">

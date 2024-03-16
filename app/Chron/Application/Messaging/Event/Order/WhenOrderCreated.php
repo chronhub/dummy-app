@@ -23,7 +23,9 @@ final readonly class WhenOrderCreated
         $this->readModel->insertOrder(
             $event->aggregateId()->toString(),
             $event->orderOwner()->toString(),
-            $event->orderStatus()->value
+            $event->orderStatus()->value,
+            $event->orderBalance()->value(),
+            $event->orderQuantity()->value
         );
     }
 }
