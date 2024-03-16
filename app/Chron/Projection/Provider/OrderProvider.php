@@ -67,7 +67,8 @@ final readonly class OrderProvider
      */
     public function getOrderSummaryOfCustomer(string $customerId): Collection
     {
-        return $this->orderQuery()->select('id', 'status', 'customer_id', 'created_at')
+        return $this->orderQuery()
+            ->select('id', 'status', 'customer_id', 'created_at')
             ->where('customer_id', $customerId)
             ->orderBy('updated_at', 'desc')
             ->get();
@@ -84,29 +85,6 @@ final readonly class OrderProvider
             ->selectRaw('COALESCE(count(*), 0) as total_orders, COALESCE(SUM(balance::numeric), 0) as total_balance, COALESCE(SUM(quantity), 0) as total_quantity')
             ->whereIn('status', $this->pendingOrderStatuses)
             ->first();
-    }
-
-    /**
-     * Find the current order of a customer ordered by created_at in descending order.
-     *
-     * @return stdClass{TOrderItem}|null
-     */
-    public function findCurrentOrderOfCustomer(string $customerId): ?stdClass
-    {
-        $order = $this->orderQuery()
-            ->where('customer_id', $customerId)
-            ->orderBy('created_at', 'desc')
-            ->first();
-
-        if (! $order) {
-            return null;
-        }
-
-        $orderItems = $this->orderItemQuery()->where('order_id', $order->id)->get();
-
-        $order->items = $orderItems;
-
-        return $order;
     }
 
     public function orderQuery(): Builder

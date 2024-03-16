@@ -17,7 +17,7 @@ use Illuminate\Support\Collection;
 use RuntimeException;
 use stdClass;
 
-final readonly class OrderDomainService
+final readonly class OrderCreationProcess
 {
     public function __construct(
         private CartList $carts,

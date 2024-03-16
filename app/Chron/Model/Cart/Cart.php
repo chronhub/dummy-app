@@ -169,6 +169,11 @@ final class Cart implements AggregateRoot
             throw new InvalidCartOperation('Cart is closed and cannot be canceled');
         }
 
+        // cancel a submitted cart need context
+        if ($this->status === CartStatus::SUBMITTED) {
+            throw new InvalidCartOperation('Cart is submitted and cannot be canceled');
+        }
+
         $itemsManager->load($this->cartId(), $this->owner);
         $itemsManager->removeAllItems(InventoryReleaseReason::RESERVATION_CANCELED);
 

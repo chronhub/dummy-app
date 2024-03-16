@@ -6,12 +6,12 @@ namespace App\Chron\Model\Inventory;
 
 use App\Chron\Model\InvalidDomainException;
 use App\Chron\Model\Inventory\Event\InventoryItemAdded;
+use App\Chron\Model\Inventory\Event\InventoryItemAdjusted;
 use App\Chron\Model\Inventory\Event\InventoryItemExhausted;
 use App\Chron\Model\Inventory\Event\InventoryItemPartiallyReserved;
 use App\Chron\Model\Inventory\Event\InventoryItemRefilled;
 use App\Chron\Model\Inventory\Event\InventoryItemReleased;
 use App\Chron\Model\Inventory\Event\InventoryItemReserved;
-use App\Chron\Model\Inventory\Exception\InvalidInventoryValue;
 use App\Chron\Model\Inventory\Exception\InventoryOutOfStock;
 use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
 use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
@@ -59,11 +59,23 @@ final class Inventory implements AggregateRoot
     }
 
     /**
-     * Adjust the inventory item.
+     * Remove and release the quantity of the inventory item.
      */
-    public function adjust(Stock $stock): void
+    public function adjust(PositiveQuantity $quantity): void
     {
-        // returns product
+        $this->release($quantity, InventoryReleaseReason::RESERVATION_CONFIRMED);
+
+        $inventoryStock = $this->inventoryStock->removeStock($quantity);
+
+        $this->recordThat(InventoryItemAdjusted::withItem(
+            $this->skuId(),
+            $inventoryStock->getAvailableStock(),
+            $inventoryStock->stock,
+            $quantity,
+            $inventoryStock->reserved
+        ));
+
+        $this->handleOutOfStock($inventoryStock);
     }
 
     /**
@@ -92,10 +104,7 @@ final class Inventory implements AggregateRoot
             $this->recordItemReserved($inventoryStock, $availableQuantity, $requested);
         }
 
-        // need context depends on reservation
-        if ($inventoryStock->isOutOfStock()) {
-            $this->recordThat(InventoryItemExhausted::withItem($this->skuId(), $inventoryStock->stock, $inventoryStock->reserved));
-        }
+        $this->handleOutOfStock($inventoryStock);
     }
 
     /**
@@ -103,11 +112,6 @@ final class Inventory implements AggregateRoot
      */
     public function release(PositiveQuantity $requested, string $reason): void
     {
-        // add VO
-        if ($requested->value <= 0) {
-            throw new InvalidInventoryValue('Inventory quantity to release must be greater than 0');
-        }
-
         // todo compensation
         if ($this->inventoryStock->reserved->value < $requested->value) {
             throw new RuntimeException('Quantity in inventory to release is less than reserved quantity');
@@ -123,6 +127,14 @@ final class Inventory implements AggregateRoot
             $inventoryStock->reserved,
             $reason
         ));
+    }
+
+    private function handleOutOfStock(InventoryStock $inventoryStock): void
+    {
+        // need context depends on reservation
+        if ($inventoryStock->isOutOfStock()) {
+            $this->recordThat(InventoryItemExhausted::withItem($this->skuId(), $inventoryStock->stock, $inventoryStock->reserved));
+        }
     }
 
     public function skuId(): SkuId
@@ -194,6 +206,11 @@ final class Inventory implements AggregateRoot
             case $event instanceof InventoryItemAdded:
                 $this->inventoryStock = InventoryStock::create($event->totalStock(), Quantity::create(0));
                 $this->unitPrice = $event->unitPrice();
+
+                break;
+
+            case $event instanceof InventoryItemAdjusted:
+                $this->inventoryStock = InventoryStock::create($event->totalStock(), $event->totalReserved());
 
                 break;
             case $event instanceof InventoryItemRefilled:

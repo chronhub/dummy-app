@@ -8,9 +8,8 @@ use function in_array;
 
 class InventoryReleaseReason
 {
-    /**
-     * The reservation was canceled
-     */
+    public const RESERVATION_CONFIRMED = 'reservation confirmed';
+
     public const RESERVATION_CANCELED = 'reservation canceled';
 
     public const RESERVATION_ADJUSTED = 'reservation adjusted';

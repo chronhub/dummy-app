@@ -6,7 +6,6 @@ namespace App\Chron\Projection\ReadModel;
 
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
-use Storm\Contract\Clock\SystemClock;
 
 final readonly class OrderReadModel
 {
@@ -14,10 +13,8 @@ final readonly class OrderReadModel
 
     public const TABLE_ORDER_ITEM = 'read_order_item';
 
-    public function __construct(
-        private Connection $connection,
-        private SystemClock $clock
-    ) {
+    public function __construct(private Connection $connection)
+    {
     }
 
     public function insertOrder(string $orderId, string $orderOwner, string $status, string $balance, int $quantity): void
@@ -29,6 +26,34 @@ final readonly class OrderReadModel
             'balance' => $balance,
             'quantity' => $quantity,
         ]);
+    }
+
+    public function insertOrderItems(string $orderId, string $orderOwner, array $items): void
+    {
+        $bulk = [];
+
+        foreach ($items as $item) {
+            $bulk[] = [
+                'id' => $item['order_item_id'],
+                'order_id' => $orderId,
+                'customer_id' => $orderOwner,
+                'sku_id' => $item['sku_id'],
+                'unit_price' => $item['unit_price'],
+                'quantity' => $item['quantity'],
+            ];
+        }
+
+        $this->queryOrderItem()->insert($bulk);
+    }
+
+    public function updateOrderStatus(string $orderId, string $orderOwner, string $status): void
+    {
+        $this->queryOrder()
+            ->where('id', $orderId)
+            ->where('customer_id', $orderOwner)
+            ->update([
+                'status' => $status,
+            ]);
     }
 
     public function queryOrder(): Builder

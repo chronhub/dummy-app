@@ -14,11 +14,17 @@ final readonly class CartItem
     ) {
     }
 
+    /**
+     * @param array{cart_item_sku: string, cart_item_quantity: positive-int, cart_item_price: string} $data}
+     */
     public static function make(CartItemId $cartItemId, array $data): self
     {
         return self::fromArray($data + ['cart_item_id' => $cartItemId->toString()]);
     }
 
+    /**
+     * @param array{cart_item_id: string, cart_item_sku: string, cart_item_quantity: positive-int, cart_item_price: string} $data}
+     */
     public static function fromArray(array $data): self
     {
         return new self(

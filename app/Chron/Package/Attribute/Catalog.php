@@ -14,12 +14,14 @@ use App\Chron\Application\Messaging\Event\Cart\WhenCartOpened;
 use App\Chron\Application\Messaging\Event\Customer\WhenCustomerEmailChanged;
 use App\Chron\Application\Messaging\Event\Customer\WhenCustomerRegistered;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemAdded;
+use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemAdjusted;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemExhausted;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemPartiallyReserved;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemRefilled;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemReleased;
 use App\Chron\Application\Messaging\Event\Inventory\WhenInventoryItemReserved;
 use App\Chron\Application\Messaging\Event\Order\WhenOrderCreated;
+use App\Chron\Application\Messaging\Event\Order\WhenOrderPaid;
 use App\Chron\Application\Messaging\Event\Product\WhenProductCreated;
 use App\Chron\Infrastructure\Repository\CartAggregateRepository;
 use App\Chron\Infrastructure\Repository\CustomerAggregateRepository;
@@ -130,6 +132,7 @@ class Catalog
         WhenCartCheckout::class,
 
         WhenOrderCreated::class,
+        WhenOrderPaid::class,
         WhenCartItemPartiallyAdded::class,
 
         WhenInventoryItemAdded::class,
@@ -137,6 +140,7 @@ class Catalog
         WhenInventoryItemReserved::class,
         WhenInventoryItemPartiallyReserved::class,
         WhenInventoryItemReleased::class,
+        WhenInventoryItemAdjusted::class,
         WhenInventoryItemExhausted::class,
 
         // query handlers

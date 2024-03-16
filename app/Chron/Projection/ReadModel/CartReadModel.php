@@ -88,6 +88,22 @@ final readonly class CartReadModel
             ->update(['quantity' => $quantity]);
     }
 
+    public function deleteCart(string $cartOwner): void
+    {
+        // we do not have cart id on hand, so we need to delete the submitted cart by customer id
+        // as only one submitted cart is allowed per customer
+        $cart = $this->queryCart()
+            ->where('customer_id', $cartOwner)
+            ->where('status', 'submitted')
+            ->first();
+
+        $this->queryCart()->delete($cart->id);
+
+        $this->queryCartItem()
+            ->where('cart_id', $cart->id)
+            ->delete();
+    }
+
     private function queryCart(): Builder
     {
         return $this->connection->table(self::TABLE_CART);
