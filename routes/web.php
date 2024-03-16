@@ -6,6 +6,7 @@ use App\Http\Controllers\Action\AddOrderItemAction;
 use App\Http\Controllers\Action\Cart\AddCartItemAction;
 use App\Http\Controllers\Action\Cart\CancelCartItemAction;
 use App\Http\Controllers\Action\Cart\CheckoutCartAction;
+use App\Http\Controllers\Action\Cart\PayCartAction;
 use App\Http\Controllers\Action\Cart\RemoveCartItemAction;
 use App\Http\Controllers\Action\Cart\UpdateCartItemQuantityAction;
 use App\Http\Controllers\Action\CustomerCancelOrderAction;
@@ -39,6 +40,7 @@ Route::get('/customer/{customer_id}/cart/{cart_id}/', CustomerCartView::class)->
 Route::get('/customer/{customer_id}/cart/{cart_id}/history', CustomerCartHistory::class)->name('customer.cart.history');
 Route::get('/customer/{customer_id}/cart/{cart_id}/cancel', CancelCartItemAction::class)->name('customer.cart.cancel');
 Route::get('/customer/{customer_id}/cart/{cart_id}/checkout', CheckoutCartAction::class)->name('customer.cart.checkout');
+Route::get('/customer/{customer_id}/cart/{cart_id}/pay', PayCartAction::class)->name('customer.cart.pay');
 Route::get('/customer/{customer_id}/cart/{cart_id}/add/{sku}/{quantity}', AddCartItemAction::class)->name('customer.cart.add');
 Route::get('/customer/{customer_id}/cart/{cart_id}/{cart_item_id}/remove/{sku}', RemoveCartItemAction::class)->name('customer.cart.remove');
 Route::get('/customer/{customer_id}/cart/{cart_id}/{cart_item_id}/update/{sku}/{quantity}', UpdateCartItemQuantityAction::class)->name('customer.cart.update');

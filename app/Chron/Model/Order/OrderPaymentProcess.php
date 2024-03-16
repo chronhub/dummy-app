@@ -6,8 +6,10 @@ namespace App\Chron\Model\Order;
 
 use App\Chron\Application\Messaging\Command\Order\PayOrder;
 use App\Chron\Infrastructure\Service\PaymentGateway;
+use App\Chron\Model\Inventory\PositiveQuantity;
 use App\Chron\Model\Inventory\Repository\InventoryList;
 use App\Chron\Model\Order\Exception\InvalidOrderOperation;
+use App\Chron\Model\Order\Exception\OrderException;
 use App\Chron\Model\Order\Exception\OrderNotFound;
 use App\Chron\Model\Order\Repository\OrderList;
 
@@ -18,7 +20,6 @@ final readonly class OrderPaymentProcess
         private OrderList $orders,
         private InventoryList $inventory,
     ) {
-
     }
 
     public function process(PayOrder $command): void
@@ -28,6 +29,8 @@ final readonly class OrderPaymentProcess
         $order = $this->getOrder($orderId, $command->orderOwner());
 
         $order->pay($this->paymentGateway);
+
+        $this->orders->save($order);
 
         $this->adjustInventory($order);
     }
@@ -40,8 +43,8 @@ final readonly class OrderPaymentProcess
             throw OrderNotFound::withId($orderId);
         }
 
-        if ($order->owner()->equalsTo($orderOwner)) {
-            throw OrderNotFound::withId($orderId);
+        if (! $order->owner()->equalsTo($orderOwner)) {
+            throw new OrderException('Order does not belong to the customer');
         }
 
         if ($order->status() !== OrderStatus::CREATED) {
@@ -53,10 +56,13 @@ final readonly class OrderPaymentProcess
 
     private function adjustInventory(Order $order): void
     {
-        foreach ($order->items() as $item) {
-            $inventory = $this->inventory->get($item->productId());
+        /** @var OrderItem $item */
+        foreach ($order->items()->getItems() as $item) {
+            $inventory = $this->inventory->get($item->skuId);
 
-            $inventory->adjust($item->quantity());
+            $inventory->adjust(PositiveQuantity::create($item->quantity->value));
+
+            $this->inventory->save($inventory);
         }
     }
 }

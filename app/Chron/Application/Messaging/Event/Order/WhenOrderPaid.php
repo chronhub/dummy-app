@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Chron\Application\Messaging\Event\Order;
 
 use App\Chron\Application\Service\CartApplicationService;
-use App\Chron\Model\Order\Event\OrderCreated;
 use App\Chron\Model\Order\Event\OrderPaid;
 use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Projection\ReadModel\CartReadModel;
@@ -39,7 +38,7 @@ final readonly class WhenOrderPaid
         handles: OrderPaid::class,
         priority: 1
     )]
-    public function deleteCart(OrderCreated $event): void
+    public function deleteCart(OrderPaid $event): void
     {
         $this->cartReadModel->deleteCart($event->orderOwner()->toString());
     }

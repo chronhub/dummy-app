@@ -55,8 +55,8 @@
                         />
 
                         <x-button
-                            :route="route('seed.order.add', [$order->customer_id, $order->id])"
-                            label="Add random item"
+                            :route="route('customer.cart.pay', [$order->customer_id, $order->id])"
+                            label="Pay"
                             color="violet"
                         />
 

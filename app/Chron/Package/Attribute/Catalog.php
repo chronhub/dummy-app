@@ -45,6 +45,7 @@ use App\Chron\Model\Inventory\Handler\QueryFirstTenInventoryItemsHandler;
 use App\Chron\Model\Inventory\Handler\RefillInventoryItemHandler;
 use App\Chron\Model\Inventory\Handler\ReserveInventoryItemHandler;
 use App\Chron\Model\Order\Handler\CustomerRequestsOrderCancellationHandler;
+use App\Chron\Model\Order\Handler\PayOrderHandler;
 use App\Chron\Model\Order\Handler\QueryOrderOfCustomerHandler;
 use App\Chron\Model\Order\Handler\QueryOrdersSummaryOfCustomerHandler;
 use App\Chron\Model\Product\Handler\CreateProductHandler;
@@ -115,6 +116,7 @@ class Catalog
 
         // order
         CustomerRequestsOrderCancellationHandler::class,
+        PayOrderHandler::class,
 
         // event handlers
         WhenCustomerRegistered::class,

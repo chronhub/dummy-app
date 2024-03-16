@@ -6,9 +6,10 @@ namespace App\Chron\Model\Order;
 
 use App\Chron\Model\Customer\Exception\InvalidCustomerValue;
 use App\Chron\Package\Aggregate\AggregateIdV4Trait;
+use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
 use InvalidArgumentException;
 
-final class OrderOwner
+final class OrderOwner implements AggregateIdentity
 {
     use AggregateIdV4Trait {
         fromString as private fromStringV4;
