@@ -38,14 +38,14 @@ final class ProductFactory
     }
 
     /**
-     * @return array{sku_id: string, quantity: int, price: string}
+     * @return array{string, int, string}
      */
     public static function makeProductItem(string $skuId): array
     {
         return [
-            'sku_id' => $skuId,
-            'quantity' => self::createProductQuantity(),
-            'price' => self::createRandomPrice(),
+            $skuId,
+            self::createProductQuantity(),
+            self::createRandomPrice(),
         ];
     }
 

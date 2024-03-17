@@ -4,29 +4,22 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\View\Catalog;
 
-use App\Chron\Application\Messaging\Query\QueryPaginatedProducts;
-use App\Chron\Package\Reporter\Report;
-use App\Chron\Package\Support\QueryPromiseTrait;
-use App\Chron\Projection\Provider\ProductProvider;
+use App\Chron\Application\Service\CatalogApplicationService;
 use Illuminate\View\View;
 use Throwable;
 
 final class CatalogView
 {
-    use QueryPromiseTrait;
-
-    public function __invoke(ProductProvider $productProvider): View
+    public function __invoke(CatalogApplicationService $catalogApplicationService): View
     {
         try {
-            $products = $this->handlePromise(
-                Report::relay(new QueryPaginatedProducts(10))
-            );
+            $catalog = $catalogApplicationService->readCatalog();
         } catch (Throwable $e) {
             report($e);
 
             abort(501);
         }
 
-        return view('section.product.list')->with('products', $products);
+        return view('section.catalog.list')->with('catalog', $catalog);
     }
 }

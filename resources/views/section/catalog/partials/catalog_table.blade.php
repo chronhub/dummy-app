@@ -9,23 +9,23 @@
         <tr>
 
             <th scope="col" class="px-6 py-3">
-                Product name
-            </th>
-
-            <th scope="col" class="px-6 py-3">
-                Category
-            </th>
-
-            <th scope="col" class="px-6 py-3">
-                Brand
-            </th>
-
-            <th scope="col" class="px-6 py-3">
-                Model
-            </th>
-
-            <th scope="col" class="px-6 py-3">
                 Sku
+            </th>
+
+            <th scope="col" class="px-6 py-3">
+                Name
+            </th>
+
+            <th scope="col" class="px-6 py-3">
+                Price
+            </th>
+
+            <th scope="col" class="px-6 py-3">
+                Quantity
+            </th>
+
+            <th scope="col" class="px-6 py-3">
+                Reserved
             </th>
 
             <th scope="col" class="px-6 py-3">
@@ -41,28 +41,28 @@
 
         <tbody>
 
-            @foreach($products->items() as $product)
+            @foreach($catalog->items() as $product)
 
                 <tr class="odd:bg-white odd:dark:bg-zinc-900 even:bg-zinc-50 even:dark:bg-zinc-800 border-b dark:border-zinc-600">
+
+                    <td class="px-6 py-4 select-all">
+                        {{ $product->sku_code }}
+                    </td>
 
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         {{ $product->name }}
                     </th>
 
                     <td class="px-6 py-4">
-                        {{ $product->category }}
+                        {{ $product->current_price }}
                     </td>
 
                     <td class="px-6 py-4">
-                        {{ $product->brand }}
+                        {{ $product->quantity }}
                     </td>
 
                     <td class="px-6 py-4">
-                        {{ $product->model }}
-                    </td>
-
-                    <td class="px-6 py-4 select-all">
-                        {{ $product->sku_code }}
+                        {{ $product->reserved }}
                     </td>
 
                     <td class="px-6 py-4">
@@ -97,7 +97,7 @@
 
     <nav class="m-2 p-4">
 
-        {{ $products->links() }}
+        {{ $catalog->links() }}
 
     </nav>
 

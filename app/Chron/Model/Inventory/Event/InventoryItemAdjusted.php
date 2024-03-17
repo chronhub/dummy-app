@@ -16,14 +16,14 @@ final class InventoryItemAdjusted extends AbstractDomainEvent
         SkuId $skuId,
         Stock $availableStock,
         Stock $totalStock,
-        PositiveQuantity $quantityAdujusted,
+        PositiveQuantity $quantityAdjusted,
         Quantity $totalReserved
     ): self {
         return new self([
             'sku_id' => $skuId->toString(),
             'available_stock' => $availableStock->value,
             'total_stock' => $totalStock->value,
-            'quantity_adjusted' => $quantityAdujusted->value,
+            'quantity_adjusted' => $quantityAdjusted->value,
             'total_reserved' => $totalReserved->value,
         ]);
     }

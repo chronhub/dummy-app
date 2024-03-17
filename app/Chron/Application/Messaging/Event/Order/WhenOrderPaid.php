@@ -8,6 +8,7 @@ use App\Chron\Application\Service\CartApplicationService;
 use App\Chron\Model\Order\Event\OrderPaid;
 use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Projection\ReadModel\CartReadModel;
+use App\Chron\Projection\ReadModel\CatalogReadModel;
 use App\Chron\Projection\ReadModel\OrderReadModel;
 
 final readonly class WhenOrderPaid
@@ -15,6 +16,7 @@ final readonly class WhenOrderPaid
     public function __construct(
         private OrderReadModel $orderReadModel,
         private CartReadModel $cartReadModel,
+        private CatalogReadModel $catalogReadModel,
         private CartApplicationService $cartApplicationService,
     ) {
     }
@@ -51,5 +53,20 @@ final readonly class WhenOrderPaid
     public function openCart(OrderPaid $event): void
     {
         $this->cartApplicationService->openCart($event->orderOwner()->toString());
+    }
+
+    #[AsEventHandler(
+        reporter: 'reporter.event.default',
+        handles: OrderPaid::class,
+        priority: 3
+    )]
+    public function removeQuantityFromCatalog(OrderPaid $event): void
+    {
+        foreach ($event->orderItems()->getItems() as $item) {
+            $this->catalogReadModel->removeProductQuantity(
+                $item->skuId->toString(),
+                $item->quantity->value
+            );
+        }
     }
 }

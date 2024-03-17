@@ -4,69 +4,69 @@
 
     <x-layout.main>
 
-        @include('section.product.partials.product_header_table')
+        @include('section.catalog.partials.catalog_header_table')
 
         <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
 
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-zinc-700 dark:text-gray-400">
 
-                <tr>
-                    <th scope="col" class="px-6 py-3">
-                        Name
-                    </th>
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    Name
+                </th>
 
-                    <th scope="col" class="px-6 py-3">
-                        Email
-                    </th>
+                <th scope="col" class="px-6 py-3">
+                    Email
+                </th>
 
-                    <th scope="col" class="px-6 py-3">
-                        City
-                    </th>
+                <th scope="col" class="px-6 py-3">
+                    City
+                </th>
 
-                    <th scope="col" class="px-6 py-3">
-                        Country
-                    </th>
+                <th scope="col" class="px-6 py-3">
+                    Country
+                </th>
 
-                    <th scope="col" class="px-6 py-3">
-                        Action
-                    </th>
+                <th scope="col" class="px-6 py-3">
+                    Action
+                </th>
 
-                </tr>
+            </tr>
 
             </thead>
 
             <tbody>
 
-                @foreach($customers->items() as $customer)
+            @foreach($customers->items() as $customer)
 
-                    <tr class="odd:bg-white odd:dark:bg-zinc-900 even:bg-zinc-50 even:dark:bg-zinc-800 border-b dark:border-zinc-700">
+                <tr class="odd:bg-white odd:dark:bg-zinc-900 even:bg-zinc-50 even:dark:bg-zinc-800 border-b dark:border-zinc-700">
 
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            {{ $customer->name }}
-                        </th>
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{ $customer->name }}
+                    </th>
 
-                        <td class="px-6 py-4">
-                            {{ $customer->email }}
-                        </td>
+                    <td class="px-6 py-4">
+                        {{ $customer->email }}
+                    </td>
 
-                        <td class="px-6 py-4">
-                            {{ $customer->city }}
-                        </td>
+                    <td class="px-6 py-4">
+                        {{ $customer->city }}
+                    </td>
 
-                        <td class="px-6 py-4">
-                            {{ $customer->country }}
-                        </td>
+                    <td class="px-6 py-4">
+                        {{ $customer->country }}
+                    </td>
 
-                        <td class="px-6 py-4">
-                            <a
+                    <td class="px-6 py-4">
+                        <a
                                 href="{{ route('customer.info.show', $customer->id) }}"
                                 class="font-medium text-blue-600 dark:text-blue-400 hover:underline">View
-                            </a>
-                        </td>
+                        </a>
+                    </td>
 
-                    </tr>
+                </tr>
 
-                @endforeach
+            @endforeach
 
             </tbody>
 

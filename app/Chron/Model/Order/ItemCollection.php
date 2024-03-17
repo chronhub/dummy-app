@@ -10,6 +10,9 @@ use Illuminate\Support\Collection;
 
 final readonly class ItemCollection
 {
+    /**
+     * @var Collection<OrderItem>
+     */
     public Collection $items;
 
     public OrderId $orderId;
@@ -81,6 +84,9 @@ final readonly class ItemCollection
         return $collection;
     }
 
+    /**
+     * @return Collection<OrderItem>
+     */
     public function getItems(): Collection
     {
         return clone $this->items;

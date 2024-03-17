@@ -7,12 +7,14 @@ namespace App\Chron\Application\Messaging\Event\Product;
 use App\Chron\Application\Service\InventoryApplicationService;
 use App\Chron\Model\Product\Event\ProductCreated;
 use App\Chron\Package\Attribute\Messaging\AsEventHandler;
+use App\Chron\Projection\ReadModel\CatalogReadModel;
 use App\Chron\Projection\ReadModel\ProductReadModel;
 
 final readonly class WhenProductCreated
 {
     public function __construct(
-        private ProductReadModel $readModel,
+        private ProductReadModel $productReadModel,
+        private CatalogReadModel $catalogReadModel,
         private InventoryApplicationService $inventoryService
     ) {
     }
@@ -26,7 +28,7 @@ final readonly class WhenProductCreated
     {
         $sku = $event->sku();
 
-        $this->readModel->insert(
+        $this->productReadModel->insert(
             $event->aggregateId()->toString(),
             $event->skuCode(),
             $sku->productInfo->toArray(),
@@ -38,6 +40,23 @@ final readonly class WhenProductCreated
         reporter: 'reporter.event.default',
         handles: ProductCreated::class,
         priority: 1
+    )]
+    public function storeToCatalog(ProductCreated $event): void
+    {
+        $sku = $event->sku();
+
+        $this->catalogReadModel->insert(
+            $event->aggregateId()->toString(),
+            $event->skuCode(),
+            $sku->productInfo->toArray(),
+            $event->productStatus()->value
+        );
+    }
+
+    #[AsEventHandler(
+        reporter: 'reporter.event.default',
+        handles: ProductCreated::class,
+        priority: 2
     )]
     public function reportNewProductToInventory(ProductCreated $event): void
     {
