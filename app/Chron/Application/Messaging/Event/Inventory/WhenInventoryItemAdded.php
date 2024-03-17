@@ -22,7 +22,7 @@ final readonly class WhenInventoryItemAdded
         handles: InventoryItemAdded::class,
         priority: 0
     )]
-    public function addProductToInventory(InventoryItemAdded $event): void
+    public function storeInventoryProduct(InventoryItemAdded $event): void
     {
         $this->inventoryReadModel->insert(
             $event->aggregateId()->toString(),
@@ -36,7 +36,7 @@ final readonly class WhenInventoryItemAdded
         handles: InventoryItemAdded::class,
         priority: 1
     )]
-    public function updateProductCatalog(InventoryItemAdded $event): void
+    public function storeCatalogProduct(InventoryItemAdded $event): void
     {
         $this->catalogReadModel->updateProductQuantityAndPrice(
             $event->aggregateId()->toString(),

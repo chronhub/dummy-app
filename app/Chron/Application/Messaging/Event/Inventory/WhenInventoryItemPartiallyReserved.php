@@ -20,8 +20,9 @@ final readonly class WhenInventoryItemPartiallyReserved
     #[AsEventHandler(
         reporter: 'reporter.event.default',
         handles: InventoryItemPartiallyReserved::class,
+        priority: 0
     )]
-    public function __invoke(InventoryItemPartiallyReserved $event): void
+    public function incrementInventoryProductReservation(InventoryItemPartiallyReserved $event): void
     {
         $this->inventoryReadModel->increment(
             $event->aggregateId()->toString(),
@@ -34,7 +35,7 @@ final readonly class WhenInventoryItemPartiallyReserved
         handles: InventoryItemPartiallyReserved::class,
         priority: 1
     )]
-    public function updateReservation(InventoryItemPartiallyReserved $event): void
+    public function updateCatalogProductReservation(InventoryItemPartiallyReserved $event): void
     {
         $this->catalogReadModel->updateReservation(
             $event->aggregateId()->toString(),

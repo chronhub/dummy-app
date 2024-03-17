@@ -22,7 +22,7 @@ final readonly class WhenInventoryItemAdjusted
         handles: InventoryItemAdjusted::class,
         priority: 0
     )]
-    public function updateProductQuantity(InventoryItemAdjusted $event): void
+    public function updateInventoryProductQuantity(InventoryItemAdjusted $event): void
     {
         $this->inventoryReadModel->updateQuantity(
             $event->aggregateId()->toString(),
@@ -35,7 +35,7 @@ final readonly class WhenInventoryItemAdjusted
         handles: InventoryItemAdjusted::class,
         priority: 1
     )]
-    public function updateReservation(InventoryItemAdjusted $event): void
+    public function updateCatalogProductReservation(InventoryItemAdjusted $event): void
     {
         $this->catalogReadModel->updateReservation(
             $event->aggregateId()->toString(),

@@ -22,7 +22,7 @@ final readonly class WhenInventoryItemReleased
         handles: InventoryItemReleased::class,
         priority: 0
     )]
-    public function releaseReservation(InventoryItemReleased $event): void
+    public function releaseInventoryProduct(InventoryItemReleased $event): void
     {
         $this->inventoryReadModel->decrement(
             $event->aggregateId()->toString(),
@@ -35,7 +35,7 @@ final readonly class WhenInventoryItemReleased
         handles: InventoryItemReleased::class,
         priority: 1
     )]
-    public function updateReservation(InventoryItemReleased $event): void
+    public function updateCatalogProductReservation(InventoryItemReleased $event): void
     {
         $this->catalogReadModel->updateReservation(
             $event->aggregateId()->toString(),
