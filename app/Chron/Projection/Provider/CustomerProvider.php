@@ -22,6 +22,9 @@ final readonly class CustomerProvider
         return $this->query()->find($customerId);
     }
 
+    /**
+     * @return stdClass{id: string}|null
+     */
     public function findRandomCustomer(): ?stdClass
     {
         return $this->query()->inRandomOrder()->first(['id']);

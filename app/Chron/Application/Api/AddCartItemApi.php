@@ -33,7 +33,7 @@ final readonly class AddCartItemApi
         $randomQuantity = fake()->numberBetween(1, 5);
 
         if ($items->isEmpty()) {
-            $this->cartApplicationService->addCartItem($cart->id, $cart->customer_id, $inventory->id, $randomQuantity);
+            $this->cartApplicationService->addProductToCart($cart->id, $cart->customer_id, $inventory->id, $randomQuantity);
 
             return new JsonResponse([
                 'message' => 'Cart item added successfully',
@@ -42,7 +42,7 @@ final readonly class AddCartItemApi
 
         foreach ($items as $item) {
             if ($item->sku_id === $inventory->id) {
-                $this->cartApplicationService->updateCartItemQuantity($item->id, $cart->id, $cart->customer_id, $item->sku_id, $randomQuantity);
+                $this->cartApplicationService->updateProductQuantity($item->id, $cart->id, $cart->customer_id, $item->sku_id, $randomQuantity);
             }
         }
 

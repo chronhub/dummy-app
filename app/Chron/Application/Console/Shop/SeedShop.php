@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Console\Shop;
 
-use App\Chron\Application\Service\CustomerService;
-use App\Chron\Application\Service\ProductService;
+use App\Chron\Application\Service\CustomerApplicationService;
+use App\Chron\Application\Service\ProductApplicationService;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Attribute\AsCommand;
 
@@ -49,17 +49,17 @@ class SeedShop extends Command
 
     protected function createProducts(): void
     {
-        /** @var ProductService $productService */
-        $productService = $this->laravel[ProductService::class];
+        /** @var ProductApplicationService $productService */
+        $productService = $this->laravel[ProductApplicationService::class];
 
         $productService->createProducts();
     }
 
     protected function registerCustomer(): void
     {
-        /** @var CustomerService $customerService */
-        $customerService = $this->laravel[CustomerService::class];
+        /** @var CustomerApplicationService $customerService */
+        $customerService = $this->laravel[CustomerApplicationService::class];
 
-        $customerService->registerRandomCustomers(1);
+        $customerService->registerCustomers(1);
     }
 }

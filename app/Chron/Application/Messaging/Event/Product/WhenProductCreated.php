@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Messaging\Event\Product;
 
-use App\Chron\Application\Service\InventoryService;
+use App\Chron\Application\Service\InventoryApplicationService;
 use App\Chron\Model\Product\Event\ProductCreated;
 use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Projection\ReadModel\ProductReadModel;
@@ -13,7 +13,7 @@ final readonly class WhenProductCreated
 {
     public function __construct(
         private ProductReadModel $readModel,
-        private InventoryService $inventoryService
+        private InventoryApplicationService $inventoryService
     ) {
     }
 

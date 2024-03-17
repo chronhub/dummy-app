@@ -48,11 +48,11 @@
 
                     @if($order->status === 'created' || $order->status === 'modified')
 
-                        <x-button
-                            :route="route('seed.order.cancel', [$order->customer_id, $order->id])"
-                            label="Cancel"
-                            color="violet"
-                        />
+{{--                        <x-button--}}
+{{--                            :route="route('seed.order.cancel', [$order->customer_id, $order->id])"--}}
+{{--                            label="Cancel"--}}
+{{--                            color="violet"--}}
+{{--                        />--}}
 
                         <x-button
                             :route="route('customer.cart.pay', [$order->customer_id, $order->id])"

@@ -17,6 +17,8 @@ use Illuminate\Support\Collection;
 use RuntimeException;
 use stdClass;
 
+use function sprintf;
+
 final readonly class OrderCreationProcess
 {
     public function __construct(
@@ -26,17 +28,18 @@ final readonly class OrderCreationProcess
     ) {
     }
 
-    public function createOrder(CartId $cartId, CartOwner $cartOwner): void
+    public function newOrder(CartId $cartId, CartOwner $cartOwner): void
     {
+        // fetch the cart and ensure it can be ordered
         $cart = $this->carts->get($cartId);
-
         $this->ensureCartCanBeOrdered($cartOwner, $cart);
 
+        // checkout the cart
         $cart->checkout();
         $this->carts->save($cart);
 
+        // create the order
         $orderId = OrderId::fromString($cartId->toString());
-
         $orderItems = $this->makeOrderItems($this->getCartItems($cartId, $cartOwner), $orderId);
 
         $order = Order::create($orderId, OrderOwner::fromString($cartOwner->toString()), $orderItems);
@@ -47,19 +50,25 @@ final readonly class OrderCreationProcess
     private function ensureCartCanBeOrdered(CartOwner $cartOwner, ?Cart $cart): void
     {
         if ($cart === null) {
-            throw new RuntimeException('No cart found');
+            throw new RuntimeException(sprintf('Cart for customer id %s not found', $cartOwner->toString()));
         }
 
         if (! $cart->owner()->equalsTo($cartOwner)) {
-            throw new RuntimeException('Cart does not belong to customer');
+            throw new RuntimeException(sprintf('Cart with id %s does not belong to customer id %s, expected customer id %s',
+                $cart->cartId()->toString(),
+                $cartOwner->toString(),
+                $cart->owner()->toString()
+            ));
         }
 
         if ($cart->status() !== CartStatus::OPENED) {
-            throw new RuntimeException('Cart is not in a state to be ordered, current status: '.$cart->status()->value);
+            throw new RuntimeException(sprintf('Cart with id %s is not in a state to be ordered, current status: %s',
+                $cart->cartId()->toString(),
+                $cart->status()->value));
         }
 
         if ($cart->quantity()->isEmpty()) {
-            throw new RuntimeException('Cart is empty');
+            throw new RuntimeException(sprintf('Cart with id %s is empty', $cart->cartId()->toString()));
         }
     }
 

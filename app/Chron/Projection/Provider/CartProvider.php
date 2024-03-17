@@ -9,6 +9,7 @@ use App\Chron\Projection\ReadModel\CartReadModel;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\LazyCollection;
 use stdClass;
 
 /**
@@ -78,6 +79,27 @@ final readonly class CartProvider
             ->first();
 
         return $this->withCartItems($cart);
+    }
+
+    /**
+     * @return LazyCollection<stdClass{TCart}>
+     */
+    public function findAllNonEmptyOpenedCarts(): LazyCollection
+    {
+        return $this->queryCart()
+            ->where('status', CartStatus::OPENED->value)
+            ->where('quantity', '>', 0)
+            ->cursor();
+    }
+
+    /**
+     * @return LazyCollection<stdClass{TCart}>
+     */
+    public function findAllSubmittedCart(): LazyCollection
+    {
+        return $this->queryCart()
+            ->where('status', CartStatus::SUBMITTED->value)
+            ->cursor();
     }
 
     /**

@@ -15,7 +15,7 @@ final readonly class AddCartItemAction
 
     public function __invoke(string $customerId, string $cartId, string $sku, string $quantity): RedirectResponse
     {
-        $this->cartApplicationService->addCartItem($cartId, $customerId, $sku, (int) $quantity);
+        $this->cartApplicationService->addProductToCart($cartId, $customerId, $sku, (int) $quantity);
 
         return redirect()->back();
     }

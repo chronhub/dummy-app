@@ -35,7 +35,7 @@ final readonly class RemoveRandomCartItemAction
 
         $item = $items->random();
 
-        $this->cartApplicationService->removeCartItem($item->id, $cart->id, $cart->customer_id, $item->sku_id);
+        $this->cartApplicationService->removeProductFromCart($item->id, $cart->id, $cart->customer_id, $item->sku_id);
 
         return new Response('ok');
     }

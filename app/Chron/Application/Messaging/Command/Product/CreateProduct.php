@@ -11,7 +11,7 @@ use Storm\Message\AbstractDomainCommand;
 final class CreateProduct extends AbstractDomainCommand
 {
     /**
-     * @param array $productInfo{name: string, description: string, category: string, brand: string, model: string}
+     * @param array{name: string, description: string, category: string, brand: string, model: string} $productInfo
      */
     public static function withProduct(string $productId, array $productInfo): self
     {

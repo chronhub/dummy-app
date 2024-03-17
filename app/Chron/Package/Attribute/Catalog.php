@@ -32,20 +32,26 @@ use App\Chron\Model\Cart\Handler\AddCartItemHandler;
 use App\Chron\Model\Cart\Handler\CancelCartHandler;
 use App\Chron\Model\Cart\Handler\CheckoutCartHandler;
 use App\Chron\Model\Cart\Handler\OpenCartHandler;
+use App\Chron\Model\Cart\Handler\QueryAllSubmittedCartHandler;
 use App\Chron\Model\Cart\Handler\QueryCartHistoryHandler;
 use App\Chron\Model\Cart\Handler\QueryOpenedCartByCustomerIdHandler;
 use App\Chron\Model\Cart\Handler\RemoveCartItemHandler;
 use App\Chron\Model\Cart\Handler\UpdateCartItemHandler;
 use App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler;
+use App\Chron\Model\Customer\Handler\QueryAllNonEmptyOpenedCartsHandler;
 use App\Chron\Model\Customer\Handler\QueryCustomerProfileHandler;
 use App\Chron\Model\Customer\Handler\QueryPaginatedCustomersHandler;
+use App\Chron\Model\Customer\Handler\QueryRandomCustomerHandler;
 use App\Chron\Model\Customer\Handler\RegisterCustomerHandler;
 use App\Chron\Model\Inventory\Handler\AddInventoryItemHandler;
 use App\Chron\Model\Inventory\Handler\QueryFirstTenInventoryItemsHandler;
+use App\Chron\Model\Inventory\Handler\QueryInventoryBySkuHandler;
+use App\Chron\Model\Inventory\Handler\QueryRandomProductInventoryHandler;
 use App\Chron\Model\Inventory\Handler\RefillInventoryItemHandler;
 use App\Chron\Model\Inventory\Handler\ReserveInventoryItemHandler;
 use App\Chron\Model\Order\Handler\CustomerRequestsOrderCancellationHandler;
 use App\Chron\Model\Order\Handler\PayOrderHandler;
+use App\Chron\Model\Order\Handler\QueryOpenOrderOfCustomerHandler;
 use App\Chron\Model\Order\Handler\QueryOrderOfCustomerHandler;
 use App\Chron\Model\Order\Handler\QueryOrdersSummaryOfCustomerHandler;
 use App\Chron\Model\Product\Handler\CreateProductHandler;
@@ -154,6 +160,12 @@ class Catalog
         QueryOpenedCartByCustomerIdHandler::class,
         QueryFirstTenInventoryItemsHandler::class,
         QueryPaginatedProductsHandler::class,
+        QueryRandomCustomerHandler::class,
+        QueryInventoryBySkuHandler::class,
+        QueryAllNonEmptyOpenedCartsHandler::class,
+        QueryRandomProductInventoryHandler::class,
+        QueryAllSubmittedCartHandler::class,
+        QueryOpenOrderOfCustomerHandler::class,
     ];
 
     /**

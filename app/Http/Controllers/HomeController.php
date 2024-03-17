@@ -8,12 +8,28 @@ use App\Chron\Projection\Provider\CustomerProvider;
 use App\Chron\Projection\Provider\InventoryProvider;
 use App\Chron\Projection\Provider\OrderProvider;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\DB;
 
 final class HomeController
 {
     // todo make report queries
     public function __invoke(OrderProvider $orderProvider, InventoryProvider $inventoryProvider, CustomerProvider $customerProvider): View
     {
+
+        //        $carts = DB::query()
+        //            ->selectRaw('SUM(quantity) as total_quantity')
+        //            ->from('read_cart')
+        //            ->where('status', 'opened')
+        //            ->value('total_quantity');
+        //
+        //        $inventory = DB::query()
+        //            ->selectRaw('SUM(reserved) as total_reserved')
+        //            ->from('read_inventory')
+        //            ->value('total_reserved');
+        //
+        //        dump($carts);
+        //        dd($inventory);
+
         $order = $orderProvider->getOrderSummary();
         $inventory = $inventoryProvider->getInventorySummary();
         $lastTenCustomers = $customerProvider->lastTenCustomers();

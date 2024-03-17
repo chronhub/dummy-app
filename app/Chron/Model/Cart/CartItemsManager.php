@@ -136,9 +136,7 @@ final class CartItemsManager
 
     public function getCartItemFromSku(CartItemSku $sku): ?CartItem
     {
-        return $this->items->first(
-            fn (CartItem $cartItem) => $cartItem->sku->equalsTo($sku)
-        );
+        return $this->items->first(fn (CartItem $cartItem) => $cartItem->sku->equalsTo($sku));
     }
 
     private function upsertCartItem(CartItem $cartItem): void

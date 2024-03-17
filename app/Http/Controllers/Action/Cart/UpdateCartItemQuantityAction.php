@@ -15,7 +15,7 @@ final readonly class UpdateCartItemQuantityAction
 
     public function __invoke(string $customerId, string $cartId, string $cartItemId, string $sku, string $quantity): RedirectResponse
     {
-        $this->cartApplicationService->updateCartItemQuantity($cartItemId, $cartId, $customerId, $sku, (int) $quantity);
+        $this->cartApplicationService->updateProductQuantity($cartItemId, $cartId, $customerId, $sku, (int) $quantity);
 
         return redirect()->back();
     }

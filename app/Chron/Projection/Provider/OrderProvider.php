@@ -98,6 +98,17 @@ final readonly class OrderProvider
             ->first();
     }
 
+    /**
+     * @return stdClass{TOrder}|null
+     */
+    public function findOpenOrderOfCustomer(string $customerId): ?stdClass
+    {
+        return $this->orderQuery()
+            ->where('customer_id', $customerId)
+            ->whereIn('status', [OrderStatus::CREATED->value])
+            ->first();
+    }
+
     public function orderQuery(): Builder
     {
         return $this->connection->table(OrderReadModel::TABLE_ORDER);

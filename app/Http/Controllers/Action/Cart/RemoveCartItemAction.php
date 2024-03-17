@@ -15,7 +15,7 @@ final readonly class RemoveCartItemAction
 
     public function __invoke(string $customerId, string $cartId, string $cartItemId, string $sku): RedirectResponse
     {
-        $this->cartApplicationService->removeCartItem($cartItemId, $cartId, $customerId, $sku);
+        $this->cartApplicationService->removeProductFromCart($cartItemId, $cartId, $customerId, $sku);
 
         return redirect()->back();
     }

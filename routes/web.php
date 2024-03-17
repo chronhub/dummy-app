@@ -2,15 +2,14 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Action\AddOrderItemAction;
 use App\Http\Controllers\Action\Cart\AddCartItemAction;
 use App\Http\Controllers\Action\Cart\CancelCartItemAction;
 use App\Http\Controllers\Action\Cart\CheckoutCartAction;
 use App\Http\Controllers\Action\Cart\PayCartAction;
 use App\Http\Controllers\Action\Cart\RemoveCartItemAction;
 use App\Http\Controllers\Action\Cart\UpdateCartItemQuantityAction;
-use App\Http\Controllers\Action\CustomerCancelOrderAction;
-use App\Http\Controllers\Action\MakeRandomOrderAction;
+use App\Http\Controllers\Action\Complete\CheckoutAllCartAction;
+use App\Http\Controllers\Action\Complete\PayAllSubmittedCartAction;
 use App\Http\Controllers\Action\Random\Cart\AddRandomCartItemAction;
 use App\Http\Controllers\Action\Random\Cart\CheckoutCartRandomAction;
 use App\Http\Controllers\Action\Random\Cart\PayOrderRandomAction;
@@ -50,18 +49,15 @@ Route::get('/catalog', CatalogView::class)->name('catalog');
 
 // seed
 Route::group(['prefix' => 'seed'], function () {
-    Route::get('/customer', RegisterRandomCustomerAction::class)->name('seed.customer.register');
+    Route::get('/customer', RegisterRandomCustomerAction::class);
+    Route::get('/customer/email/change', ChangeRandomCustomerEmailAction::class);
 
-    Route::get('/customer/email/change', ChangeRandomCustomerEmailAction::class)->name('seed.customer.email.change');
+    Route::get('/cart/all/checkout', CheckoutAllCartAction::class);
+    Route::get('/cart/all/pay', PayAllSubmittedCartAction::class);
 
-    Route::get('/order/random', MakeRandomOrderAction::class)->name('seed.order.random');
-
-    Route::get('/customer/{customer_id}/order/{order_id}/cancel', CustomerCancelOrderAction::class)->name('seed.order.cancel');
-    Route::get('/customer/{customer_id}/order/{order_id}/add', AddOrderItemAction::class)->name('seed.order.add');
-
-    Route::get('/cart/add', AddRandomCartItemAction::class)->name('seed.cart.add');
-    Route::get('/cart/remove', RemoveRandomCartItemAction::class)->name('seed.cart.remove');
-    Route::get('/cart/update', UpdateRandomCartItemQuantityAction::class)->name('seed.cart.update');
-    Route::get('/cart/checkout', CheckoutCartRandomAction::class)->name('seed.cart.checkout');
-    Route::get('/cart/pay', PayOrderRandomAction::class)->name('seed.cart.pay');
+    Route::get('/cart/add', AddRandomCartItemAction::class);
+    Route::get('/cart/remove', RemoveRandomCartItemAction::class);
+    Route::get('/cart/update', UpdateRandomCartItemQuantityAction::class);
+    Route::get('/cart/checkout', CheckoutCartRandomAction::class);
+    Route::get('/cart/pay', PayOrderRandomAction::class);
 });

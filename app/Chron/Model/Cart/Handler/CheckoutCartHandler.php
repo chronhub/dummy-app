@@ -20,6 +20,6 @@ final readonly class CheckoutCartHandler
 
     public function __invoke(CheckoutCart $command): void
     {
-        $this->orderDomainService->createOrder($command->cartId(), $command->cartOwner());
+        $this->orderDomainService->newOrder($command->cartId(), $command->cartOwner());
     }
 }
