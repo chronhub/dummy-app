@@ -13,8 +13,18 @@ use Illuminate\Support\LazyCollection;
 use stdClass;
 
 /**
- * @template TCart of stdClass{id: string, customer_id: string, status: string, balance: string, quantity: int, closed: int, closed_reason: null|string, created_at: string, updated_at: string, items: Collection<TCartItem>}
- * @template TCartItem of stdClass{id: string, cart_id: string, customer_id: string, sku_id: string, quantity: int, price: string, created_at: string, updated_at: string}
+ * @template TCart of object{
+ *     id: string, customer_id: string, status: string,
+ *     balance: string, quantity: int,
+ *     closed: int, closed_reason: null|string,
+ *     created_at: string, updated_at: string,
+ *     items: Collection<TCartItem>
+ *  }
+ * @template TCartItem of object{
+ *     id: string, cart_id: string, customer_id: string, sku_id: string,
+ *     quantity: int, price: string,
+ *     created_at: string, updated_at: string
+ * }
  */
 final readonly class CartProvider
 {
@@ -23,7 +33,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return stdClass{TCart}|null
+     * @return object{TCart}|null
      */
     public function findCartById(string $cartId): ?stdClass
     {
@@ -33,7 +43,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return stdClass{TCart}|null
+     * @return object{TCart}|null
      */
     public function findCartWithOwner(string $cartId, string $customerId): ?stdClass
     {
@@ -46,7 +56,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return stdClass{TCart}|null
+     * @return object{TCart}|null
      */
     public function findCartByCustomerId(string $customerId): ?stdClass
     {
@@ -56,7 +66,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return stdClass{TCart}|null
+     * @return object{TCart}|null
      */
     public function findOpenedCartByCustomerId(string $customerId): ?stdClass
     {
@@ -69,7 +79,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return stdClass{TCart}|null
+     * @return object{TCart}|null
      */
     public function findRandomOpenedCart(): ?stdClass
     {
@@ -82,7 +92,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return LazyCollection<stdClass{TCart}>
+     * @return LazyCollection<object{TCart}>
      */
     public function findAllNonEmptyOpenedCarts(): LazyCollection
     {
@@ -93,7 +103,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return LazyCollection<stdClass{TCart}>
+     * @return LazyCollection<object{TCart}>
      */
     public function findAllSubmittedCart(): LazyCollection
     {
@@ -103,7 +113,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return stdClass{TCart}|null
+     * @return object{TCart}|null
      */
     private function withCartItems(?stdClass $cart): ?stdClass
     {

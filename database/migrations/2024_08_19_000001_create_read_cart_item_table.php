@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('price');
 
             $table->timestampTz('created_at', 6)->useCurrent();
-            $table->timestampTz('updated_at', 6)->nullable()->useCurrent();
+            $table->timestampTz('updated_at', 6)->nullable()->useCurrentOnUpdate();
         });
     }
 

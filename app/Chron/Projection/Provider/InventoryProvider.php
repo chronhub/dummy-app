@@ -10,32 +10,54 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\LazyCollection;
 use stdClass;
 
+/**
+ * @template TInventory of object{
+ *     id: string,
+ *     stock: int, reserved: int, unit_price: string,
+ *     created_at: string, updated_at: string|null
+ * }
+ */
 final readonly class InventoryProvider
 {
     public function __construct(private Connection $connection)
     {
     }
 
+    /**
+     * @return object{TInventory}|null
+     */
     public function findInventoryById(string $skuId): ?stdClass
     {
         return $this->query()->find($skuId);
     }
 
+    /**
+     * @return object{TInventory}|null
+     */
     public function findRandomItem(): ?stdClass
     {
         return $this->query()->inRandomOrder()->first();
     }
 
+    /**
+     * @return LazyCollection<TInventory>
+     */
     public function findRandomItems(int $limit = 10): LazyCollection
     {
         return $this->query()->inRandomOrder()->limit($limit)->cursor();
     }
 
+    /**
+     * @return LazyCollection<TInventory>
+     */
     public function getFirstTenItems(): LazyCollection
     {
         return $this->query()->limit(10)->orderBy('created_at')->cursor();
     }
 
+    /**
+     * @return object{total_items: int, total_stock: int, total_reserved: int}
+     */
     public function getInventorySummary(): stdClass
     {
         return $this->query()

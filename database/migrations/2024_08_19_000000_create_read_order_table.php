@@ -20,7 +20,7 @@ return new class extends Migration
             $table->boolean('closed')->default(0); // todo remove and use status
             $table->string('reason')->nullable();
             $table->timestampTz('created_at', 6)->useCurrent();
-            $table->timestampTz('updated_at', 6)->nullable()->useCurrent();
+            $table->timestampTz('updated_at', 6)->nullable()->useCurrentOnUpdate();
             $table->timestampTz('closed_at', 6)->nullable();
         });
     }

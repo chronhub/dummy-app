@@ -22,7 +22,7 @@ return new class extends Migration
             $table->enum('status', ProductStatus::toStrings());
 
             $table->timestampTz('created_at', 6)->useCurrent();
-            $table->timestampTz('updated_at', 6)->nullable();
+            $table->timestampTz('updated_at', 6)->nullable()->useCurrentOnUpdate();
         });
     }
 

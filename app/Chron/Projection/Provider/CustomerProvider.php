@@ -11,25 +11,38 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\LazyCollection;
 use stdClass;
 
+/**
+ * @template TCustomer of object{
+ *     id: string, name: string, email: string,
+ *     birthdy: string, gender: string, phone_number: string,
+ *     street:string, city: string, postal_code: string, country: string,
+ *     created_at: string, updated_at: string|null}
+ */
 final readonly class CustomerProvider
 {
     public function __construct(private Connection $connection)
     {
     }
 
+    /**
+     * @return object{TCustomer}|null
+     */
     public function findCustomerById(string $customerId): ?stdClass
     {
         return $this->query()->find($customerId);
     }
 
     /**
-     * @return stdClass{id: string}|null
+     * @return object{id: string}|null
      */
     public function findRandomCustomer(): ?stdClass
     {
         return $this->query()->inRandomOrder()->first(['id']);
     }
 
+    /**
+     * @return LazyCollection<TCustomer>
+     */
     public function lastTenCustomers(): LazyCollection
     {
         return $this->query()->orderBy('created_at', 'desc')->take(10)->cursor();

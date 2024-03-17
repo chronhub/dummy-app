@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('reserved')->default(0);
 
             $table->timestampTz('created_at', 6)->useCurrent();
-            $table->timestampTz('updated_at', 6)->nullable();
+            $table->timestampTz('updated_at', 6)->nullable()->useCurrentOnUpdate();
         });
 
         // todo add constraint to unit_price, stock, reserved

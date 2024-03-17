@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Projection\ReadModel;
 
 use Illuminate\Database\Connection;
+use Illuminate\Database\Query\Builder;
 
 final readonly class CatalogReadModel
 {
@@ -16,7 +17,7 @@ final readonly class CatalogReadModel
 
     public function insert(string $skuId, string $skuCode, array $info, string $status): void
     {
-        $this->connection->table(self::TABLE)->insert([
+        $this->query()->insert([
             'id' => $skuId,
             'sku_code' => $skuCode,
             'name' => $info['name'],
@@ -30,28 +31,35 @@ final readonly class CatalogReadModel
 
     public function updateProductQuantityAndPrice(string $skuId, int $quantity, string $currentPrice): void
     {
-        $this->connection->table(self::TABLE)->where('id', $skuId)->update([
-            'quantity' => $quantity,
-            'current_price' => $currentPrice,
-        ]);
+        $this->query()
+            ->where('id', $skuId)
+            ->update([
+                'quantity' => $quantity,
+                'current_price' => $currentPrice,
+            ]);
     }
 
     public function updateProductStatus(string $skuId, string $status): void
     {
-        $this->connection->table(self::TABLE)->where('id', $skuId)->update([
-            'status' => $status,
-        ]);
+        $this->query()
+            ->where('id', $skuId)
+            ->update(['status' => $status]);
     }
 
     public function updateReservation(string $skuId, int $quantity): void
     {
-        $this->connection->table(self::TABLE)->where('id', $skuId)->update([
-            'reserved' => $quantity,
-        ]);
+        $this->query()
+            ->where('id', $skuId)
+            ->update(['reserved' => $quantity]);
     }
 
     public function removeProductQuantity(string $skuId, int $quantity): void
     {
-        $this->connection->table(self::TABLE)->where('id', $skuId)->decrement('quantity', $quantity);
+        $this->query()->where('id', $skuId)->decrement('quantity', $quantity);
+    }
+
+    private function query(): Builder
+    {
+        return $this->connection->table(self::TABLE);
     }
 }
