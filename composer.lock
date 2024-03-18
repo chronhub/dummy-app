@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "36be0d27fd0d05630e1c37a1ed748c79",
+    "content-hash": "42ab533cc9669ccd9ae2a61624dd5834",
     "packages": [
         {
             "name": "brick/math",
@@ -136,28 +136,31 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/chronhub/storming.git",
-                "reference": "ae737f2ca0e1140262ca1c185069ce84b3ebcc88"
+                "reference": "3743a2a3ee0de2d5e0743232ffce01b72d58021e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/chronhub/storming/zipball/ae737f2ca0e1140262ca1c185069ce84b3ebcc88",
-                "reference": "ae737f2ca0e1140262ca1c185069ce84b3ebcc88",
+                "url": "https://api.github.com/repos/chronhub/storming/zipball/3743a2a3ee0de2d5e0743232ffce01b72d58021e",
+                "reference": "3743a2a3ee0de2d5e0743232ffce01b72d58021e",
                 "shasum": ""
             },
             "require": {
                 "composer-runtime-api": "^2.2",
                 "laravel/framework": "10.x-dev",
-                "php": "^8.2",
+                "php": "^8.3",
                 "react/promise": "^3.x-dev",
                 "symfony/clock": "^6.4",
                 "symfony/serializer": "^6.4",
                 "symfony/uid": "6.3.x"
             },
             "replace": {
+                "chronhub/aggregate": "self.version",
+                "chronhub/annotation": "self.version",
                 "chronhub/chronicler": "self.version",
                 "chronhub/clock": "self.version",
                 "chronhub/contract": "self.version",
                 "chronhub/message": "self.version",
+                "chronhub/projector": "self.version",
                 "chronhub/reporter": "self.version",
                 "chronhub/serializer": "self.version",
                 "chronhub/stream": "self.version",
@@ -165,11 +168,11 @@
                 "chronhub/tracker": "self.version"
             },
             "require-dev": {
-                "doctrine/dbal": "^3.7",
+                "doctrine/dbal": "^3.9",
                 "ext-pcntl": "*",
                 "ext-posix": "*",
                 "larastan/larastan": "^2.8",
-                "laravel/pint": "^v1.3",
+                "laravel/pint": "^v1.14",
                 "orchestra/testbench": "^8.x-dev",
                 "pestphp/pest": "2.x-dev",
                 "pestphp/pest-plugin-type-coverage": "2.x-dev",
@@ -201,7 +204,7 @@
                 "issues": "https://github.com/chronhub/storming/issues",
                 "source": "https://github.com/chronhub/storming/tree/main"
             },
-            "time": "2024-01-16T18:01:29+00:00"
+            "time": "2024-03-18T13:29:30+00:00"
         },
         {
             "name": "composer/semver",
@@ -2096,16 +2099,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "3.25.0",
+            "version": "3.25.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "4c44347133618cccd9b3df1729647a1577b4ad99"
+                "reference": "abbd664eb4381102c559d358420989f835208f18"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/4c44347133618cccd9b3df1729647a1577b4ad99",
-                "reference": "4c44347133618cccd9b3df1729647a1577b4ad99",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/abbd664eb4381102c559d358420989f835208f18",
+                "reference": "abbd664eb4381102c559d358420989f835208f18",
                 "shasum": ""
             },
             "require": {
@@ -2170,7 +2173,7 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/flysystem/issues",
-                "source": "https://github.com/thephpleague/flysystem/tree/3.25.0"
+                "source": "https://github.com/thephpleague/flysystem/tree/3.25.1"
             },
             "funding": [
                 {
@@ -2182,20 +2185,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-03-09T17:06:45+00:00"
+            "time": "2024-03-16T12:53:19+00:00"
         },
         {
             "name": "league/flysystem-local",
-            "version": "3.23.1",
+            "version": "3.25.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem-local.git",
-                "reference": "b884d2bf9b53bb4804a56d2df4902bb51e253f00"
+                "reference": "61a6a90d6e999e4ddd9ce5adb356de0939060b92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem-local/zipball/b884d2bf9b53bb4804a56d2df4902bb51e253f00",
-                "reference": "b884d2bf9b53bb4804a56d2df4902bb51e253f00",
+                "url": "https://api.github.com/repos/thephpleague/flysystem-local/zipball/61a6a90d6e999e4ddd9ce5adb356de0939060b92",
+                "reference": "61a6a90d6e999e4ddd9ce5adb356de0939060b92",
                 "shasum": ""
             },
             "require": {
@@ -2229,8 +2232,7 @@
                 "local"
             ],
             "support": {
-                "issues": "https://github.com/thephpleague/flysystem-local/issues",
-                "source": "https://github.com/thephpleague/flysystem-local/tree/3.23.1"
+                "source": "https://github.com/thephpleague/flysystem-local/tree/3.25.1"
             },
             "funding": [
                 {
@@ -2242,7 +2244,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-01-26T18:25:23+00:00"
+            "time": "2024-03-15T19:58:44+00:00"
         },
         {
             "name": "league/mime-type-detection",
@@ -3597,16 +3599,16 @@
         },
         {
             "name": "psy/psysh",
-            "version": "v0.12.1",
+            "version": "v0.12.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bobthecow/psysh.git",
-                "reference": "39621c73e0754328252f032c6997b983afc50431"
+                "reference": "9185c66c2165bbf4d71de78a69dccf4974f9538d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bobthecow/psysh/zipball/39621c73e0754328252f032c6997b983afc50431",
-                "reference": "39621c73e0754328252f032c6997b983afc50431",
+                "url": "https://api.github.com/repos/bobthecow/psysh/zipball/9185c66c2165bbf4d71de78a69dccf4974f9538d",
+                "reference": "9185c66c2165bbf4d71de78a69dccf4974f9538d",
                 "shasum": ""
             },
             "require": {
@@ -3670,9 +3672,9 @@
             ],
             "support": {
                 "issues": "https://github.com/bobthecow/psysh/issues",
-                "source": "https://github.com/bobthecow/psysh/tree/v0.12.1"
+                "source": "https://github.com/bobthecow/psysh/tree/v0.12.2"
             },
-            "time": "2024-03-15T03:22:57+00:00"
+            "time": "2024-03-17T01:53:00+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -11300,9 +11302,9 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.2",
+        "php": "^8.3",
         "ext-pcntl": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
