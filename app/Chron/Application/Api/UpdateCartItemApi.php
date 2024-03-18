@@ -26,7 +26,7 @@ final readonly class UpdateCartItemApi
         $item = $cart->items->random();
         $itemQuantity = $item->quantity === 1 ? 2 : $item->quantity - 1;
 
-        $this->cartApplicationService->updateProductQuantity($item->id, $cart->id, $cart->customer_id, $item->sku_id, $itemQuantity);
+        $this->cartApplicationService->updateCartProductQuantity($item->id, $cart->id, $cart->customer_id, $item->sku_id, $itemQuantity);
 
         return new JsonResponse(['message' => 'Cart item updated successfully']);
     }

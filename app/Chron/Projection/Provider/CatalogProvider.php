@@ -9,7 +9,7 @@ use App\Chron\Projection\ReadModel\CatalogReadModel;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\LazyCollection;
+use stdClass;
 
 /**
  * @template TCatalog of object{
@@ -26,20 +26,20 @@ final readonly class CatalogProvider
     {
     }
 
-    /**
-     * @return LazyCollection{TCatalog}
-     */
-    public function getAvailableProducts(int $limit): LazyCollection
-    {
-        return $this->query()
-            ->where('status', ProductStatus::AVAILABLE->value)
-            ->limit($limit)
-            ->cursor();
-    }
-
     public function getPaginatedProducts(int $perPage): LengthAwarePaginator
     {
         return $this->query()->where('status')->paginate($perPage);
+    }
+
+    /**
+     * @return object{TCatalog}|null
+     */
+    public function findAvailableProductById(string $productId): ?stdClass
+    {
+        return $this->query()
+            ->where('id', $productId)
+            ->where('status', ProductStatus::AVAILABLE->value)
+            ->first();
     }
 
     private function query(): Builder

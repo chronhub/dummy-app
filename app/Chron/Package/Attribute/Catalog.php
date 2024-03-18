@@ -35,8 +35,11 @@ use App\Chron\Model\Cart\Handler\OpenCartHandler;
 use App\Chron\Model\Cart\Handler\QueryAllSubmittedCartHandler;
 use App\Chron\Model\Cart\Handler\QueryCartHistoryHandler;
 use App\Chron\Model\Cart\Handler\QueryOpenedCartByCustomerIdHandler;
+use App\Chron\Model\Cart\Handler\QueryRandomOpenCartHandler;
 use App\Chron\Model\Cart\Handler\RemoveCartItemHandler;
 use App\Chron\Model\Cart\Handler\UpdateCartItemHandler;
+use App\Chron\Model\Catalog\QueryProductFromCatalogHandler;
+use App\Chron\Model\Catalog\QueryRandomAvailableProductFromCatalogHandler;
 use App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler;
 use App\Chron\Model\Customer\Handler\QueryAllNonEmptyOpenedCartsHandler;
 use App\Chron\Model\Customer\Handler\QueryCustomerProfileHandler;
@@ -166,6 +169,9 @@ class Catalog
         QueryRandomProductInventoryHandler::class,
         QueryAllSubmittedCartHandler::class,
         QueryOpenOrderOfCustomerHandler::class,
+        QueryProductFromCatalogHandler::class,
+        QueryRandomAvailableProductFromCatalogHandler::class,
+        QueryRandomOpenCartHandler::class,
     ];
 
     /**

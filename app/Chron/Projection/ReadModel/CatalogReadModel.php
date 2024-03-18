@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Chron\Projection\ReadModel;
 
+use App\Chron\Model\Product\ProductStatus;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
+use stdClass;
 
 final readonly class CatalogReadModel
 {
@@ -56,6 +58,14 @@ final readonly class CatalogReadModel
     public function removeProductQuantity(string $skuId, int $quantity): void
     {
         $this->query()->where('id', $skuId)->decrement('quantity', $quantity);
+    }
+
+    public function findRandomAvailableProduct(): stdClass
+    {
+        return $this->query()
+            ->where('status', ProductStatus::AVAILABLE->value)
+            ->inRandomOrder()
+            ->first();
     }
 
     private function query(): Builder

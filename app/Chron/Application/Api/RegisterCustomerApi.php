@@ -14,8 +14,6 @@ final class RegisterCustomerApi
     {
         $customerService->registerCustomer($request->json()->all());
 
-        return new JsonResponse([
-            'message' => 'Customer registered successfully',
-        ]);
+        return new JsonResponse(['message' => 'Customer registered successfully']);
     }
 }

@@ -42,14 +42,6 @@ final readonly class InventoryProvider
     /**
      * @return LazyCollection<TInventory>
      */
-    public function findRandomItems(int $limit = 10): LazyCollection
-    {
-        return $this->query()->inRandomOrder()->limit($limit)->cursor();
-    }
-
-    /**
-     * @return LazyCollection<TInventory>
-     */
     public function getFirstTenItems(): LazyCollection
     {
         return $this->query()->limit(10)->orderBy('created_at')->cursor();

@@ -5,60 +5,82 @@ declare(strict_types=1);
 namespace App\Chron\Application\Api;
 
 use App\Chron\Application\Service\CartApplicationService;
-use App\Chron\Projection\Provider\CartProvider;
-use App\Chron\Projection\Provider\InventoryProvider;
-use Illuminate\Support\Collection;
-use RuntimeException;
+use App\Chron\Application\Service\ShopApplicationService;
 use stdClass;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 final readonly class AddCartItemApi
 {
     public function __construct(
-        private CartProvider $cartProvider,
-        private InventoryProvider $inventoryProvider,
-        private CartApplicationService $cartApplicationService
+        private CartApplicationService $cartApplicationService,
+        private ShopApplicationService $shopApplicationService
     ) {
     }
 
-    public function __invoke(): Response
+    public function __invoke(): JsonResponse
     {
-        $cart = $this->getCart();
+        try {
+            $cart = $this->shopApplicationService->queryRandomOpenCart();
+            $product = $this->shopApplicationService->queryRandomAvailableProductFromCatalog();
 
-        /** @var Collection $items */
-        $items = $cart->items;
+            if ($cart->items->isEmpty()) {
+                return $this->addProductToCart($cart, $product);
+            }
 
-        $inventory = $this->inventoryProvider->findRandomItem();
-        $randomQuantity = fake()->numberBetween(1, 5);
+            return $this->updateProductQuantity($cart, $product);
+        } catch (Throwable $exception) {
+            report($exception);
 
-        if ($items->isEmpty()) {
-            $this->cartApplicationService->addProductToCart($cart->id, $cart->customer_id, $inventory->id, $randomQuantity);
+            return new JsonResponse(['message' => $exception->getMessage()], 500);
+        }
+    }
 
-            return new JsonResponse([
-                'message' => 'Cart item added successfully',
-            ]);
+    private function addProductToCart(stdClass $cart, stdClass $product): JsonResponse
+    {
+        $this->cartApplicationService->addProductToCart(
+            $cart->id,
+            $cart->customer_id,
+            $product->id,
+            $this->generateRandomQuantity()
+        );
+
+        return new JsonResponse(['message' => 'Cart item added successfully']);
+    }
+
+    private function updateProductQuantity(stdClass $cart, stdClass $product): JsonResponse
+    {
+        $cartItem = $this->findProductInCart($cart, $product);
+
+        if ($cartItem instanceof stdClass) {
+            $this->cartApplicationService->updateCartProductQuantity(
+                $cartItem->id,
+                $cart->id,
+                $cart->customer_id,
+                $product->id,
+                $this->generateRandomQuantity()
+            );
+
+            return new JsonResponse(['message' => 'Cart item updated successfully']);
         }
 
-        foreach ($items as $item) {
-            if ($item->sku_id === $inventory->id) {
-                $this->cartApplicationService->updateProductQuantity($item->id, $cart->id, $cart->customer_id, $item->sku_id, $randomQuantity);
+        return new JsonResponse(['message' => 'Cart item not found'], Response::HTTP_NOT_MODIFIED);
+    }
+
+    private function findProductInCart(stdClass $cart, stdClass $product): ?stdClass
+    {
+        foreach ($cart->items as $item) {
+            if ($item->sku_id === $product->id) {
+                return $item;
             }
         }
 
-        return new JsonResponse([
-            'message' => 'Cart item updated successfully',
-        ]);
+        return null;
     }
 
-    private function getCart(): stdClass
+    private function generateRandomQuantity(): int
     {
-        $cart = $this->cartProvider->findRandomOpenedCart();
-
-        if ($cart === null) {
-            throw new RuntimeException('No opened cart found');
-        }
-
-        return $cart;
+        return fake()->numberBetween(1, 5);
     }
 }
