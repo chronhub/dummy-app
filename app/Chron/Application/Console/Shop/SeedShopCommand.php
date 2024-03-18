@@ -13,7 +13,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
     name: 'shop:seed',
     description: 'Seed the shop'
 )]
-class SeedShop extends Command
+class SeedShopCommand extends Command
 {
     protected $signature = 'shop:seed';
 

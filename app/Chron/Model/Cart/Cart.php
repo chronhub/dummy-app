@@ -18,9 +18,9 @@ use App\Chron\Model\Cart\Exception\InsufficientStockForCartItem;
 use App\Chron\Model\InvalidDomainException;
 use App\Chron\Model\Inventory\Exception\InvalidCartOperation;
 use App\Chron\Model\Inventory\InventoryReleaseReason;
-use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
-use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
-use App\Chron\Package\Aggregate\Contract\AggregateRoot;
+use Storm\Aggregate\AggregateBehaviorTrait;
+use Storm\Contract\Aggregate\AggregateIdentity;
+use Storm\Contract\Aggregate\AggregateRoot;
 use Storm\Contract\Message\DomainEvent;
 
 use function sprintf;

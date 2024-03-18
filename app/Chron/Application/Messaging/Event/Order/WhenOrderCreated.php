@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Chron\Application\Messaging\Event\Order;
 
 use App\Chron\Model\Order\Event\OrderCreated;
-use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Projection\ReadModel\OrderReadModel;
+use Storm\Message\Attribute\AsEventHandler;
 
 final readonly class WhenOrderCreated
 {

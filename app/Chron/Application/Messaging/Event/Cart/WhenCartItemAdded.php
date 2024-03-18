@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Chron\Application\Messaging\Event\Cart;
 
 use App\Chron\Model\Cart\Event\CartItemAdded;
-use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Projection\ReadModel\CartReadModel;
 use App\Http\Controllers\Action\Cart\CacheCart;
+use Storm\Message\Attribute\AsEventHandler;
 
 final readonly class WhenCartItemAdded
 {

@@ -9,7 +9,7 @@ use App\Chron\Model\Cart\Cart;
 use App\Chron\Model\Cart\CartItemsManager;
 use App\Chron\Model\Cart\Exception\CartNotFound;
 use App\Chron\Model\Cart\Repository\CartList;
-use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
+use Storm\Message\Attribute\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',

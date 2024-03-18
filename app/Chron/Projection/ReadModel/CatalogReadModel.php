@@ -11,7 +11,7 @@ use stdClass;
 
 final readonly class CatalogReadModel
 {
-    final public const TABLE = 'read_catalog';
+    final public const string TABLE = 'read_catalog';
 
     public function __construct(private Connection $connection)
     {

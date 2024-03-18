@@ -12,7 +12,7 @@ use App\Chron\Model\Order\Order;
 use App\Chron\Model\Order\OrderId;
 use App\Chron\Model\Order\OrderOwner;
 use App\Chron\Model\Order\Repository\OrderList;
-use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
+use Storm\Message\Attribute\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',

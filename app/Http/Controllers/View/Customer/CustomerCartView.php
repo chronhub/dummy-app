@@ -7,9 +7,9 @@ namespace App\Http\Controllers\View\Customer;
 use App\Chron\Application\Messaging\Query\QueryCustomerProfile;
 use App\Chron\Application\Messaging\Query\QueryFirstTenInventoryItems;
 use App\Chron\Application\Messaging\Query\QueryOpenedCartByCustomerId;
-use App\Chron\Package\Reporter\Report;
-use App\Chron\Package\Support\QueryPromiseTrait;
 use Illuminate\View\View;
+use Storm\Support\Facade\Report;
+use Storm\Support\QueryPromiseTrait;
 use Throwable;
 
 final class CustomerCartView

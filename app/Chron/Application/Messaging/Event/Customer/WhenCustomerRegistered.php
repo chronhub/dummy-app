@@ -7,9 +7,9 @@ namespace App\Chron\Application\Messaging\Event\Customer;
 use App\Chron\Application\Service\AuthApplicationService;
 use App\Chron\Application\Service\CartApplicationService;
 use App\Chron\Model\Customer\Event\CustomerRegistered;
-use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Projection\ReadModel\CustomerEmailReadModel;
 use App\Chron\Projection\ReadModel\CustomerReadModel;
+use Storm\Message\Attribute\AsEventHandler;
 
 final readonly class WhenCustomerRegistered
 {

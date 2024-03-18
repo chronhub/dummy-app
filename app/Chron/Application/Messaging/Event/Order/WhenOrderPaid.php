@@ -6,10 +6,10 @@ namespace App\Chron\Application\Messaging\Event\Order;
 
 use App\Chron\Application\Service\CartApplicationService;
 use App\Chron\Model\Order\Event\OrderPaid;
-use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Projection\ReadModel\CartReadModel;
 use App\Chron\Projection\ReadModel\CatalogReadModel;
 use App\Chron\Projection\ReadModel\OrderReadModel;
+use Storm\Message\Attribute\AsEventHandler;
 
 final readonly class WhenOrderPaid
 {

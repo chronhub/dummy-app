@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Application\Messaging\Event\Inventory;
 
 use App\Chron\Model\Inventory\Event\InventoryItemExhausted;
-use App\Chron\Package\Attribute\Messaging\AsEventHandler;
+use Storm\Message\Attribute\AsEventHandler;
 
 #[AsEventHandler(
     reporter: 'reporter.event.default',

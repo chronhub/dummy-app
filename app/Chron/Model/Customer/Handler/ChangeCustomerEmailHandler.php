@@ -10,7 +10,7 @@ use App\Chron\Model\Customer\Exception\CustomerAlreadyExists;
 use App\Chron\Model\Customer\Exception\CustomerNotFound;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
 use App\Chron\Model\Customer\Service\UniqueCustomerEmail;
-use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
+use Storm\Message\Attribute\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',

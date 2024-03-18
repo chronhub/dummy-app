@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order;
 
 use App\Chron\Model\Customer\Exception\InvalidCustomerValue;
-use App\Chron\Package\Aggregate\AggregateIdV4Trait;
-use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
 use InvalidArgumentException;
+use Storm\Aggregate\AggregateIdV4Trait;
+use Storm\Contract\Aggregate\AggregateIdentity;
 
 final class OrderId implements AggregateIdentity
 {

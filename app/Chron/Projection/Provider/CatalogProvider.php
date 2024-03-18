@@ -28,7 +28,7 @@ final readonly class CatalogProvider
 
     public function getPaginatedProducts(int $perPage): LengthAwarePaginator
     {
-        return $this->query()->where('status')->paginate($perPage);
+        return $this->query()->paginate($perPage);
     }
 
     /**

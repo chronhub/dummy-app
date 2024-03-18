@@ -9,10 +9,10 @@ use App\Chron\Application\Messaging\Command\Cart\QueryRandomOpenCart;
 use App\Chron\Application\Messaging\Command\Catalog\QueryProductFromCatalog;
 use App\Chron\Application\Messaging\Command\Catalog\QueryRandomAvailableProductFromCatalog;
 use App\Chron\Model\DomainException;
-use App\Chron\Package\Reporter\Report;
-use App\Chron\Package\Support\QueryPromiseTrait;
 use Illuminate\Support\LazyCollection;
 use stdClass;
+use Storm\Support\Facade\Report;
+use Storm\Support\QueryPromiseTrait;
 
 /**
  * temporary placeholder for random queries

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\View\Customer;
 
 use App\Chron\Application\Messaging\Query\QueryPaginatedCustomers;
-use App\Chron\Package\Reporter\Report;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\View\View;
+use Storm\Support\Facade\Report;
 use Storm\Support\QueryPromiseTrait;
 use Throwable;
 

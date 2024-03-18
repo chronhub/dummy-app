@@ -12,7 +12,7 @@ use function abs;
 
 final readonly class InventoryReadModel
 {
-    final public const TABLE = 'read_inventory';
+    final public const string TABLE = 'read_inventory';
 
     public function __construct(
         private Connection $connection,

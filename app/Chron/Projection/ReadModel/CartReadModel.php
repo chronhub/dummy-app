@@ -9,9 +9,9 @@ use Illuminate\Database\Query\Builder;
 
 final readonly class CartReadModel
 {
-    final public const TABLE_CART = 'read_cart';
+    final public const string TABLE_CART = 'read_cart';
 
-    final public const TABLE_CART_ITEM = 'read_cart_item';
+    final public const string TABLE_CART_ITEM = 'read_cart_item';
 
     public function __construct(private Connection $connection)
     {

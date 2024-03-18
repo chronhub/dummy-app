@@ -9,9 +9,9 @@ use Illuminate\Database\Query\Builder;
 
 final readonly class OrderReadModel
 {
-    public const TABLE_ORDER = 'read_order';
+    public const string TABLE_ORDER = 'read_order';
 
-    public const TABLE_ORDER_ITEM = 'read_order_item';
+    public const string TABLE_ORDER_ITEM = 'read_order_item';
 
     public function __construct(private Connection $connection)
     {

@@ -6,7 +6,7 @@ namespace App\Chron\Model\Cart\Handler;
 
 use App\Chron\Application\Messaging\Command\Cart\CheckoutCart;
 use App\Chron\Model\Order\OrderCreationProcess;
-use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
+use Storm\Message\Attribute\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',

@@ -6,7 +6,7 @@ namespace App\Chron\Application\Service;
 
 use App\Chron\Application\Factory\ProductFactory;
 use App\Chron\Application\Messaging\Command\Product\CreateProduct;
-use App\Chron\Package\Reporter\Report;
+use Storm\Support\Facade\Report;
 use Symfony\Component\Uid\Uuid;
 
 final class ProductApplicationService

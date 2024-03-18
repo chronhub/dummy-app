@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Chron\Application\Messaging\Event\Inventory;
 
 use App\Chron\Model\Inventory\Event\InventoryItemReleased;
-use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Projection\ReadModel\CatalogReadModel;
 use App\Chron\Projection\ReadModel\InventoryReadModel;
+use Storm\Message\Attribute\AsEventHandler;
 
 final readonly class WhenInventoryItemReleased
 {

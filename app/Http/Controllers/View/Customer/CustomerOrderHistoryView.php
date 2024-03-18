@@ -7,9 +7,9 @@ namespace App\Http\Controllers\View\Customer;
 use App\Chron\Application\Messaging\Query\QueryCustomerProfile;
 use App\Chron\Model\Order\OrderId;
 use App\Chron\Model\Order\Repository\OrderList;
-use App\Chron\Package\Reporter\Report;
 use Illuminate\View\View;
 use stdClass;
+use Storm\Support\Facade\Report;
 use Storm\Support\QueryPromiseTrait;
 use Throwable;
 

@@ -10,9 +10,9 @@ use App\Chron\Model\Order\Event\OrderCreated;
 use App\Chron\Model\Order\Event\OrderPaid;
 use App\Chron\Model\Order\Exception\InvalidOrderOperation;
 use App\Chron\Model\Order\Exception\OrderException;
-use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
-use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
-use App\Chron\Package\Aggregate\Contract\AggregateRoot;
+use Storm\Aggregate\AggregateBehaviorTrait;
+use Storm\Contract\Aggregate\AggregateIdentity;
+use Storm\Contract\Aggregate\AggregateRoot;
 use Storm\Contract\Message\DomainEvent;
 
 use function in_array;

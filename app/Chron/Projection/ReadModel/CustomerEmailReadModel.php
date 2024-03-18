@@ -9,7 +9,7 @@ use Illuminate\Database\Query\Builder;
 
 final readonly class CustomerEmailReadModel
 {
-    final public const TABLE = 'read_customer_email';
+    final public const string TABLE = 'read_customer_email';
 
     public function __construct(private Connection $connection)
     {

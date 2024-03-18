@@ -10,7 +10,7 @@ use Storm\Contract\Clock\SystemClock;
 
 final readonly class CustomerReadModel
 {
-    final public const TABLE = 'read_customer';
+    final public const string TABLE = 'read_customer';
 
     public function __construct(
         private Connection $connection,

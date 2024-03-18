@@ -8,10 +8,10 @@ use App\Chron\Application\Factory\ProductFactory;
 use App\Chron\Application\Messaging\Command\Inventory\AddInventoryItem;
 use App\Chron\Application\Messaging\Command\Inventory\QueryRandomProductInventory;
 use App\Chron\Application\Messaging\Command\Inventory\RefillInventoryItem;
-use App\Chron\Package\Reporter\Report;
-use App\Chron\Package\Support\QueryPromiseTrait;
 use DomainException;
 use stdClass;
+use Storm\Support\Facade\Report;
+use Storm\Support\QueryPromiseTrait;
 
 final readonly class InventoryApplicationService
 {

@@ -8,7 +8,7 @@ use App\Chron\Application\Messaging\Command\Product\CreateProduct;
 use App\Chron\Model\Product\Exception\ProductAlreadyExists;
 use App\Chron\Model\Product\Product;
 use App\Chron\Model\Product\Repository\ProductList;
-use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
+use Storm\Message\Attribute\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',

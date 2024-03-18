@@ -8,10 +8,10 @@ use App\Chron\Application\Factory\CustomerFactory;
 use App\Chron\Application\Messaging\Command\Customer\ChangeCustomerEmail;
 use App\Chron\Application\Messaging\Command\Customer\RegisterCustomer;
 use App\Chron\Application\Messaging\Query\QueryRandomCustomer;
-use App\Chron\Package\Reporter\Report;
-use App\Chron\Package\Support\QueryPromiseTrait;
 use DomainException;
 use stdClass;
+use Storm\Support\Facade\Report;
+use Storm\Support\QueryPromiseTrait;
 
 final readonly class CustomerApplicationService
 {

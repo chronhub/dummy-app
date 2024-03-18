@@ -7,9 +7,9 @@ namespace App\Chron\Infrastructure\Repository;
 use App\Chron\Model\Customer\Customer;
 use App\Chron\Model\Customer\CustomerId;
 use App\Chron\Model\Customer\Repository\CustomerCollection;
-use App\Chron\Package\Aggregate\Contract\AggregateRepository;
-use App\Chron\Package\Aggregate\Contract\AggregateRoot;
-use App\Chron\Package\Attribute\AggregateRepository\AsAggregateRepository;
+use Storm\Aggregate\Attribute\AsAggregateRepository;
+use Storm\Contract\Aggregate\AggregateRepository;
+use Storm\Contract\Aggregate\AggregateRoot;
 
 #[AsAggregateRepository(
     chronicler: 'chronicler.event.transactional.standard.pgsql',

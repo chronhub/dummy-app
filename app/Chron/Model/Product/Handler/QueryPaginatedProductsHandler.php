@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Chron\Model\Product\Handler;
 
 use App\Chron\Application\Messaging\Query\QueryPaginatedProducts;
-use App\Chron\Package\Attribute\Messaging\AsQueryHandler;
 use App\Chron\Projection\Provider\ProductProvider;
 use React\Promise\Deferred;
+use Storm\Message\Attribute\AsQueryHandler;
 
 #[AsQueryHandler(
     reporter: 'reporter.query.default',

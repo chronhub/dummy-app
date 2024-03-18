@@ -13,10 +13,10 @@ use App\Chron\Model\Inventory\Event\InventoryItemRefilled;
 use App\Chron\Model\Inventory\Event\InventoryItemReleased;
 use App\Chron\Model\Inventory\Event\InventoryItemReserved;
 use App\Chron\Model\Inventory\Exception\InventoryOutOfStock;
-use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
-use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
-use App\Chron\Package\Aggregate\Contract\AggregateRoot;
 use RuntimeException;
+use Storm\Aggregate\AggregateBehaviorTrait;
+use Storm\Contract\Aggregate\AggregateIdentity;
+use Storm\Contract\Aggregate\AggregateRoot;
 use Storm\Contract\Message\DomainEvent;
 
 final class Inventory implements AggregateRoot

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Billing;
 
-use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
-use App\Chron\Package\Aggregate\Contract\AggregateRoot;
+use Storm\Aggregate\AggregateBehaviorTrait;
+use Storm\Contract\Aggregate\AggregateRoot;
 
 final class Billing implements AggregateRoot
 {

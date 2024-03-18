@@ -6,10 +6,10 @@ namespace App\Chron\Model\Customer;
 
 use App\Chron\Model\Customer\Event\CustomerEmailChanged;
 use App\Chron\Model\Customer\Event\CustomerRegistered;
-use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
-use App\Chron\Package\Aggregate\Contract\AggregateIdentity;
-use App\Chron\Package\Aggregate\Contract\AggregateRoot;
 use RuntimeException;
+use Storm\Aggregate\AggregateBehaviorTrait;
+use Storm\Contract\Aggregate\AggregateIdentity;
+use Storm\Contract\Aggregate\AggregateRoot;
 use Storm\Contract\Message\DomainEvent;
 
 use function sprintf;

@@ -6,9 +6,9 @@ namespace App\Chron\Application\Messaging\Event\Product;
 
 use App\Chron\Application\Service\InventoryApplicationService;
 use App\Chron\Model\Product\Event\ProductCreated;
-use App\Chron\Package\Attribute\Messaging\AsEventHandler;
 use App\Chron\Projection\ReadModel\CatalogReadModel;
 use App\Chron\Projection\ReadModel\ProductReadModel;
+use Storm\Message\Attribute\AsEventHandler;
 
 final readonly class WhenProductCreated
 {

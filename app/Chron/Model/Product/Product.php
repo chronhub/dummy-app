@@ -6,8 +6,8 @@ namespace App\Chron\Model\Product;
 
 use App\Chron\Model\InvalidDomainException;
 use App\Chron\Model\Product\Event\ProductCreated;
-use App\Chron\Package\Aggregate\AggregateBehaviorTrait;
-use App\Chron\Package\Aggregate\Contract\AggregateRoot;
+use Storm\Aggregate\AggregateBehaviorTrait;
+use Storm\Contract\Aggregate\AggregateRoot;
 use Storm\Contract\Message\DomainEvent;
 
 use function get_class;

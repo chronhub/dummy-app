@@ -6,7 +6,7 @@ namespace App\Chron\Model\Order\Handler;
 
 use App\Chron\Application\Messaging\Command\Order\PayOrder;
 use App\Chron\Model\Order\OrderPaymentProcess;
-use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
+use Storm\Message\Attribute\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',

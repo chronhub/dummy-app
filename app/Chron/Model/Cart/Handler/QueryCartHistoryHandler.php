@@ -6,8 +6,8 @@ namespace App\Chron\Model\Cart\Handler;
 
 use App\Chron\Application\Messaging\Query\QueryCartHistory;
 use App\Chron\Model\Cart\Repository\CartList;
-use App\Chron\Package\Attribute\Messaging\AsQueryHandler;
 use React\Promise\Deferred;
+use Storm\Message\Attribute\AsQueryHandler;
 
 #[AsQueryHandler(
     reporter: 'reporter.query.default',

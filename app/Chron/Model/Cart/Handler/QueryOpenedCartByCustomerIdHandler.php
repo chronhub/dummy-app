@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Chron\Model\Cart\Handler;
 
 use App\Chron\Application\Messaging\Query\QueryOpenedCartByCustomerId;
-use App\Chron\Package\Attribute\Messaging\AsQueryHandler;
 use App\Chron\Projection\Provider\CartProvider;
 use React\Promise\Deferred;
+use Storm\Message\Attribute\AsQueryHandler;
 
 #[AsQueryHandler(
     reporter: 'reporter.query.default',

@@ -29,7 +29,7 @@ return [
             MapListenerCommand::class,
             ExportMessageCommand::class,
             ExportReporterCommand::class,
-            \App\Chron\Application\Console\Shop\SeedShop::class,
+            \App\Chron\Application\Console\Shop\SeedShopCommand::class,
             \App\Chron\Application\Console\Shop\BatchOrderCommand::class,
         ],
     ],

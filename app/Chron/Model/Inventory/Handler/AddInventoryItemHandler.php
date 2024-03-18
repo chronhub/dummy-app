@@ -8,7 +8,7 @@ use App\Chron\Application\Messaging\Command\Inventory\AddInventoryItem;
 use App\Chron\Model\Inventory\Exception\InventoryItemAlreadyExists;
 use App\Chron\Model\Inventory\Inventory;
 use App\Chron\Model\Inventory\Repository\InventoryList;
-use App\Chron\Package\Attribute\Messaging\AsCommandHandler;
+use Storm\Message\Attribute\AsCommandHandler;
 
 #[AsCommandHandler(
     reporter: 'reporter.command.default',
