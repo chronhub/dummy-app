@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Console;
 
-use App\Chron\Package\Attribute\KernelStorage;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Storm\Annotation\KernelStorage;
 
 use function json_encode;
 use function str_ends_with;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Console;
 
-use App\Chron\Package\Attribute\Reporter\ReporterAttribute;
+use Storm\Reporter\Attribute\ReporterAttribute;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(

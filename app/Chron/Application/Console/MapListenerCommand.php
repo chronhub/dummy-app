@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Console;
 
-use App\Chron\Package\Attribute\KernelStorage;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
+use Storm\Annotation\KernelStorage;
 use Storm\Contract\Reporter\Reporter;
 use Storm\Contract\Tracker\Listener;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -21,7 +21,7 @@ use function sprintf;
 )]
 class MapListenerCommand extends Command
 {
-    const TABLE_HEADERS = ['Event', 'Origin', 'Priority', 'Listener'];
+    public const array TABLE_HEADERS = ['Event', 'Origin', 'Priority', 'Listener'];
 
     protected $signature = 'reporter-listener:map
                             { id?        : reporter id }

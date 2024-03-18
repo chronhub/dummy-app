@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Console;
 
-use App\Chron\Package\Attribute\KernelStorage;
-use App\Chron\Package\Attribute\Messaging\MessageAttribute;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
+use Storm\Annotation\KernelStorage;
+use Storm\Message\Attribute\MessageAttribute;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 use function array_map;
@@ -22,7 +22,7 @@ class MapMessageCommand extends Command
 
     // todo filter headers / type
     // todo add a vertical table when message is requested
-    const TABLE_HEADERS = ['Reporter', 'Type', 'Message', 'Handler class', 'Handler method', 'Queue', 'Mode'];
+    public const array TABLE_HEADERS = ['Reporter', 'Type', 'Message', 'Handler class', 'Handler method', 'Queue', 'Mode'];
 
     protected $signature = 'reporter-message:map
                             { --message= : Message name either full or short class name }
