@@ -57,6 +57,14 @@ final readonly class InventoryProvider
             ->first();
     }
 
+    public function getAvailableProductQuantity(string $skuId): int
+    {
+        return $this->query()
+            ->selectRaw('SUM(stock - reserved) as available')
+            ->where('id', $skuId)
+            ->value('available') ?? 0;
+    }
+
     private function query(): Builder
     {
         return $this->connection->table(InventoryReadModel::TABLE);

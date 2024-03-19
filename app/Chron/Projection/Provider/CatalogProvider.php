@@ -42,6 +42,17 @@ final readonly class CatalogProvider
             ->first();
     }
 
+    /**
+     * @return object{TCatalog}|null
+     */
+    public function findRandomAvailableProduct(): ?stdClass
+    {
+        return $this->query()
+            ->where('status', ProductStatus::AVAILABLE->value)
+            ->inRandomOrder()
+            ->first();
+    }
+
     private function query(): Builder
     {
         return $this->connection->table(CatalogReadModel::TABLE);

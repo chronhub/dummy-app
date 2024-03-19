@@ -54,19 +54,4 @@ final readonly class WhenOrderPaid
     {
         $this->cartApplicationService->openCart($event->orderOwner()->toString());
     }
-
-    #[AsEventHandler(
-        reporter: 'reporter.event.default',
-        handles: OrderPaid::class,
-        priority: 3
-    )]
-    public function removeQuantityFromCatalog(OrderPaid $event): void
-    {
-        foreach ($event->orderItems()->getItems() as $item) {
-            $this->catalogReadModel->removeProductQuantity(
-                $item->skuId->toString(),
-                $item->quantity->value
-            );
-        }
-    }
 }

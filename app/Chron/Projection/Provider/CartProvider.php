@@ -18,7 +18,7 @@ use stdClass;
  *     balance: string, quantity: int,
  *     closed: int, closed_reason: null|string,
  *     created_at: string, updated_at: string,
- *     items: Collection<TCartItem>
+ *     items: Collection{TCartItem}
  *  }
  * @template TCartItem of object{
  *     id: string, cart_id: string, customer_id: string, sku_id: string,

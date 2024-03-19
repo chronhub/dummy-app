@@ -17,34 +17,13 @@ class SeedShopCommand extends Command
 {
     protected $signature = 'shop:seed';
 
-    protected array $streamNames = [
-        'customer',
-        'product',
-        'inventory',
-        'cart',
-        'order',
-    ];
-
     public function __invoke(): int
     {
-        $this->call('migrate');
-
-        $this->createStream();
-
         $this->createProducts();
 
         $this->registerCustomer();
 
         return self::SUCCESS;
-    }
-
-    protected function createStream(): void
-    {
-        $connection = $this->laravel['db'];
-
-        foreach ($this->streamNames as $streamName) {
-            $connection->table('stream_event')->useWritePdo()->insert(['stream_name' => $streamName]);
-        }
     }
 
     protected function createProducts(): void
@@ -60,6 +39,6 @@ class SeedShopCommand extends Command
         /** @var CustomerApplicationService $customerService */
         $customerService = $this->laravel[CustomerApplicationService::class];
 
-        $customerService->registerCustomers(1);
+        $customerService->registerCustomers(100);
     }
 }

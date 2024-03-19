@@ -4,68 +4,60 @@ declare(strict_types=1);
 
 namespace App\Chron\Projection\ReadModel;
 
-use Illuminate\Database\Connection;
+use App\Chron\Model\Inventory\Event\InventoryItemAdded;
 use Illuminate\Database\Query\Builder;
-use Storm\Contract\Clock\SystemClock;
+use Illuminate\Database\Schema\Blueprint;
+use Override;
 
 use function abs;
 
-final readonly class InventoryReadModel
+final class InventoryReadModel extends ReadModelConnection
 {
     final public const string TABLE = 'read_inventory';
 
-    public function __construct(
-        private Connection $connection,
-        private SystemClock $clock
-    ) {
-    }
-
-    public function insert(string $skuId, int $stock, string $unitPrice): void
+    protected function insert(InventoryItemAdded $event): void
     {
         $this->query()->insert([
-            'id' => $skuId,
-            'stock' => $stock,
-            'unit_price' => $unitPrice,
+            'id' => $event->aggregateId()->toString(),
+            'stock' => $event->totalStock()->value,
+            'unit_price' => $event->unitPrice()->value,
             'reserved' => 0,
-            'created_at' => $this->clock->generate(),
         ]);
     }
 
-    public function updateQuantity(string $skuId, int $quantity): void
+    protected function updateQuantity(string $skuId, int $quantity): void
     {
-        $this->query()
-            ->where('id', $skuId)
-            ->update([
-                'stock' => abs($quantity),
-                'updated_at' => $this->clock->generate(),
-            ]);
+        $this->query()->where('id', $skuId)->update(['stock' => abs($quantity)]);
     }
 
-    public function increment(string $skuId, int $quantity): void
+    protected function incrementReservation(string $skuId, int $quantity): void
     {
-        $this->query()
-            ->where('id', $skuId)
-            ->increment('reserved', abs($quantity), $this->updateTime());
+        $this->query()->where('id', $skuId)->increment('reserved', abs($quantity));
     }
 
-    public function decrement(string $skuId, int $quantity): void
+    protected function decrementReservation(string $skuId, int $quantity): void
     {
-        $this->query()
-            ->where('id', $skuId)
-            ->decrement('reserved', abs($quantity), $this->updateTime());
+        $this->query()->where('id', $skuId)->decrement('reserved', abs($quantity));
     }
 
-    public function getAvailableProductQuantity(string $skuId): int
+    #[Override]
+    protected function up(): callable
     {
-        return $this->query()
-            ->selectRaw('SUM(stock - reserved) as available')
-            ->where('id', $skuId)
-            ->value('available') ?? 0;
+        return function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('unit_price');
+            $table->integer('stock');
+            $table->integer('reserved')->default(0);
+
+            $table->timestampTz('created_at', 6)->useCurrent();
+            $table->timestampTz('updated_at', 6)->nullable()->useCurrentOnUpdate();
+        };
     }
 
-    private function updateTime(): array
+    #[Override]
+    protected function tableName(): string
     {
-        return ['updated_at' => $this->clock->generate()];
+        return self::TABLE;
     }
 
     private function query(): Builder

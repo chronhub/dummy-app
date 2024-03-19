@@ -4,53 +4,65 @@ declare(strict_types=1);
 
 namespace App\Chron\Projection\ReadModel;
 
-use Illuminate\Database\Connection;
+use App\Chron\Model\Customer\Event\CustomerRegistered;
+use App\Chron\Model\Customer\Gender;
 use Illuminate\Database\Query\Builder;
-use Storm\Contract\Clock\SystemClock;
+use Illuminate\Database\Schema\Blueprint;
+use Storm\Projector\Support\ReadModel\InteractWithStack;
 
-final readonly class CustomerReadModel
+final class CustomerReadModel extends ReadModelConnection
 {
-    final public const string TABLE = 'read_customer';
+    public const string TABLE = 'read_customer';
 
-    public function __construct(
-        private Connection $connection,
-        private SystemClock $clock
-    ) {
-    }
+    use InteractWithStack;
 
-    public function insert(
-        string $customerId,
-        string $email,
-        string $name,
-        string $gender,
-        string $birthday,
-        string $phoneNumber,
-        string $street,
-        string $city,
-        string $postalCode,
-        string $country
-    ): void {
+    protected function insert(CustomerRegistered $event): void
+    {
         $this->query()->insert([
-            'id' => $customerId,
-            'email' => $email,
-            'name' => $name,
-            'gender' => $gender,
-            'birthday' => $birthday,
-            'phone_number' => $phoneNumber,
-            'street' => $street,
-            'city' => $city,
-            'postal_code' => $postalCode,
-            'country' => $country,
+            'id' => $event->aggregateId()->toString(),
+            'email' => $event->email()->value,
+            'name' => $event->name()->value,
+            'gender' => $event->gender()->value,
+            'birthday' => $event->birthday()->value,
+            'phone_number' => $event->phoneNumber()->value,
+            'street' => $event->address()->street,
+            'city' => $event->address()->city,
+            'postal_code' => $event->address()->postalCode,
+            'country' => $event->address()->country,
         ]);
     }
 
-    public function updateEmail(string $customerId, string $email): void
+    protected function updateEmail(string $id, string $email): void
     {
-        $this->query()->where('id', $customerId)->update(['email' => $email, 'updated_at' => $this->clock->generate()]);
+        $this->query()->where('id', $id)->update(['email' => $email]);
+    }
+
+    protected function up(): callable
+    {
+        return function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->string('name');
+            $table->enum('gender', Gender::toStrings());
+            $table->date('birthday');
+            $table->string('email')->unique();
+            $table->string('phone_number', 20); //unique
+            $table->string('street');
+            $table->string('city');
+            $table->string('postal_code');
+            $table->string('country');
+
+            $table->timestampTz('created_at', 6)->useCurrent();
+            $table->timestampTz('updated_at', 6)->nullable()->useCurrentOnUpdate();
+        };
+    }
+
+    protected function tableName(): string
+    {
+        return self::TABLE;
     }
 
     private function query(): Builder
     {
-        return $this->connection->table(self::TABLE);
+        return $this->connection->table($this->tableName());
     }
 }

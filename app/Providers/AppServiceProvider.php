@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Chron\Application\Console\Shop\MigrateShopCommand;
 use App\Chron\Application\Console\Shop\SeedShopCommand;
+use App\Console\CatalogReadModelCommand;
+use App\Console\CustomerReadModelCommand;
+use App\Console\InventoryReadModelCommand;
+use App\Console\ProductReadModelCommand;
+use App\Console\ResetProjectionCommand;
 use Illuminate\Support\ServiceProvider;
 use Storm\Annotation\Kernel;
 use Storm\Support\Providers\StormServiceProvider;
@@ -22,8 +28,17 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->register(StormServiceProvider::class);
+        $this->app->register(ProjectorServiceProvider::class);
         $this->app->register(ShopServiceProvider::class);
 
-        $this->commands(SeedShopCommand::class);
+        $this->commands([
+            MigrateShopCommand::class,
+            SeedShopCommand::class,
+            ResetProjectionCommand::class,
+            ProductReadModelCommand::class,
+            CustomerReadModelCommand::class,
+            CatalogReadModelCommand::class,
+            InventoryReadModelCommand::class,
+        ]);
     }
 }

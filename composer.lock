@@ -136,16 +136,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/chronhub/storming.git",
-                "reference": "13a64b00d78ee6e88b9c78245597f5eaf8b96890"
+                "reference": "92267b32373d2f54d71122da343c0d996eb084b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/chronhub/storming/zipball/13a64b00d78ee6e88b9c78245597f5eaf8b96890",
-                "reference": "13a64b00d78ee6e88b9c78245597f5eaf8b96890",
+                "url": "https://api.github.com/repos/chronhub/storming/zipball/92267b32373d2f54d71122da343c0d996eb084b6",
+                "reference": "92267b32373d2f54d71122da343c0d996eb084b6",
                 "shasum": ""
             },
             "require": {
                 "composer-runtime-api": "^2.2",
+                "ext-pcntl": "*",
                 "laravel/framework": "10.x-dev",
                 "php": "^8.3",
                 "react/promise": "^3.x-dev",
@@ -169,7 +170,6 @@
             },
             "require-dev": {
                 "doctrine/dbal": "^3.9",
-                "ext-pcntl": "*",
                 "ext-posix": "*",
                 "larastan/larastan": "^2.8",
                 "laravel/pint": "^v1.14",
@@ -204,7 +204,7 @@
                 "issues": "https://github.com/chronhub/storming/issues",
                 "source": "https://github.com/chronhub/storming/tree/main"
             },
-            "time": "2024-03-18T14:41:25+00:00"
+            "time": "2024-03-19T05:34:59+00:00"
         },
         {
             "name": "composer/semver",
@@ -9430,16 +9430,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.62",
+            "version": "1.10.63",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "cd5c8a1660ed3540b211407c77abf4af193a6af9"
+                "reference": "ad12836d9ca227301f5fb9960979574ed8628339"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/cd5c8a1660ed3540b211407c77abf4af193a6af9",
-                "reference": "cd5c8a1660ed3540b211407c77abf4af193a6af9",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/ad12836d9ca227301f5fb9960979574ed8628339",
+                "reference": "ad12836d9ca227301f5fb9960979574ed8628339",
                 "shasum": ""
             },
             "require": {
@@ -9488,7 +9488,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-03-13T12:27:20+00:00"
+            "time": "2024-03-18T16:53:53+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",

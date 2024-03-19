@@ -16,20 +16,6 @@ final class HomeController
     public function __invoke(OrderProvider $orderProvider, InventoryProvider $inventoryProvider, CustomerProvider $customerProvider): View
     {
 
-        //        $carts = DB::query()
-        //            ->selectRaw('SUM(quantity) as total_quantity')
-        //            ->from('read_cart')
-        //            ->where('status', 'opened')
-        //            ->value('total_quantity');
-        //
-        //        $inventory = DB::query()
-        //            ->selectRaw('SUM(reserved) as total_reserved')
-        //            ->from('read_inventory')
-        //            ->value('total_reserved');
-        //
-        //        dump($carts);
-        //        dd($inventory);
-
         $order = $orderProvider->getOrderSummary();
         $inventory = $inventoryProvider->getInventorySummary();
         $lastTenCustomers = $customerProvider->lastTenCustomers();
@@ -39,5 +25,24 @@ final class HomeController
             'inventory' => $inventory,
             'lastTenCustomers' => $lastTenCustomers,
         ]);
+    }
+
+    private function sum(): array
+    {
+        $carts = DB::query()
+            ->selectRaw('SUM(quantity) as total_quantity')
+            ->from('read_cart')
+            ->where('status', 'opened')
+            ->value('total_quantity');
+
+        $inventory = DB::query()
+            ->selectRaw('SUM(reserved) as total_reserved')
+            ->from('read_inventory')
+            ->value('total_reserved');
+
+        return [
+            'carts' => $carts,
+            'inventory' => $inventory,
+        ];
     }
 }
