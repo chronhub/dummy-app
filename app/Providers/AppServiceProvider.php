@@ -11,6 +11,8 @@ use App\Console\CartReadModelCommand;
 use App\Console\CatalogReadModelCommand;
 use App\Console\CustomerReadModelCommand;
 use App\Console\InventoryReadModelCommand;
+use App\Console\OrderItemReadModelCommand;
+use App\Console\OrderReadModelCommand;
 use App\Console\ProductReadModelCommand;
 use App\Console\ReadModelProcess;
 use App\Console\ResetProjectionCommand;
@@ -45,6 +47,8 @@ class AppServiceProvider extends ServiceProvider
             InventoryReadModelCommand::class,
             CartReadModelCommand::class,
             CartItemReadModelCommand::class,
+            OrderReadModelCommand::class,
+            OrderItemReadModelCommand::class,
         ]);
     }
 }

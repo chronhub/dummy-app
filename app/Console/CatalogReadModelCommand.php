@@ -51,14 +51,32 @@ final class CatalogReadModelCommand extends AbstractReadModelCommand
                 ->ack(InventoryItemAdded::class)
                 ?->stack('updateProductQuantityAndPrice', $scope->event());
 
-            if ($scope->ackOneOf(
-                InventoryItemAdjusted::class, InventoryItemPartiallyReserved::class,
-                InventoryItemReserved::class, InventoryItemReleased::class)) {
-                $scope->stack('updateReservation',
+            $scope
+                ->ack(InventoryItemAdjusted::class)
+                ?->stack('updateReservation',
                     $scope->event()->aggregateId()->toString(),
                     $scope->event()->totalReserved()->value
                 );
-            }
+
+            $scope
+                ->ack(InventoryItemPartiallyReserved::class)
+                ?->stack('updateReservation',
+                    $scope->event()->aggregateId()->toString(),
+                    $scope->event()->totalReserved()->value
+                );
+            $scope
+                ->ack(InventoryItemReserved::class)
+                ?->stack('updateReservation',
+                    $scope->event()->aggregateId()->toString(),
+                    $scope->event()->totalReserved()->value
+                );
+
+            $scope
+                ->ack(InventoryItemReleased::class)
+                ?->stack('updateReservation',
+                    $scope->event()->aggregateId()->toString(),
+                    $scope->event()->totalReserved()->value
+                );
         };
     }
 

@@ -30,6 +30,8 @@ final class ReadModelProcess extends Command implements SignalableCommandInterfa
         'cart' => 'cart:read-model',
         'cart_item' => 'cart-item:read-model',
         'catalog' => 'catalog:read-model',
+        'order' => 'order:read-model',
+        'order_item' => 'order-item:read-model',
     ];
 
     /**

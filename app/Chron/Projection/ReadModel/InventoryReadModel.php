@@ -30,14 +30,9 @@ final class InventoryReadModel extends ReadModelConnection
         $this->query()->where('id', $skuId)->update(['stock' => abs($quantity)]);
     }
 
-    protected function incrementReservation(string $skuId, int $quantity): void
+    protected function updateReservation(string $skuId, int $quantity): void
     {
-        $this->query()->where('id', $skuId)->increment('reserved', abs($quantity));
-    }
-
-    protected function decrementReservation(string $skuId, int $quantity): void
-    {
-        $this->query()->where('id', $skuId)->decrement('reserved', abs($quantity));
+        $this->query()->where('id', $skuId)->update(['reserved' => abs($quantity)]);
     }
 
     #[Override]

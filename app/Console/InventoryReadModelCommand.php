@@ -36,25 +36,28 @@ final class InventoryReadModelCommand extends AbstractReadModelCommand
     private function reactors(): Closure
     {
         return function (ReadModelScope $scope): void {
-            $scope->ack(InventoryItemAdded::class)
+            $scope
+                ->ack(InventoryItemAdded::class)
                 ?->incrementState()
                 ->stack('insert', $scope->event());
 
-            $scope->ack(InventoryItemAdjusted::class)
+            $scope
+                ->ack(InventoryItemAdjusted::class)
                 ?->incrementState()
                 ->stack('updateQuantity', $scope->event()->aggregateId()->toString(), $scope->event()->totalStock()->value);
 
-            $scope->ack(InventoryItemReserved::class)
+            $scope
+                ->ack(InventoryItemReserved::class)
                 ?->incrementState()
-                ->stack('incrementReservation', $scope->event()->aggregateId()->toString(), $scope->event()->reserved()->value);
+                ->stack('updateReservation', $scope->event()->aggregateId()->toString(), $scope->event()->totalReserved()->value);
 
             $scope->ack(InventoryItemPartiallyReserved::class)
                 ?->incrementState()
-                ->stack('incrementReservation', $scope->event()->aggregateId()->toString(), $scope->event()->reserved()->value);
+                ->stack('updateReservation', $scope->event()->aggregateId()->toString(), $scope->event()->totalReserved()->value);
 
             $scope->ack(InventoryItemReleased::class)
                 ?->incrementState()
-                ->stack('decrementReservation', $scope->event()->aggregateId()->toString(), $scope->event()->released()->value);
+                ->stack('updateReservation', $scope->event()->aggregateId()->toString(), $scope->event()->totalReserved()->value);
         };
     }
 

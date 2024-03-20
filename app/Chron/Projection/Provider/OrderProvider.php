@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Projection\Provider;
 
 use App\Chron\Model\Order\OrderStatus;
+use App\Chron\Projection\ReadModel\OrderItemReadModel;
 use App\Chron\Projection\ReadModel\OrderReadModel;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
@@ -134,6 +135,6 @@ final readonly class OrderProvider
 
     public function orderItemQuery(): Builder
     {
-        return $this->connection->table(OrderReadModel::TABLE_ORDER_ITEM);
+        return $this->connection->table(OrderItemReadModel::TABLE_ORDER_ITEM);
     }
 }

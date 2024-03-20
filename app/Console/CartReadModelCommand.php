@@ -29,7 +29,6 @@ final class CartReadModelCommand extends AbstractReadModelCommand
 
     public function __invoke(): int
     {
-
         $projection = $this->make($this->reactors(), fn (): array => ['count' => 0]);
 
         $projection->run(true);
@@ -40,31 +39,72 @@ final class CartReadModelCommand extends AbstractReadModelCommand
     private function reactors(): Closure
     {
         return function (ReadModelScope $scope): void {
-            $scope->ack(CartOpened::class)
+            $scope
+                ->ack(CartOpened::class)
                 ?->incrementState()
                 ->stack('insert', $scope->event());
 
-            $scope->ackOneOf(
-                CartItemAdded::class, CartItemPartiallyAdded::class, CartItemQuantityUpdated::class,
-                CartCanceled::class, CartItemRemoved::class
-            )
-                ?->stack(
-                    'update',
-                    $scope->event()->cartId()->toString(),
-                    $scope->event()->cartOwner()->toString(),
-                    $scope->event()->cartBalance()->value,
-                    $scope->event()->cartQuantity()->value
-                );
-
-            $scope->ackOneOf(CartCanceled::class, CartSubmitted::class)
+            $scope
+                ->ack(CartSubmitted::class)
                 ?->stack('updateStatus',
                     $scope->event()->cartId()->toString(),
                     $scope->event()->cartOwner()->toString(),
                     $scope->event()->newCartStatus()->value
                 );
 
-            $scope->ack(OrderPaid::class)
+            $scope
+                ->ack(OrderPaid::class)
                 ?->stack('deleteSubmittedCart', $scope->event()->orderOwner()->toString());
+
+            $scope
+                ->ack(CartCanceled::class)
+                ?->stack('updateStatus',
+                    $scope->event()->cartId()->toString(),
+                    $scope->event()->cartOwner()->toString(),
+                    $scope->event()->newCartStatus()->value
+                )
+                ?->stack('update',
+                    $scope->event()->cartId()->toString(),
+                    $scope->event()->cartOwner()->toString(),
+                    $scope->event()->cartBalance()->value,
+                    $scope->event()->cartQuantity()->value,
+                );
+
+            $scope
+                ->ack(CartItemAdded::class)
+                ?->stack('update',
+                    $scope->event()->cartId()->toString(),
+                    $scope->event()->cartOwner()->toString(),
+                    $scope->event()->cartBalance()->value,
+                    $scope->event()->cartQuantity()->value,
+                );
+
+            $scope
+                ->ack(CartItemPartiallyAdded::class)
+                ?->stack('update',
+                    $scope->event()->cartId()->toString(),
+                    $scope->event()->cartOwner()->toString(),
+                    $scope->event()->cartBalance()->value,
+                    $scope->event()->cartQuantity()->value,
+                );
+
+            $scope
+                ->ack(CartItemQuantityUpdated::class)
+                ?->stack('update',
+                    $scope->event()->cartId()->toString(),
+                    $scope->event()->cartOwner()->toString(),
+                    $scope->event()->cartBalance()->value,
+                    $scope->event()->cartQuantity()->value,
+                );
+
+            $scope
+                ->ack(CartItemRemoved::class)
+                ?->stack('update',
+                    $scope->event()->cartId()->toString(),
+                    $scope->event()->cartOwner()->toString(),
+                    $scope->event()->cartBalance()->value,
+                    $scope->event()->cartQuantity()->value,
+                );
         };
     }
 

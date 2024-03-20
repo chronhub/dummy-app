@@ -53,7 +53,7 @@ class ProjectorServiceProvider extends ServiceProvider implements DeferrableProv
                 $app['projection.serializer.json.default'],
                 $app[Dispatcher::class],
                 $app[ConnectionQueryScope::class],
-                new DefaultOption(signal: true)
+                new DefaultOption(signal: true, retries: [1])
             );
         });
     }
