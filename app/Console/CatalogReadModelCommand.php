@@ -64,6 +64,7 @@ final class CatalogReadModelCommand extends AbstractReadModelCommand
                     $scope->event()->aggregateId()->toString(),
                     $scope->event()->totalReserved()->value
                 );
+
             $scope
                 ->ack(InventoryItemReserved::class)
                 ?->stack('updateReservation',

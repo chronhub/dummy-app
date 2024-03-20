@@ -22,7 +22,6 @@ final class ProductReadModelCommand extends AbstractReadModelCommand
 
     public function __invoke(): int
     {
-
         $projection = $this->make($this->reactors(), fn (): array => ['count' => 0]);
 
         $projection->run(true);

@@ -7,7 +7,6 @@ namespace App\Chron\Projection\ReadModel;
 use App\Chron\Model\Order\Event\OrderCreated;
 use App\Chron\Model\Order\Event\OrderPaid;
 use App\Chron\Model\Order\OrderStatus;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Schema\Blueprint;
 
 final class OrderReadModel extends ReadModelConnection
@@ -33,11 +32,6 @@ final class OrderReadModel extends ReadModelConnection
             ->update([
                 'status' => $event->orderStatus()->value,
             ]);
-    }
-
-    protected function query(): Builder
-    {
-        return $this->connection->table(self::TABLE_ORDER);
     }
 
     protected function up(): callable

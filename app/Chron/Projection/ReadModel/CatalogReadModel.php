@@ -9,7 +9,6 @@ use App\Chron\Model\Order\ItemCollection;
 use App\Chron\Model\Order\OrderItem;
 use App\Chron\Model\Product\Event\ProductCreated;
 use App\Chron\Model\Product\ProductStatus;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Schema\Blueprint;
 
 final class CatalogReadModel extends ReadModelConnection
@@ -85,10 +84,5 @@ final class CatalogReadModel extends ReadModelConnection
     protected function tableName(): string
     {
         return self::TABLE;
-    }
-
-    private function query(): Builder
-    {
-        return $this->connection->table(self::TABLE);
     }
 }

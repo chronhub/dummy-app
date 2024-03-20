@@ -7,7 +7,6 @@ namespace App\Chron\Projection\ReadModel;
 use App\Chron\Model\Product\Event\ProductCreated;
 use App\Chron\Model\Product\ProductStatus;
 use Illuminate\Database\Schema\Blueprint;
-use Override;
 
 final class ProductReadModel extends ReadModelConnection
 {
@@ -17,7 +16,7 @@ final class ProductReadModel extends ReadModelConnection
     {
         $info = $event->productInfo()->toArray();
 
-        $this->connection->table(self::TABLE)->insert([
+        $this->query()->insert([
             'id' => $event->aggregateId()->toString(),
             'sku_code' => $event->skuCode(),
             'name' => $info['name'],
@@ -29,7 +28,6 @@ final class ProductReadModel extends ReadModelConnection
         ]);
     }
 
-    #[Override]
     protected function up(): callable
     {
         return function (Blueprint $table): void {
@@ -47,7 +45,6 @@ final class ProductReadModel extends ReadModelConnection
         };
     }
 
-    #[Override]
     protected function tableName(): string
     {
         return self::TABLE;

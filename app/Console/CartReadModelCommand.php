@@ -29,7 +29,7 @@ final class CartReadModelCommand extends AbstractReadModelCommand
 
     public function __invoke(): int
     {
-        $projection = $this->make($this->reactors(), fn (): array => ['count' => 0]);
+        $projection = $this->make($this->reactors(), fn (): array => ['opened' => 0, 'submitted' => 0, 'closed' => 0]);
 
         $projection->run(true);
 
@@ -41,12 +41,14 @@ final class CartReadModelCommand extends AbstractReadModelCommand
         return function (ReadModelScope $scope): void {
             $scope
                 ->ack(CartOpened::class)
-                ?->incrementState()
+                ?->incrementState('opened')
                 ->stack('insert', $scope->event());
 
             $scope
                 ->ack(CartSubmitted::class)
-                ?->stack('updateStatus',
+                ?->incrementState('submitted')
+                ->updateState('opened', -1, true)
+                ->stack('updateStatus',
                     $scope->event()->cartId()->toString(),
                     $scope->event()->cartOwner()->toString(),
                     $scope->event()->newCartStatus()->value
@@ -54,7 +56,9 @@ final class CartReadModelCommand extends AbstractReadModelCommand
 
             $scope
                 ->ack(OrderPaid::class)
-                ?->stack('deleteSubmittedCart', $scope->event()->orderOwner()->toString());
+                ?->incrementState('closed')
+                ->updateState('submitted', -1, true)
+                ->stack('deleteSubmittedCart', $scope->event()->orderOwner()->toString());
 
             $scope
                 ->ack(CartCanceled::class)

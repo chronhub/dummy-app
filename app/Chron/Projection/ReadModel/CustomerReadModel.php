@@ -6,7 +6,6 @@ namespace App\Chron\Projection\ReadModel;
 
 use App\Chron\Model\Customer\Event\CustomerRegistered;
 use App\Chron\Model\Customer\Gender;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Schema\Blueprint;
 use Storm\Projector\Support\ReadModel\InteractWithStack;
 
@@ -59,10 +58,5 @@ final class CustomerReadModel extends ReadModelConnection
     protected function tableName(): string
     {
         return self::TABLE;
-    }
-
-    private function query(): Builder
-    {
-        return $this->connection->table($this->tableName());
     }
 }

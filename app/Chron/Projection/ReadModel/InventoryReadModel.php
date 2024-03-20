@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Projection\ReadModel;
 
 use App\Chron\Model\Inventory\Event\InventoryItemAdded;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Schema\Blueprint;
-use Override;
 
 use function abs;
 
@@ -35,7 +33,6 @@ final class InventoryReadModel extends ReadModelConnection
         $this->query()->where('id', $skuId)->update(['reserved' => abs($quantity)]);
     }
 
-    #[Override]
     protected function up(): callable
     {
         return function (Blueprint $table) {
@@ -49,14 +46,8 @@ final class InventoryReadModel extends ReadModelConnection
         };
     }
 
-    #[Override]
     protected function tableName(): string
     {
         return self::TABLE;
-    }
-
-    private function query(): Builder
-    {
-        return $this->connection->table(self::TABLE);
     }
 }

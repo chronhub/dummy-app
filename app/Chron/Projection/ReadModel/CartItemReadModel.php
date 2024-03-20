@@ -7,7 +7,6 @@ namespace App\Chron\Projection\ReadModel;
 use App\Chron\Model\Cart\Event\CartItemAdded;
 use App\Chron\Model\Cart\Event\CartItemPartiallyAdded;
 use App\Chron\Model\Cart\Event\CartItemQuantityUpdated;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Schema\Blueprint;
 
 final class CartItemReadModel extends ReadModelConnection
@@ -81,10 +80,5 @@ final class CartItemReadModel extends ReadModelConnection
     protected function tableName(): string
     {
         return self::TABLE_CART_ITEM;
-    }
-
-    private function query(): Builder
-    {
-        return $this->connection->table(self::TABLE_CART_ITEM);
     }
 }

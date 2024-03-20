@@ -6,7 +6,6 @@ namespace App\Chron\Projection\ReadModel;
 
 use App\Chron\Model\Cart\CartStatus;
 use App\Chron\Model\Cart\Event\CartOpened;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Schema\Blueprint;
 
 final class CartReadModel extends ReadModelConnection
@@ -40,6 +39,7 @@ final class CartReadModel extends ReadModelConnection
 
     protected function deleteSubmittedCart(string $cartOwner): void
     {
+        // todo set closed status reason
         $this->query()->where('customer_id', $cartOwner)->delete();
     }
 
@@ -63,10 +63,5 @@ final class CartReadModel extends ReadModelConnection
     protected function tableName(): string
     {
         return self::TABLE_CART;
-    }
-
-    private function query(): Builder
-    {
-        return $this->connection->table(self::TABLE_CART);
     }
 }

@@ -23,7 +23,7 @@ final class OrderReadModelCommand extends AbstractReadModelCommand
 
     public function __invoke(): int
     {
-        $projection = $this->make($this->reactors(), fn (): array => ['created' => 0, 'paid']);
+        $projection = $this->make($this->reactors(), fn (): array => ['created' => 0, 'paid' => 0]);
 
         $projection->run(true);
 

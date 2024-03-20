@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Projection\ReadModel;
 
 use Illuminate\Database\Connection;
+use Illuminate\Database\Query\Builder;
 use Storm\Contract\Projector\ReadModel;
 use Storm\Projector\Support\ReadModel\InteractWithStack;
 
@@ -46,6 +47,11 @@ abstract class ReadModelConnection implements ReadModel
         $schema->drop($this->tableName());
 
         $schema->enableForeignKeyConstraints();
+    }
+
+    protected function query(): Builder
+    {
+        return $this->connection->table($this->tableName());
     }
 
     abstract protected function up(): callable;

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Chron\Projection\ReadModel;
 
 use App\Chron\Model\Order\Event\OrderCreated;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Schema\Blueprint;
 
 final class OrderItemReadModel extends ReadModelConnection
@@ -50,10 +49,5 @@ final class OrderItemReadModel extends ReadModelConnection
     protected function tableName(): string
     {
         return self::TABLE_ORDER_ITEM;
-    }
-
-    public function query(): Builder
-    {
-        return $this->connection->table(self::TABLE_ORDER_ITEM);
     }
 }

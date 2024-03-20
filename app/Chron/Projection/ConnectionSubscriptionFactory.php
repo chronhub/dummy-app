@@ -42,6 +42,7 @@ final class ConnectionSubscriptionFactory extends AbstractSubscriptionFactory
         return $this->createDispatcherRepository($repository);
     }
 
+    #[Override]
     protected function createCheckpointRecognition(ProjectionOption $option, bool $detectGap): CheckpointRecognition
     {
         $checkpoints = new CheckpointCollection($this->clock);
