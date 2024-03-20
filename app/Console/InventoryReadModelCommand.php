@@ -10,64 +10,71 @@ use App\Chron\Model\Inventory\Event\InventoryItemPartiallyReserved;
 use App\Chron\Model\Inventory\Event\InventoryItemReleased;
 use App\Chron\Model\Inventory\Event\InventoryItemReserved;
 use App\Chron\Projection\ReadModel\InventoryReadModel;
-use Illuminate\Console\Command;
-use Storm\Contract\Projector\ProjectorManagerInterface;
+use Closure;
+use Storm\Contract\Projector\ProjectionQueryFilter;
+use Storm\Contract\Projector\ReadModel;
 use Storm\Contract\Projector\ReadModelScope;
-use Symfony\Component\Console\Command\SignalableCommandInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 
-final class InventoryReadModelCommand extends Command implements SignalableCommandInterface
+#[AsCommand(
+    name: 'inventory:read-model',
+    description: 'Read model for inventory'
+)]
+final class InventoryReadModelCommand extends AbstractReadModelCommand
 {
     protected $signature = 'inventory:read-model';
 
-    protected $description = 'Read model for inventory';
-
-    private ProjectorManagerInterface $projector;
-
-    public function __invoke(ProjectorManagerInterface $projectorManager, InventoryReadModel $readModel): int
+    public function __invoke(): int
     {
-        $this->projector = $projectorManager;
+        $projection = $this->make($this->reactors(), fn (): array => ['count' => 0]);
 
-        $projection = $projectorManager->newReadModelProjector('inventory', $readModel);
-
-        $projection
-            ->initialize(fn () => ['count' => 0])
-            ->filter($projectorManager->queryScope()->fromIncludedPosition())
-            ->subscribeToStream('inventory')
-            ->when(function (ReadModelScope $scope): void {
-                $scope->ack(InventoryItemAdded::class)
-                    ?->incrementState()
-                    ->stack('insert', $scope->event());
-
-                $scope->ack(InventoryItemAdjusted::class)
-                    ?->incrementState()
-                    ->stack('updateQuantity', $scope->event()->aggregateId()->toString(), $scope->event()->totalStock()->value);
-
-                $scope->ack(InventoryItemReserved::class)
-                    ?->incrementState()
-                    ->stack('incrementReservation', $scope->event()->aggregateId()->toString(), $scope->event()->reserved()->value);
-
-                $scope->ack(InventoryItemPartiallyReserved::class)
-                    ?->incrementState()
-                    ->stack('incrementReservation', $scope->event()->aggregateId()->toString(), $scope->event()->reserved()->value);
-
-                $scope->ack(InventoryItemReleased::class)
-                    ?->incrementState()
-                    ->stack('decrementReservation', $scope->event()->aggregateId()->toString(), $scope->event()->released()->value);
-            })
-            ->run(true);
+        $projection->run(true);
 
         return self::SUCCESS;
     }
 
-    public function getSubscribedSignals(): array
+    private function reactors(): Closure
     {
-        return [SIGINT, SIGTERM];
+        return function (ReadModelScope $scope): void {
+            $scope->ack(InventoryItemAdded::class)
+                ?->incrementState()
+                ->stack('insert', $scope->event());
+
+            $scope->ack(InventoryItemAdjusted::class)
+                ?->incrementState()
+                ->stack('updateQuantity', $scope->event()->aggregateId()->toString(), $scope->event()->totalStock()->value);
+
+            $scope->ack(InventoryItemReserved::class)
+                ?->incrementState()
+                ->stack('incrementReservation', $scope->event()->aggregateId()->toString(), $scope->event()->reserved()->value);
+
+            $scope->ack(InventoryItemPartiallyReserved::class)
+                ?->incrementState()
+                ->stack('incrementReservation', $scope->event()->aggregateId()->toString(), $scope->event()->reserved()->value);
+
+            $scope->ack(InventoryItemReleased::class)
+                ?->incrementState()
+                ->stack('decrementReservation', $scope->event()->aggregateId()->toString(), $scope->event()->released()->value);
+        };
     }
 
-    public function handleSignal(int $signal)
+    protected function readModel(): ReadModel
     {
-        $this->info('Signal received:'.$signal);
+        return $this->laravel[InventoryReadModel::class];
+    }
 
-        $this->projector->monitor()->markAsStop('inventory');
+    protected function projectionName(): string
+    {
+        return 'inventory';
+    }
+
+    protected function subscribeTo(): array
+    {
+        return ['inventory'];
+    }
+
+    protected function queryFilter(): ?ProjectionQueryFilter
+    {
+        return null;
     }
 }

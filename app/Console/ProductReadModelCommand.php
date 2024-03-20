@@ -6,53 +6,57 @@ namespace App\Console;
 
 use App\Chron\Model\Product\Event\ProductCreated;
 use App\Chron\Projection\ReadModel\ProductReadModel;
-use Illuminate\Console\Command;
-use Storm\Contract\Projector\ProjectorManagerInterface;
+use Closure;
+use Storm\Contract\Projector\ProjectionQueryFilter;
+use Storm\Contract\Projector\ReadModel;
 use Storm\Contract\Projector\ReadModelScope;
-use Symfony\Component\Console\Command\SignalableCommandInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 
-use function pcntl_async_signals;
-
-final class ProductReadModelCommand extends Command implements SignalableCommandInterface
+#[AsCommand(
+    name: 'product:read-model',
+    description: 'Read model for product'
+)]
+final class ProductReadModelCommand extends AbstractReadModelCommand
 {
     protected $signature = 'product:read-model';
 
-    protected $description = 'Read model for product';
-
-    protected ProjectorManagerInterface $projector;
-
-    public function __invoke(ProjectorManagerInterface $projectorManager, ProductReadModel $readModel): int
+    public function __invoke(): int
     {
-        $this->projector = $projectorManager;
 
-        pcntl_async_signals(true);
+        $projection = $this->make($this->reactors(), fn (): array => ['count' => 0]);
 
-        $projection = $projectorManager->newReadModelProjector('product', $readModel);
-
-        $projection
-            ->initialize(fn () => ['count' => 0])
-            ->filter($projectorManager->queryScope()->fromIncludedPosition())
-            ->subscribeToStream('product')
-            ->when(function (ReadModelScope $scope): void {
-                $scope
-                    ->ack(ProductCreated::class)
-                    ?->incrementState()
-                    ->stack('insert', $scope->event());
-            })
-            ->run(true);
+        $projection->run(true);
 
         return self::SUCCESS;
     }
 
-    public function getSubscribedSignals(): array
+    private function reactors(): Closure
     {
-        return [SIGINT, SIGTERM];
+        return function (ReadModelScope $scope): void {
+            $scope
+                ->ack(ProductCreated::class)
+                ?->incrementState()
+                ->stack('insert', $scope->event());
+        };
     }
 
-    public function handleSignal(int $signal)
+    protected function readModel(): ReadModel
     {
-        $this->info('Signal received:'.$signal);
+        return $this->laravel[ProductReadModel::class];
+    }
 
-        $this->projector->monitor()->markAsStop('product');
+    protected function projectionName(): string
+    {
+        return 'product';
+    }
+
+    protected function subscribeTo(): array
+    {
+        return ['product'];
+    }
+
+    protected function queryFilter(): ?ProjectionQueryFilter
+    {
+        return null;
     }
 }

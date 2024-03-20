@@ -12,66 +12,73 @@ use App\Chron\Model\Inventory\Event\InventoryItemReserved;
 use App\Chron\Model\Order\Event\OrderPaid;
 use App\Chron\Model\Product\Event\ProductCreated;
 use App\Chron\Projection\ReadModel\CatalogReadModel;
-use Illuminate\Console\Command;
-use Storm\Contract\Projector\ProjectorManagerInterface;
+use Closure;
+use Storm\Contract\Projector\ProjectionQueryFilter;
+use Storm\Contract\Projector\ReadModel;
 use Storm\Contract\Projector\ReadModelScope;
-use Symfony\Component\Console\Command\SignalableCommandInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 
-final class CatalogReadModelCommand extends Command implements SignalableCommandInterface
+#[AsCommand(
+    name: 'catalog:read-model',
+    description: 'Read model for catalog'
+)]
+final class CatalogReadModelCommand extends AbstractReadModelCommand
 {
     protected $signature = 'catalog:read-model';
 
-    protected $description = 'Read model for catalog';
-
-    protected ProjectorManagerInterface $projector;
-
-    public function __invoke(ProjectorManagerInterface $projectorManager, CatalogReadModel $readModel): int
+    public function __invoke(): int
     {
-        $this->projector = $projectorManager;
+        $projection = $this->make($this->reactors(), fn (): array => ['count' => 0]);
 
-        $projection = $projectorManager->newReadModelProjector('catalog', $readModel);
-
-        $projection
-            ->initialize(fn () => ['count' => 0])
-            ->filter($projectorManager->queryScope()->fromIncludedPosition())
-            ->subscribeToStream('product', 'inventory', 'order')
-            ->when(function (ReadModelScope $scope): void {
-                $scope
-                    ->ack(OrderPaid::class)
-                    ?->stack('removeProductQuantity', $scope->event()->orderItems());
-
-                $scope
-                    ->ack(ProductCreated::class)
-                    ?->incrementState()
-                    ->stack('insert', $scope->event());
-
-                $scope
-                    ->ack(InventoryItemAdded::class)
-                    ?->stack('updateProductQuantityAndPrice', $scope->event());
-
-                if ($scope->ackOneOf(
-                    InventoryItemAdjusted::class, InventoryItemPartiallyReserved::class,
-                    InventoryItemReserved::class, InventoryItemReleased::class)) {
-                    $scope->stack('updateReservation',
-                        $scope->event()->aggregateId()->toString(),
-                        $scope->event()->totalReserved()->value
-                    );
-                }
-            })
-            ->run(true);
+        $projection->run(true);
 
         return self::SUCCESS;
     }
 
-    public function getSubscribedSignals(): array
+    private function reactors(): Closure
     {
-        return [SIGINT, SIGTERM];
+        return function (ReadModelScope $scope): void {
+            $scope
+                ->ack(OrderPaid::class)
+                ?->stack('removeProductQuantity', $scope->event()->orderItems());
+
+            $scope
+                ->ack(ProductCreated::class)
+                ?->incrementState()
+                ->stack('insert', $scope->event());
+
+            $scope
+                ->ack(InventoryItemAdded::class)
+                ?->stack('updateProductQuantityAndPrice', $scope->event());
+
+            if ($scope->ackOneOf(
+                InventoryItemAdjusted::class, InventoryItemPartiallyReserved::class,
+                InventoryItemReserved::class, InventoryItemReleased::class)) {
+                $scope->stack('updateReservation',
+                    $scope->event()->aggregateId()->toString(),
+                    $scope->event()->totalReserved()->value
+                );
+            }
+        };
     }
 
-    public function handleSignal(int $signal)
+    protected function readModel(): ReadModel
     {
-        $this->info('Signal received:'.$signal);
+        return $this->laravel[CatalogReadModel::class];
+    }
 
-        $this->projector->monitor()->markAsStop('catalog');
+    protected function projectionName(): string
+    {
+        return 'catalog';
+    }
+
+    protected function subscribeTo(): array
+    {
+        return ['product', 'inventory', 'order'];
+    }
+
+    protected function queryFilter(): ?ProjectionQueryFilter
+    {
+        return null;
     }
 }

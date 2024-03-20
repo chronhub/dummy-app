@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Projection\Provider;
 
 use App\Chron\Model\Cart\CartStatus;
+use App\Chron\Projection\ReadModel\CartItemReadModel;
 use App\Chron\Projection\ReadModel\CartReadModel;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
@@ -133,6 +134,6 @@ final readonly class CartProvider
 
     private function queryCartItem(): Builder
     {
-        return $this->connection->table(CartReadModel::TABLE_CART_ITEM);
+        return $this->connection->table(CartItemReadModel::TABLE_CART_ITEM);
     }
 }

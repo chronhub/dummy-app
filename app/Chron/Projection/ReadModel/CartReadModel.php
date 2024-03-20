@@ -4,111 +4,69 @@ declare(strict_types=1);
 
 namespace App\Chron\Projection\ReadModel;
 
-use Illuminate\Database\Connection;
+use App\Chron\Model\Cart\CartStatus;
+use App\Chron\Model\Cart\Event\CartOpened;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Schema\Blueprint;
 
-final readonly class CartReadModel
+final class CartReadModel extends ReadModelConnection
 {
     final public const string TABLE_CART = 'read_cart';
 
-    final public const string TABLE_CART_ITEM = 'read_cart_item';
-
-    public function __construct(private Connection $connection)
+    protected function insert(CartOpened $event): void
     {
-    }
-
-    public function insert(string $cartId, string $customerId, string $status): void
-    {
-        $this->queryCart()->insert([
-            'id' => $cartId,
-            'customer_id' => $customerId,
-            'status' => $status,
+        $this->query()->insert([
+            'id' => $event->aggregateId()->toString(),
+            'customer_id' => $event->cartOwner()->toString(),
+            'status' => $event->cartStatus()->value,
         ]);
     }
 
-    public function updateCart(string $cartId, string $customerId, string $balance, int $quantity): void
+    protected function update(string $cartId, string $customerId, string $balance, int $quantity): void
     {
-        $this->queryCart()
+        $this->query()
             ->where('id', $cartId)
             ->where('customer_id', $customerId)
             ->update(['balance' => $balance, 'quantity' => $quantity]);
     }
 
-    public function updateCartStatus(string $cartId, string $customerId, string $status): void
+    protected function updateStatus(string $cartId, string $customerId, string $status): void
     {
-        $this->queryCart()
+        $this->query()
             ->where('id', $cartId)
             ->where('customer_id', $customerId)
             ->update(['status' => $status]);
     }
 
-    public function insertCartItem(
-        string $cartItemId,
-        string $cartId,
-        string $customerId,
-        string $skuId,
-        string $unitPrice,
-        int $quantity,
-    ): void {
-        $this->queryCartItem()->insert([
-            'id' => $cartItemId,
-            'cart_id' => $cartId,
-            'customer_id' => $customerId,
-            'sku_id' => $skuId,
-            'quantity' => $quantity,
-            'price' => $unitPrice,
-        ]);
-    }
-
-    public function deleteItem(string $cartItemId, string $cartId, string $customerId, string $skuId): void
+    protected function deleteSubmittedCart(string $cartOwner): void
     {
-        $this->queryCartItem()
-            ->where('id', $cartItemId)
-            ->where('cart_id', $cartId)
-            ->where('customer_id', $customerId)
-            ->where('sku_id', $skuId)
-            ->delete();
+        $this->query()->where('customer_id', $cartOwner)->delete();
     }
 
-    public function deleteItems(string $cartId, string $customerId): void
+    protected function up(): callable
     {
-        $this->queryCartItem()
-            ->where('cart_id', $cartId)
-            ->where('customer_id', $customerId)
-            ->delete();
+        return function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->uuid('customer_id');
+            $table->enum('status', CartStatus::toStrings());
+            $table->string('balance')->default('0.00');
+            $table->unsignedInteger('quantity')->default(0);
+            $table->string('closed_reason')->nullable();
+            $table->timestampTz('created_at', 6)->useCurrent();
+            $table->timestampTz('updated_at', 6)->nullable()->useCurrentOnUpdate();
+            $table->timestampTz('closed_at', 6)->nullable();
+
+            $table->unique(['id', 'customer_id']);
+        };
     }
 
-    public function updateItemQuantity(string $cartItemId, string $cartId, string $customerId, string $skuId, int $quantity): void
+    protected function tableName(): string
     {
-        $this->queryCartItem()
-            ->where('id', $cartItemId)
-            ->where('cart_id', $cartId)
-            ->where('customer_id', $customerId)
-            ->where('sku_id', $skuId)
-            ->update(['quantity' => $quantity]);
+        return self::TABLE_CART;
     }
 
-    public function deleteCart(string $cartOwner): void
-    {
-        $cart = $this->queryCart()
-            ->where('customer_id', $cartOwner)
-            ->where('status', 'submitted')
-            ->first();
-
-        $this->queryCart()->delete($cart->id);
-
-        $this->queryCartItem()
-            ->where('cart_id', $cart->id)
-            ->delete();
-    }
-
-    private function queryCart(): Builder
+    private function query(): Builder
     {
         return $this->connection->table(self::TABLE_CART);
-    }
-
-    private function queryCartItem(): Builder
-    {
-        return $this->connection->table(self::TABLE_CART_ITEM);
     }
 }

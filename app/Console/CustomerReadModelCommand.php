@@ -7,60 +7,68 @@ namespace App\Console;
 use App\Chron\Model\Customer\Event\CustomerEmailChanged;
 use App\Chron\Model\Customer\Event\CustomerRegistered;
 use App\Chron\Projection\ReadModel\CustomerReadModel;
-use Illuminate\Console\Command;
+use Closure;
+use Storm\Contract\Projector\ProjectionQueryFilter;
 use Storm\Contract\Projector\ProjectorManagerInterface;
+use Storm\Contract\Projector\ReadModel;
 use Storm\Contract\Projector\ReadModelScope;
-use Symfony\Component\Console\Command\SignalableCommandInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 
-use function pcntl_async_signals;
-
-final class CustomerReadModelCommand extends Command implements SignalableCommandInterface
+#[AsCommand(
+    name: 'customer:read-model',
+    description: 'Read model for customer'
+)]
+final class CustomerReadModelCommand extends AbstractReadModelCommand
 {
     protected $signature = 'customer:read-model';
 
-    protected $description = 'Read model for customer';
-
     protected ProjectorManagerInterface $projector;
 
-    public function __invoke(ProjectorManagerInterface $projectorManager, CustomerReadModel $readModel): int
+    public function __invoke(): int
     {
-        $this->projector = $projectorManager;
+        $projection = $this->make($this->reactors(), fn (): array => ['count' => 0]);
 
-        pcntl_async_signals(true);
-
-        $projection = $projectorManager->newReadModelProjector('customer', $readModel);
-
-        $projection
-            ->initialize(fn () => ['count' => 0])
-            ->filter($projectorManager->queryScope()->fromIncludedPosition())
-            ->subscribeToStream('customer')
-            ->when(function (ReadModelScope $scope): void {
-                $scope
-                    ->ack(CustomerRegistered::class)
-                    ?->incrementState()
-                    ->stack('insert', $scope->event());
-
-                $scope
-                    ->ack(CustomerEmailChanged::class)
-                    ?->incrementState()
-                    ->stack('updateEmail', $scope->event()->aggregateId()->toString(), $scope->event()->newEmail()->value);
-
-                if ($scope->isAcked()) {
-                    //$this->info('Event acked:'.$scope->event()::class);
-                }
-            })
-            ->run(true);
+        $projection->run(true);
 
         return self::SUCCESS;
     }
 
-    public function getSubscribedSignals(): array
+    private function reactors(): Closure
     {
-        return [SIGINT, SIGTERM];
+        return function (ReadModelScope $scope): void {
+            $scope
+                ->ack(CustomerRegistered::class)
+                ?->incrementState()
+                ->stack('insert', $scope->event());
+
+            $scope
+                ->ack(CustomerEmailChanged::class)
+                ?->incrementState()
+                ->stack('updateEmail', $scope->event()->aggregateId()->toString(), $scope->event()->newEmail()->value);
+
+            if ($scope->isAcked()) {
+                //$this->info('Event acked:'.$scope->event()::class);
+            }
+        };
     }
 
-    public function handleSignal(int $signal)
+    protected function readModel(): ReadModel
     {
-        $this->projector->monitor()->markAsStop('customer');
+        return $this->laravel[CustomerReadModel::class];
+    }
+
+    protected function projectionName(): string
+    {
+        return 'customer';
+    }
+
+    protected function subscribeTo(): array
+    {
+        return ['customer'];
+    }
+
+    protected function queryFilter(): ?ProjectionQueryFilter
+    {
+        return null;
     }
 }

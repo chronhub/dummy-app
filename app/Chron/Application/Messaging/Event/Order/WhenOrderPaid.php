@@ -6,8 +6,6 @@ namespace App\Chron\Application\Messaging\Event\Order;
 
 use App\Chron\Application\Service\CartApplicationService;
 use App\Chron\Model\Order\Event\OrderPaid;
-use App\Chron\Projection\ReadModel\CartReadModel;
-use App\Chron\Projection\ReadModel\CatalogReadModel;
 use App\Chron\Projection\ReadModel\OrderReadModel;
 use Storm\Message\Attribute\AsEventHandler;
 
@@ -15,8 +13,6 @@ final readonly class WhenOrderPaid
 {
     public function __construct(
         private OrderReadModel $orderReadModel,
-        private CartReadModel $cartReadModel,
-        private CatalogReadModel $catalogReadModel,
         private CartApplicationService $cartApplicationService,
     ) {
     }
@@ -39,16 +35,6 @@ final readonly class WhenOrderPaid
         reporter: 'reporter.event.default',
         handles: OrderPaid::class,
         priority: 1
-    )]
-    public function deleteCart(OrderPaid $event): void
-    {
-        $this->cartReadModel->deleteCart($event->orderOwner()->toString());
-    }
-
-    #[AsEventHandler(
-        reporter: 'reporter.event.default',
-        handles: OrderPaid::class,
-        priority: 2
     )]
     public function openCart(OrderPaid $event): void
     {

@@ -49,8 +49,10 @@ final class CartSubmitted extends AbstractDomainEvent
         return CartQuantity::fromInteger($this->content['cart_quantity']);
     }
 
-    public function cartStatus(): CartStatus
+    public function newCartStatus(): CartStatus
     {
         return CartStatus::from($this->content['cart_status']);
     }
+
+    // todo: add oldCartStatus
 }

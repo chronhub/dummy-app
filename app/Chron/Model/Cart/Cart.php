@@ -294,7 +294,7 @@ final class Cart implements AggregateRoot
                 break;
 
             case $event instanceof CartSubmitted:
-                $this->status = $event->cartStatus();
+                $this->status = $event->newCartStatus();
 
                 break;
             case $event instanceof CartCanceled:

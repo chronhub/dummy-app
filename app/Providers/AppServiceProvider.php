@@ -6,10 +6,13 @@ namespace App\Providers;
 
 use App\Chron\Application\Console\Shop\MigrateShopCommand;
 use App\Chron\Application\Console\Shop\SeedShopCommand;
+use App\Console\CartItemReadModelCommand;
+use App\Console\CartReadModelCommand;
 use App\Console\CatalogReadModelCommand;
 use App\Console\CustomerReadModelCommand;
 use App\Console\InventoryReadModelCommand;
 use App\Console\ProductReadModelCommand;
+use App\Console\ReadModelProcess;
 use App\Console\ResetProjectionCommand;
 use Illuminate\Support\ServiceProvider;
 use Storm\Annotation\Kernel;
@@ -32,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->register(ShopServiceProvider::class);
 
         $this->commands([
+            ReadModelProcess::class,
             MigrateShopCommand::class,
             SeedShopCommand::class,
             ResetProjectionCommand::class,
@@ -39,6 +43,8 @@ class AppServiceProvider extends ServiceProvider
             CustomerReadModelCommand::class,
             CatalogReadModelCommand::class,
             InventoryReadModelCommand::class,
+            CartReadModelCommand::class,
+            CartItemReadModelCommand::class,
         ]);
     }
 }
