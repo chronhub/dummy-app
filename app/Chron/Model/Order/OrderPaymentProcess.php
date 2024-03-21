@@ -28,11 +28,11 @@ final readonly class OrderPaymentProcess
 
         $order = $this->getOrder($orderId, $command->orderOwner());
 
+        $this->adjustInventory($order);
+
         $order->pay($this->paymentGateway);
 
         $this->orders->save($order);
-
-        $this->adjustInventory($order);
     }
 
     private function getOrder(OrderId $orderId, OrderOwner $orderOwner): Order

@@ -63,9 +63,24 @@ final class Inventory implements AggregateRoot
      */
     public function adjust(PositiveQuantity $quantity): void
     {
-        $this->release($quantity, InventoryReleaseReason::RESERVATION_CONFIRMED);
+        $reason = InventoryReleaseReason::RESERVATION_CONFIRMED;
 
-        $inventoryStock = $this->inventoryStock->removeStock($quantity);
+        if ($this->inventoryStock->reserved->value < $quantity->value) {
+            throw new RuntimeException('Quantity in inventory to release is less than reserved quantity');
+        }
+
+        $inventoryStock = $this->inventoryStock->releaseReservation($quantity);
+
+        $this->recordThat(InventoryItemReleased::withItem(
+            $this->skuId(),
+            $inventoryStock->getAvailableStock(),
+            $inventoryStock->stock,
+            $quantity,
+            $inventoryStock->reserved,
+            $reason
+        ));
+
+        $inventoryStock = $inventoryStock->removeStock($quantity);
 
         $this->recordThat(InventoryItemAdjusted::withItem(
             $this->skuId(),

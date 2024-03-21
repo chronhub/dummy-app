@@ -49,9 +49,7 @@ final class CartReadModelCommand extends AbstractReadModelCommand
                 ?->incrementState('submitted')
                 ->updateState('opened', -1, true)
                 ->stack('updateStatus',
-                    $scope->event()->cartId()->toString(),
-                    $scope->event()->cartOwner()->toString(),
-                    $scope->event()->newCartStatus()->value
+                    ...$this->extractDataForUpdateStatus($scope->event())
                 );
 
             $scope
@@ -63,53 +61,54 @@ final class CartReadModelCommand extends AbstractReadModelCommand
             $scope
                 ->ack(CartCanceled::class)
                 ?->stack('updateStatus',
-                    $scope->event()->cartId()->toString(),
-                    $scope->event()->cartOwner()->toString(),
-                    $scope->event()->newCartStatus()->value
+                    ...$this->extractDataForUpdateStatus($scope->event())
                 )
-                ?->stack('update',
-                    $scope->event()->cartId()->toString(),
-                    $scope->event()->cartOwner()->toString(),
-                    $scope->event()->cartBalance()->value,
-                    $scope->event()->cartQuantity()->value,
+                ->stack('update',
+                    ...$this->extractDataForUpdateEvent($scope->event())
                 );
 
             $scope
                 ->ack(CartItemAdded::class)
                 ?->stack('update',
-                    $scope->event()->cartId()->toString(),
-                    $scope->event()->cartOwner()->toString(),
-                    $scope->event()->cartBalance()->value,
-                    $scope->event()->cartQuantity()->value,
+                    ...$this->extractDataForUpdateEvent($scope->event())
                 );
 
             $scope
                 ->ack(CartItemPartiallyAdded::class)
                 ?->stack('update',
-                    $scope->event()->cartId()->toString(),
-                    $scope->event()->cartOwner()->toString(),
-                    $scope->event()->cartBalance()->value,
-                    $scope->event()->cartQuantity()->value,
+                    ...$this->extractDataForUpdateEvent($scope->event())
                 );
 
             $scope
                 ->ack(CartItemQuantityUpdated::class)
                 ?->stack('update',
-                    $scope->event()->cartId()->toString(),
-                    $scope->event()->cartOwner()->toString(),
-                    $scope->event()->cartBalance()->value,
-                    $scope->event()->cartQuantity()->value,
+                    ...$this->extractDataForUpdateEvent($scope->event())
                 );
 
-            $scope
-                ->ack(CartItemRemoved::class)
-                ?->stack('update',
-                    $scope->event()->cartId()->toString(),
-                    $scope->event()->cartOwner()->toString(),
-                    $scope->event()->cartBalance()->value,
-                    $scope->event()->cartQuantity()->value,
-                );
+            $scope->ack(CartItemRemoved::class
+            )?->stack('update',
+                ...$this->extractDataForUpdateEvent($scope->event())
+            );
         };
+    }
+
+    private function extractDataForUpdateEvent(object $event): array
+    {
+        return [
+            $event->cartId()->toString(),
+            $event->cartOwner()->toString(),
+            $event->cartBalance()->value,
+            $event->cartQuantity()->value,
+        ];
+    }
+
+    private function extractDataForUpdateStatus(object $event): array
+    {
+        return [
+            $event->cartId()->toString(),
+            $event->cartOwner()->toString(),
+            $event->newCartStatus()->value,
+        ];
     }
 
     protected function readModel(): ReadModel
@@ -124,7 +123,7 @@ final class CartReadModelCommand extends AbstractReadModelCommand
 
     protected function subscribeTo(): array
     {
-        return ['cart', 'order'];
+        return ['order', 'cart'];
     }
 
     protected function queryFilter(): ?ProjectionQueryFilter

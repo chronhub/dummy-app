@@ -39,6 +39,6 @@ class SeedShopCommand extends Command
         /** @var CustomerApplicationService $customerService */
         $customerService = $this->laravel[CustomerApplicationService::class];
 
-        $customerService->registerCustomers(100);
+        $customerService->registerCustomers(2);
     }
 }

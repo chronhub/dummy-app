@@ -43,8 +43,7 @@ final class CustomerReadModelCommand extends AbstractReadModelCommand
 
             $scope
                 ->ack(CustomerEmailChanged::class)
-                ?->incrementState()
-                ->stack('updateEmail', $scope->event()->aggregateId()->toString(), $scope->event()->newEmail()->value);
+                ?->stack('updateEmail', $scope->event()->aggregateId()->toString(), $scope->event()->newEmail()->value);
 
             if ($scope->isAcked()) {
                 //$this->info('Event acked:'.$scope->event()::class);

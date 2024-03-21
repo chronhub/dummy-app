@@ -15,6 +15,7 @@ final class HomeController
     // todo make report queries
     public function __invoke(OrderProvider $orderProvider, InventoryProvider $inventoryProvider, CustomerProvider $customerProvider): View
     {
+        dd($this->sum());
         $order = $orderProvider->getOrderSummary();
         $inventory = $inventoryProvider->getInventorySummary();
         $lastTenCustomers = $customerProvider->lastTenCustomers();
@@ -39,9 +40,16 @@ final class HomeController
             ->from('read_inventory')
             ->value('total_reserved');
 
+        $order = DB::query()
+            ->selectRaw('SUM(quantity) as total_quantity')
+            ->from('read_order')
+            ->where('status', 'created')
+            ->value('total_quantity');
+
         return [
             'carts' => $carts,
             'inventory' => $inventory,
+            'order' => $order,
         ];
     }
 }
