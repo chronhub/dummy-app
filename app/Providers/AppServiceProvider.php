@@ -14,6 +14,7 @@ use App\Console\InventoryReadModelCommand;
 use App\Console\OrderItemReadModelCommand;
 use App\Console\OrderReadModelCommand;
 use App\Console\ProductReadModelCommand;
+use App\Console\QueueWorkerCommand;
 use App\Console\ReadModelProcess;
 use App\Console\ReadReservationCommand;
 use App\Console\ResetProjectionCommand;
@@ -38,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->register(ShopServiceProvider::class);
 
         $this->commands([
+            QueueWorkerCommand::class,
             ReadModelProcess::class,
             ReadReservationCommand::class,
             MigrateShopCommand::class,

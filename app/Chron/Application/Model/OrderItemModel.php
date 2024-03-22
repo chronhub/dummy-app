@@ -9,7 +9,7 @@ final readonly class OrderItemModel
     private function __construct(
         public string $id,
         public string $orderId,
-        public string $sku,
+        public string $skuId,
         public string $price,
         public int $quantity,
         public string $createdAt,
@@ -19,10 +19,10 @@ final readonly class OrderItemModel
 
     public static function fromObject(object $orderItem): self
     {
-        return new OrderItemModel(
+        return new self(
             $orderItem->id,
             $orderItem->order_id,
-            $orderItem->sku,
+            $orderItem->sku_id,
             $orderItem->unit_price,
             $orderItem->quantity,
             $orderItem->created_at,

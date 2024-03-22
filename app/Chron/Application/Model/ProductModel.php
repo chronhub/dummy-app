@@ -18,7 +18,7 @@ final readonly class ProductModel
 
     public static function fromObject(object $product): self
     {
-        return new ProductModel(
+        return new self(
             $product->id,
             $product->sku_code,
             $product->name,

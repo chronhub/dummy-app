@@ -18,7 +18,7 @@ final readonly class CustomerAddressModel
 
     public static function fromObject(stdClass $customer): self
     {
-        return new CustomerAddressModel(
+        return new self(
             $customer->street,
             $customer->city,
             $customer->postal_code,

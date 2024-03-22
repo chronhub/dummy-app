@@ -21,7 +21,7 @@ final readonly class CustomerModel
 
     public static function fromObject(stdClass $customer): self
     {
-        return new CustomerModel(
+        return new self(
             $customer->id,
             $customer->name,
             $customer->email,

@@ -23,7 +23,7 @@ final readonly class OrderModel
 
     public static function fromObject(object $order, ?Collection $orderItems): self
     {
-        return new OrderModel(
+        return new self(
             $order->id,
             //$order->cart_id, todo
             $order->customer_id,
