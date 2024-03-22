@@ -15,6 +15,7 @@ use App\Console\OrderItemReadModelCommand;
 use App\Console\OrderReadModelCommand;
 use App\Console\ProductReadModelCommand;
 use App\Console\ReadModelProcess;
+use App\Console\ReadReservationCommand;
 use App\Console\ResetProjectionCommand;
 use Illuminate\Support\ServiceProvider;
 use Storm\Annotation\Kernel;
@@ -38,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->commands([
             ReadModelProcess::class,
+            ReadReservationCommand::class,
             MigrateShopCommand::class,
             SeedShopCommand::class,
             ResetProjectionCommand::class,

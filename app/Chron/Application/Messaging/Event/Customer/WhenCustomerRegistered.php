@@ -7,29 +7,14 @@ namespace App\Chron\Application\Messaging\Event\Customer;
 use App\Chron\Application\Service\AuthApplicationService;
 use App\Chron\Application\Service\CartApplicationService;
 use App\Chron\Model\Customer\Event\CustomerRegistered;
-use App\Chron\Projection\ReadModel\CustomerEmailReadModel;
 use Storm\Message\Attribute\AsEventHandler;
 
 final readonly class WhenCustomerRegistered
 {
     public function __construct(
-        private CustomerEmailReadModel $customerEmailReadModel,
         private CartApplicationService $cartApplicationService,
         private AuthApplicationService $authApplicationService
     ) {
-    }
-
-    #[AsEventHandler(
-        reporter: 'reporter.event.default',
-        handles: CustomerRegistered::class,
-        priority: 0
-    )]
-    public function storeCustomerEmail(CustomerRegistered $event): void
-    {
-        $this->customerEmailReadModel->insert(
-            $event->aggregateId()->toString(),
-            $event->email()->value
-        );
     }
 
     #[AsEventHandler(

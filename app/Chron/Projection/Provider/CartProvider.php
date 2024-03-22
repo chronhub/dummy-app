@@ -19,7 +19,7 @@ use stdClass;
  *     balance: string, quantity: int,
  *     closed: int, closed_reason: null|string,
  *     created_at: string, updated_at: string,
- *     items: Collection{TCartItem}
+ *     items: Collection<TCartItem>
  *  }
  * @template TCartItem of object{
  *     id: string, cart_id: string, customer_id: string, sku_id: string,
@@ -34,7 +34,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return object{TCart}|null
+     * @return stdClass{TCart}|null
      */
     public function findCartById(string $cartId): ?stdClass
     {
@@ -44,7 +44,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return object{TCart}|null
+     * @return stdClass{TCart}|null
      */
     public function findCartWithOwner(string $cartId, string $customerId): ?stdClass
     {
@@ -57,7 +57,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return object{TCart}|null
+     * @return stdClass{TCart}|null
      */
     public function findCartByCustomerId(string $customerId): ?stdClass
     {
@@ -67,7 +67,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return object{TCart}|null
+     * @return stdClass{TCart}|null
      */
     public function findOpenedCartByCustomerId(string $customerId): ?stdClass
     {
@@ -80,7 +80,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return object{TCart}|null
+     * @return stdClass{TCart}|null
      */
     public function findRandomOpenedCart(): ?stdClass
     {
@@ -93,7 +93,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return LazyCollection<object{TCart}>
+     * @return LazyCollection{TCart}
      */
     public function findAllNonEmptyOpenedCarts(): LazyCollection
     {
@@ -104,7 +104,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return LazyCollection<object{TCart}>
+     * @return LazyCollection{TCart}
      */
     public function findAllSubmittedCart(): LazyCollection
     {
@@ -114,7 +114,7 @@ final readonly class CartProvider
     }
 
     /**
-     * @return object{TCart}|null
+     * @return stdClass{TCart}|null
      */
     private function withCartItems(?stdClass $cart): ?stdClass
     {

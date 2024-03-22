@@ -14,7 +14,9 @@ use function number_format;
 final class ProductFactory
 {
     /**
-     * @return array{T}
+     * @implements T
+     *
+     * @return <T>
      */
     public static function makeProduct(int $i): array
     {
@@ -28,7 +30,7 @@ final class ProductFactory
     }
 
     /**
-     * @return Generator<array{T}>
+     * @return Generator{T}
      */
     public static function makeProducts(int $times = 100): Generator
     {
@@ -54,7 +56,7 @@ final class ProductFactory
      */
     public static function createProductQuantity(): int
     {
-        return fake()->numberBetween(500, 5000);
+        return fake()->numberBetween(10000, 20000);
     }
 
     private static function createRandomPrice(): string

@@ -37,15 +37,18 @@ final class CartItemReadModelCommand extends AbstractReadModelCommand
     private function reactors(): Closure
     {
         return function (ReadModelScope $scope): void {
-            $scope->ack(CartItemAdded::class)
+            $scope
+                ->ack(CartItemAdded::class)
                 ?->incrementState()
                 ->stack('insert', $scope->event());
 
-            $scope->ack(CartItemPartiallyAdded::class)
+            $scope
+                ->ack(CartItemPartiallyAdded::class)
                 ?->incrementState()
                 ->stack('insert', $scope->event());
 
-            $scope->ack(CartItemRemoved::class)
+            $scope
+                ->ack(CartItemRemoved::class)
                 ?->stack(
                     'deleteOne',
                     $scope->event()->oldCartItem()->id->toString(),
@@ -62,10 +65,14 @@ final class CartItemReadModelCommand extends AbstractReadModelCommand
                     $scope->event()->cartOwner()->toString()
                 );
 
-            $scope->ack(CartItemQuantityUpdated::class)?->stack('updateQuantity', $scope->event());
+            $scope
+                ->ack(CartItemQuantityUpdated::class)
+                ?->stack('updateQuantity', $scope->event());
 
             //wip
-            $scope->ack(OrderPaid::class)?->incrementState()->stack('deleteSubmitted', $scope->event()->orderOwner()->toString());
+            $scope
+                ->ack(OrderPaid::class)
+                ?->stack('deleteSubmitted', $scope->event()->orderOwner()->toString());
         };
     }
 

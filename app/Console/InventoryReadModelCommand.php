@@ -26,7 +26,7 @@ final class InventoryReadModelCommand extends AbstractReadModelCommand
 
     public function __invoke(): int
     {
-        $projection = $this->make($this->reactors(), fn (): array => ['count' => 0]);
+        $projection = $this->make($this->reactors(), fn (): array => ['stock' => 0, 'current_stock' => 0, 'reserved' => 0]);
 
         $projection->run(true);
 
@@ -38,26 +38,26 @@ final class InventoryReadModelCommand extends AbstractReadModelCommand
         return function (ReadModelScope $scope): void {
             $scope
                 ->ack(InventoryItemAdded::class)
-                ?->incrementState()
+                ?->incrementState('stock', $scope->event()->totalStock()->value)
                 ->stack('insert', $scope->event());
 
             $scope
                 ->ack(InventoryItemAdjusted::class)
-                ?->incrementState()
-                ->stack('updateQuantity', $scope->event()->aggregateId()->toString(), $scope->event()->totalStock()->value);
+                ?->incrementState('current_stock', -$scope->event()->quantityAdjusted()->value)
+                ->stack('decrementQuantity', $scope->event()->aggregateId()->toString(), $scope->event()->quantityAdjusted()->value);
 
             $scope
                 ->ack(InventoryItemReserved::class)
-                ?->incrementState()
-                ->stack('updateReservation', $scope->event()->aggregateId()->toString(), $scope->event()->totalReserved()->value);
+                ?->incrementState('reserved', $scope->event()->reserved()->value)
+                ->stack('incrementReservation', $scope->event()->aggregateId()->toString(), $scope->event()->reserved()->value);
 
             $scope->ack(InventoryItemPartiallyReserved::class)
-                ?->incrementState()
-                ->stack('updateReservation', $scope->event()->aggregateId()->toString(), $scope->event()->totalReserved()->value);
+                ?->incrementState('reserved', $scope->event()->reserved()->value)
+                ->stack('incrementReservation', $scope->event()->aggregateId()->toString(), $scope->event()->reserved()->value);
 
             $scope->ack(InventoryItemReleased::class)
-                ?->incrementState()
-                ->stack('updateReservation', $scope->event()->aggregateId()->toString(), $scope->event()->totalReserved()->value);
+                ?->updateState('reserved', -$scope->event()->released()->value, true)
+                ->stack('decrementReservation', $scope->event()->aggregateId()->toString(), $scope->event()->released()->value);
         };
     }
 

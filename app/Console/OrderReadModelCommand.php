@@ -41,7 +41,7 @@ final class OrderReadModelCommand extends AbstractReadModelCommand
             $scope
                 ->ack(OrderPaid::class)
                 ?->incrementState('paid')
-                ?->updateState('created', -1, true)
+                ->updateState('created', -1, true)
                 ->stack('updateStatus', $scope->event());
         };
     }

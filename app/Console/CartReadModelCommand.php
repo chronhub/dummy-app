@@ -85,10 +85,10 @@ final class CartReadModelCommand extends AbstractReadModelCommand
                     ...$this->extractDataForUpdateEvent($scope->event())
                 );
 
-            $scope->ack(CartItemRemoved::class
-            )?->stack('update',
-                ...$this->extractDataForUpdateEvent($scope->event())
-            );
+            $scope->ack(CartItemRemoved::class)
+                ?->stack('update',
+                    ...$this->extractDataForUpdateEvent($scope->event())
+                );
         };
     }
 

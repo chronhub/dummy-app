@@ -41,6 +41,7 @@ return [
         \App\Chron\Model\Inventory\Handler\AddInventoryItemHandler::class,
         \App\Chron\Model\Inventory\Handler\RefillInventoryItemHandler::class,
         \App\Chron\Model\Inventory\Handler\ReserveInventoryItemHandler::class,
+        \App\Chron\Model\Inventory\Handler\AdjustInventoryItemHandler::class,
 
         // order
         \App\Chron\Model\Order\Handler\CustomerRequestsOrderCancellationHandler::class,

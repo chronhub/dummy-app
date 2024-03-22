@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\database\seeders;
+namespace database;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;

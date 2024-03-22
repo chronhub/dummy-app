@@ -15,7 +15,6 @@ final class HomeController
     // todo make report queries
     public function __invoke(OrderProvider $orderProvider, InventoryProvider $inventoryProvider, CustomerProvider $customerProvider): View
     {
-        dd($this->sum());
         $order = $orderProvider->getOrderSummary();
         $inventory = $inventoryProvider->getInventorySummary();
         $lastTenCustomers = $customerProvider->lastTenCustomers();
@@ -46,10 +45,17 @@ final class HomeController
             ->where('status', 'created')
             ->value('total_quantity');
 
+        $order = DB::query()
+            ->selectRaw('SUM(quantity) as total_quantity')
+            ->from('read_order')
+            ->where('status', 'paid')
+            ->value('total_quantity');
+
         return [
             'carts' => $carts,
             'inventory' => $inventory,
-            'order' => $order,
+            'order_created' => $order,
+            'order_paid' => $order,
         ];
     }
 }

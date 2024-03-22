@@ -48,7 +48,7 @@ final readonly class OrderProvider
     }
 
     /**
-     * @return object{TOrder}|null
+     * @return stdClass{TOrder}|null
      */
     public function findPendingOwnerOrder(string $customerId): ?stdClass
     {
@@ -59,7 +59,7 @@ final readonly class OrderProvider
     }
 
     /**
-     * @return object{TOrder}|null
+     * @return stdClass{TOrder}|null
      */
     public function findRandomPendingOwnerOrder(): ?stdClass
     {
@@ -70,7 +70,7 @@ final readonly class OrderProvider
     }
 
     /**
-     * @return object{TOrderItems}|null
+     * @return stdClass{TOrderItems}|null
      */
     public function findOrderOfCustomer(string $customerId, string $orderId): ?stdClass
     {
@@ -93,7 +93,7 @@ final readonly class OrderProvider
     /**
      * Get orders view of a customer.
      *
-     * @return Collection{ object{id: string, status: string, customer_id: string}}
+     * @return Collection{id: string, status: string, customer_id: string}
      */
     public function getOrderSummaryOfCustomer(string $customerId): Collection
     {
@@ -107,7 +107,7 @@ final readonly class OrderProvider
     /**
      * Get the summary of orders.
      *
-     * @return object{total_orders: int, total_balance: int, total_quantity: int}
+     * @return stdClass{total_orders: int, total_balance: int, total_quantity: int}
      */
     public function getOrderSummary(): stdClass
     {
@@ -118,7 +118,7 @@ final readonly class OrderProvider
     }
 
     /**
-     * @return object{TOrder}|null
+     * @return stdClass{TOrder}|null
      */
     public function findOpenOrderOfCustomer(string $customerId): ?stdClass
     {

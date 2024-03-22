@@ -25,7 +25,7 @@ final readonly class CustomerProvider
     }
 
     /**
-     * @return object{TCustomer}|null
+     * @return stdClass{TCustomer}|null
      */
     public function findCustomerById(string $customerId): ?stdClass
     {
@@ -33,11 +33,16 @@ final readonly class CustomerProvider
     }
 
     /**
-     * @return object{id: string}|null
+     * @return stdClass{id: string}|null
      */
     public function findRandomCustomer(): ?stdClass
     {
         return $this->query()->inRandomOrder()->first(['id']);
+    }
+
+    public function hasEmail(string $email): bool
+    {
+        return $this->query()->where('email', $email)->exists();
     }
 
     /**

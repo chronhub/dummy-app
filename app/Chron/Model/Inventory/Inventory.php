@@ -225,9 +225,6 @@ final class Inventory implements AggregateRoot
                 break;
 
             case $event instanceof InventoryItemAdjusted:
-                $this->inventoryStock = InventoryStock::create($event->totalStock(), $event->totalReserved());
-
-                break;
             case $event instanceof InventoryItemRefilled:
             case $event instanceof InventoryItemReserved:
             case $event instanceof InventoryItemPartiallyReserved:

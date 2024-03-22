@@ -23,14 +23,19 @@ final class InventoryReadModel extends ReadModelConnection
         ]);
     }
 
-    protected function updateQuantity(string $skuId, int $quantity): void
+    protected function decrementQuantity(string $skuId, int $quantity): void
     {
-        $this->query()->where('id', $skuId)->update(['stock' => abs($quantity)]);
+        $this->query()->where('id', $skuId)->decrement('stock', abs($quantity));
     }
 
-    protected function updateReservation(string $skuId, int $quantity): void
+    protected function incrementReservation(string $skuId, int $quantity): void
     {
-        $this->query()->where('id', $skuId)->update(['reserved' => abs($quantity)]);
+        $this->query()->where('id', $skuId)->increment('reserved', abs($quantity));
+    }
+
+    protected function decrementReservation(string $skuId, int $quantity): void
+    {
+        $this->query()->where('id', $skuId)->decrement('reserved', abs($quantity));
     }
 
     protected function up(): callable

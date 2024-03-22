@@ -24,7 +24,7 @@ final readonly class InventoryProvider
     }
 
     /**
-     * @return object{TInventory}|null
+     * @return stdClass{TInventory}|null
      */
     public function findInventoryById(string $skuId): ?stdClass
     {
@@ -32,7 +32,7 @@ final readonly class InventoryProvider
     }
 
     /**
-     * @return object{TInventory}|null
+     * @return stdClass{TInventory}|null
      */
     public function findRandomItem(): ?stdClass
     {
@@ -48,7 +48,7 @@ final readonly class InventoryProvider
     }
 
     /**
-     * @return object{total_items: int, total_stock: int, total_reserved: int}
+     * @return stdClass{total_items: int, total_stock: int, total_reserved: int}
      */
     public function getInventorySummary(): stdClass
     {

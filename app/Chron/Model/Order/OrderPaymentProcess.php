@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order;
 
+use App\Chron\Application\Messaging\Command\Inventory\AdjustInventoryItem;
 use App\Chron\Application\Messaging\Command\Order\PayOrder;
 use App\Chron\Infrastructure\Service\PaymentGateway;
 use App\Chron\Model\Inventory\PositiveQuantity;
@@ -12,6 +13,11 @@ use App\Chron\Model\Order\Exception\InvalidOrderOperation;
 use App\Chron\Model\Order\Exception\OrderException;
 use App\Chron\Model\Order\Exception\OrderNotFound;
 use App\Chron\Model\Order\Repository\OrderList;
+use RuntimeException;
+use Storm\Support\Facade\Report;
+use Throwable;
+
+use function usleep;
 
 final readonly class OrderPaymentProcess
 {
@@ -58,11 +64,37 @@ final readonly class OrderPaymentProcess
     {
         /** @var OrderItem $item */
         foreach ($order->items()->getItems() as $item) {
-            $inventory = $this->inventory->get($item->skuId);
+            //Report::relay(AdjustInventoryItem::withItem($item->skuId->toString(), $item->quantity->value));
+            $this->handleAdjust($item);
+        }
+    }
 
-            $inventory->adjust(PositiveQuantity::create($item->quantity->value));
+    private function handleAdjust(OrderItem $orderItem): void
+    {
+        $retryCount = 0;
+        $maxRetries = 10;
 
-            $this->inventory->save($inventory);
+        while ($retryCount < $maxRetries) {
+            try {
+                $inventory = $this->inventory->get($orderItem->skuId);
+
+                $inventory->adjust(PositiveQuantity::create($orderItem->quantity->value));
+
+                $this->inventory->save($inventory);
+
+                // If the operation is successful, break the loop
+                break;
+            } catch (Throwable $e) {
+                logger('concurrency exception caught:'.$e->getMessage());
+                // If an OptimisticLockException is thrown, increment the retry count and try again
+                $retryCount++;
+            }
+
+            usleep(5000);
+        }
+
+        if ($retryCount === $maxRetries) {
+            throw new RuntimeException('Failed to adjust inventory after maximum retries');
         }
     }
 }

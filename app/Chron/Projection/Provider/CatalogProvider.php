@@ -32,7 +32,7 @@ final readonly class CatalogProvider
     }
 
     /**
-     * @return object{TCatalog}|null
+     * @return stdClass{TCatalog}|null
      */
     public function findAvailableProductById(string $productId): ?stdClass
     {
@@ -43,7 +43,7 @@ final readonly class CatalogProvider
     }
 
     /**
-     * @return object{TCatalog}|null
+     * @return stdClass{TCatalog}|null
      */
     public function findRandomAvailableProduct(): ?stdClass
     {
