@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Console;
 
 use App\Chron\Model\Inventory\Event\InventoryItemAdded;
-use App\Chron\Model\Inventory\Event\InventoryItemAdjusted;
 use App\Chron\Model\Inventory\Event\InventoryItemPartiallyReserved;
 use App\Chron\Model\Inventory\Event\InventoryItemReleased;
 use App\Chron\Model\Inventory\Event\InventoryItemReserved;
@@ -52,31 +51,24 @@ final class CatalogReadModelCommand extends AbstractReadModelCommand
                 ?->stack('updateProductQuantityAndPrice', $scope->event());
 
             $scope
-                ->ack(InventoryItemAdjusted::class)
-                ?->stack('updateReservation',
-                    $scope->event()->aggregateId()->toString(),
-                    $scope->event()->totalReserved()->value
-                );
-
-            $scope
                 ->ack(InventoryItemPartiallyReserved::class)
-                ?->stack('updateReservation',
+                ?->stack('incrementReservation',
                     $scope->event()->aggregateId()->toString(),
-                    $scope->event()->totalReserved()->value
+                    $scope->event()->reserved()->value
                 );
 
             $scope
                 ->ack(InventoryItemReserved::class)
-                ?->stack('updateReservation',
+                ?->stack('incrementReservation',
                     $scope->event()->aggregateId()->toString(),
-                    $scope->event()->totalReserved()->value
+                    $scope->event()->reserved()->value
                 );
 
             $scope
                 ->ack(InventoryItemReleased::class)
-                ?->stack('updateReservation',
+                ?->stack('decrementReservation',
                     $scope->event()->aggregateId()->toString(),
-                    $scope->event()->totalReserved()->value
+                    $scope->event()->released()->value
                 );
         };
     }

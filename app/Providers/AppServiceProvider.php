@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Chron\Application\Console\MapListenerCommand;
+use App\Chron\Application\Console\MapMessageCommand;
 use App\Chron\Application\Console\Shop\MigrateShopCommand;
 use App\Chron\Application\Console\Shop\SeedShopCommand;
 use App\Console\CartItemReadModelCommand;
@@ -39,8 +41,15 @@ class AppServiceProvider extends ServiceProvider
         $this->app->register(ShopServiceProvider::class);
 
         $this->commands([
+            // Pck
+            MapListenerCommand::class,
+            MapMessageCommand::class,
+            // App
+
             QueueWorkerCommand::class,
             ReadModelProcess::class,
+
+            // App console
             ReadReservationCommand::class,
             MigrateShopCommand::class,
             SeedShopCommand::class,

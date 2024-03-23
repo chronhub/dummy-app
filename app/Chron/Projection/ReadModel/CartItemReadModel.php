@@ -45,9 +45,12 @@ final class CartItemReadModel extends ReadModelConnection
             ->delete();
     }
 
-    protected function deleteSubmitted(string $customerId): void
+    protected function deleteSubmitted(string $customerId, string $cartId): void
     {
-        $this->query()->where('customer_id', $customerId)->delete();
+        $this->query()
+            ->where('customer_id', $customerId)
+            ->where('cart_id', $cartId)
+            ->delete();
     }
 
     protected function updateQuantity(CartItemQuantityUpdated $event): void

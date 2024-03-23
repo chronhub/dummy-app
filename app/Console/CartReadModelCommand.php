@@ -56,7 +56,10 @@ final class CartReadModelCommand extends AbstractReadModelCommand
                 ->ack(OrderPaid::class)
                 ?->incrementState('closed')
                 ->updateState('submitted', -1, true)
-                ->stack('deleteSubmittedCart', $scope->event()->orderOwner()->toString());
+                ->stack('deleteSubmittedCart',
+                    $scope->event()->orderOwner()->toString(),
+                    $scope->event()->cartId()->toString()
+                );
 
             $scope
                 ->ack(CartCanceled::class)

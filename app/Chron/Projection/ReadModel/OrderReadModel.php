@@ -17,6 +17,7 @@ final class OrderReadModel extends ReadModelConnection
     {
         $this->query()->insert([
             'id' => $event->aggregateId()->toString(),
+            'cart_id' => $event->cartId()->toString(),
             'customer_id' => $event->orderOwner()->toString(),
             'status' => $event->orderStatus()->value,
             'balance' => $event->orderBalance()->value(),
@@ -29,9 +30,7 @@ final class OrderReadModel extends ReadModelConnection
         $this->query()
             ->where('id', $event->aggregateId()->toString())
             ->where('customer_id', $event->orderOwner()->toString())
-            ->update([
-                'status' => $event->orderStatus()->value,
-            ]);
+            ->update(['status' => $event->orderStatus()->value]);
     }
 
     protected function up(): callable
@@ -39,6 +38,7 @@ final class OrderReadModel extends ReadModelConnection
         return function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('customer_id');
+            $table->uuid('cart_id');
             $table->enum('status', OrderStatus::toStrings());
             $table->string('balance')->default('0.00');
             $table->unsignedInteger('quantity')->default(0);

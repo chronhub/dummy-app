@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order;
 
 use App\Chron\Infrastructure\Service\PaymentGateway;
+use App\Chron\Model\Cart\CartId;
 use App\Chron\Model\InvalidDomainException;
 use App\Chron\Model\Order\Event\OrderCreated;
 use App\Chron\Model\Order\Event\OrderPaid;
@@ -14,8 +15,6 @@ use Storm\Aggregate\AggregateBehaviorTrait;
 use Storm\Contract\Aggregate\AggregateIdentity;
 use Storm\Contract\Aggregate\AggregateRoot;
 use Storm\Contract\Message\DomainEvent;
-
-use function in_array;
 
 final class Order implements AggregateRoot
 {
@@ -27,13 +26,15 @@ final class Order implements AggregateRoot
 
     private OrderStatus $status;
 
+    private CartId $cartId;
+
     private ?string $closedReason = null;
 
-    public static function create(OrderId $orderId, OrderOwner $owner, ItemCollection $items): self
+    public static function create(OrderId $orderId, OrderOwner $owner, CartId $cartId, ItemCollection $items): self
     {
         $order = new self($orderId);
 
-        $order->recordThat(OrderCreated::forCustomer($orderId, $owner, $items, OrderStatus::CREATED));
+        $order->recordThat(OrderCreated::forCustomer($orderId, $owner, $cartId, $items, OrderStatus::CREATED));
 
         return $order;
     }
@@ -50,7 +51,7 @@ final class Order implements AggregateRoot
             throw new OrderException('Payment failed');
         }
 
-        $this->recordThat(OrderPaid::forOrder($this->orderId(), $this->owner, $this->orderItems, OrderStatus::PAID));
+        $this->recordThat(OrderPaid::forOrder($this->orderId(), $this->owner, $this->cartId, $this->orderItems, OrderStatus::PAID));
     }
 
     public function orderId(): OrderId
@@ -91,11 +92,6 @@ final class Order implements AggregateRoot
         return $this->closedReason;
     }
 
-    private function isOrderPending(): bool
-    {
-        return in_array($this->status, OrderStatus::pending(), true);
-    }
-
     protected function apply(DomainEvent $event): void
     {
         switch (true) {
@@ -103,6 +99,7 @@ final class Order implements AggregateRoot
                 $this->owner = $event->orderOwner();
                 $this->orderItems = $event->orderItems();
                 $this->status = $event->orderStatus();
+                $this->cartId = $event->cartId();
 
                 break;
 

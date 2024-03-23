@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Order\Event;
 
+use App\Chron\Model\Cart\CartId;
 use App\Chron\Model\Order\Balance;
 use App\Chron\Model\Order\ItemCollection;
 use App\Chron\Model\Order\OrderId;
@@ -14,11 +15,17 @@ use Storm\Message\AbstractDomainEvent;
 
 final class OrderPaid extends AbstractDomainEvent
 {
-    public static function forOrder(OrderId $orderId, OrderOwner $orderOwner, ItemCollection $items, OrderStatus $orderStatus): self
-    {
+    public static function forOrder(
+        OrderId $orderId,
+        OrderOwner $orderOwner,
+        CartId $cartId,
+        ItemCollection $items,
+        OrderStatus $orderStatus
+    ): self {
         return new self([
             'order_id' => $orderId->toString(),
             'order_owner' => $orderOwner->toString(),
+            'cart_id' => $cartId->toString(),
             'order_status' => $orderStatus->value,
             'order_balance' => $items->calculateBalance()->value(),
             'order_quantity' => $items->calculateQuantity()->value,
@@ -34,6 +41,11 @@ final class OrderPaid extends AbstractDomainEvent
     public function orderOwner(): OrderOwner
     {
         return OrderOwner::fromString($this->content['order_owner']);
+    }
+
+    public function cartId(): CartId
+    {
+        return CartId::fromString($this->content['cart_id']);
     }
 
     public function orderStatus(): OrderStatus

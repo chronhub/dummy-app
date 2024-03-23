@@ -72,7 +72,10 @@ final class CartItemReadModelCommand extends AbstractReadModelCommand
             //wip
             $scope
                 ->ack(OrderPaid::class)
-                ?->stack('deleteSubmitted', $scope->event()->orderOwner()->toString());
+                ?->stack('deleteSubmitted',
+                    $scope->event()->orderOwner()->toString(),
+                    $scope->event()->cartId()->toString()
+                );
         };
     }
 

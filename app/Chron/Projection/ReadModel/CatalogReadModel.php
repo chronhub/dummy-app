@@ -11,6 +11,8 @@ use App\Chron\Model\Product\Event\ProductCreated;
 use App\Chron\Model\Product\ProductStatus;
 use Illuminate\Database\Schema\Blueprint;
 
+use function abs;
+
 final class CatalogReadModel extends ReadModelConnection
 {
     final public const string TABLE = 'read_catalog';
@@ -35,10 +37,10 @@ final class CatalogReadModel extends ReadModelConnection
     {
         $this->query()
             ->where('id', $event->aggregateId()->toString())
-            ->update([
-                'quantity' => $event->totalStock()->value,
-                'current_price' => $event->unitPrice()->value,
-            ]);
+            ->increment('quantity', $event->totalStock()->value,
+                ['current_price' => $event->unitPrice()->value]
+            );
+
     }
 
     protected function updateProductStatus(string $skuId, string $status): void
@@ -46,9 +48,14 @@ final class CatalogReadModel extends ReadModelConnection
         $this->query()->where('id', $skuId)->update(['status' => $status]);
     }
 
-    protected function updateReservation(string $skuId, int $quantity): void
+    protected function incrementReservation(string $skuId, int $quantity): void
     {
-        $this->query()->where('id', $skuId)->update(['reserved' => $quantity]);
+        $this->query()->where('id', $skuId)->increment('reserved', abs($quantity));
+    }
+
+    protected function decrementReservation(string $skuId, int $quantity): void
+    {
+        $this->query()->where('id', $skuId)->decrement('reserved', abs($quantity));
     }
 
     protected function removeProductQuantity(ItemCollection $orderItems): void

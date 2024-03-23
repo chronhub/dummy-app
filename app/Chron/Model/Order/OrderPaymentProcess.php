@@ -17,6 +17,7 @@ use RuntimeException;
 use Storm\Support\Facade\Report;
 use Throwable;
 
+use function sprintf;
 use function usleep;
 
 final readonly class OrderPaymentProcess
@@ -30,9 +31,7 @@ final readonly class OrderPaymentProcess
 
     public function process(PayOrder $command): void
     {
-        $orderId = $command->orderId();
-
-        $order = $this->getOrder($orderId, $command->orderOwner());
+        $order = $this->getOrder($command->orderId(), $command->orderOwner());
 
         $this->adjustInventory($order);
 
@@ -72,21 +71,26 @@ final readonly class OrderPaymentProcess
     private function handleAdjust(OrderItem $orderItem): void
     {
         $retryCount = 0;
-        $maxRetries = 10;
+        $maxRetries = 20;
 
+        $exception = null;
         while ($retryCount < $maxRetries) {
-            try {
-                $inventory = $this->inventory->get($orderItem->skuId);
+            $inventory = $this->inventory->get($orderItem->skuId);
 
+            if ($inventory === null) {
+                throw new RuntimeException(sprintf('Inventory item with skuId %s not found', $orderItem->skuId->toString()));
+            }
+
+            try {
                 $inventory->adjust(PositiveQuantity::create($orderItem->quantity->value));
 
                 $this->inventory->save($inventory);
 
-                // If the operation is successful, break the loop
                 break;
             } catch (Throwable $e) {
                 logger('concurrency exception caught:'.$e->getMessage());
-                // If an OptimisticLockException is thrown, increment the retry count and try again
+                $exception = $e;
+
                 $retryCount++;
             }
 
@@ -94,7 +98,7 @@ final readonly class OrderPaymentProcess
         }
 
         if ($retryCount === $maxRetries) {
-            throw new RuntimeException('Failed to adjust inventory after maximum retries');
+            throw new RuntimeException('Failed to adjust inventory after maximum retries', 0, $exception);
         }
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'reporters' => [
         \Storm\Reporter\ReportCommand::class,
+        \App\Chron\Application\Reporter\ReportSyncCommand::class,
         \Storm\Reporter\ReportEvent::class,
         \Storm\Reporter\ReportQuery::class,
     ],
@@ -18,6 +19,7 @@ return [
         \Storm\Reporter\Subscriber\HandleEvent::class,
         \Storm\Reporter\Subscriber\HandleQuery::class,
         \Storm\Reporter\Subscriber\TransactionalCommand::class,
+        \App\Chron\Application\Reporter\TransactionalSyncCommand::class,
         \Storm\Reporter\Subscriber\CorrelationHeaderCommand::class,
     ],
 

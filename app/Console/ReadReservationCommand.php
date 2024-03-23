@@ -36,7 +36,7 @@ class ReadReservationCommand extends Command
         $start = microtime(true);
 
         $projection
-            ->initialize(fn (): array => ['initial_stock' => 0, 'sold_stock' => 0, 'order_quantity' => 0, 'reserved' => 0])
+            ->initialize(fn (): array => ['initial_stock' => 0, 'sold_stock' => 0, 'order_quantity' => 0, 'inventory_reserved' => 0])
             ->subscribeToStream('inventory', 'order')
             //->filter($this->projectorManager->queryScope()->fromIncludedPosition())
             ->filter($this->queryFilter())
@@ -54,7 +54,7 @@ class ReadReservationCommand extends Command
                 $queryState['initial_stock'],
                 $queryState['sold_stock'],
                 $queryState['order_quantity'],
-                $queryState['reserved'],
+                $queryState['inventory_reserved'],
             ],
         ]);
 
@@ -70,11 +70,11 @@ class ReadReservationCommand extends Command
 
             $scope
                 ->ack(InventoryItemReserved::class)
-                ?->incrementState('reserved', $scope->event()->reserved()->value);
+                ?->incrementState('inventory_reserved', $scope->event()->reserved()->value);
 
             $scope
                 ->ack(InventoryItemReleased::class)
-                ?->updateState('reserved', -($scope->event()->released()->value), true);
+                ?->updateState('inventory_reserved', -($scope->event()->released()->value), true);
 
             $scope
                 ->ack(OrderCreated::class)

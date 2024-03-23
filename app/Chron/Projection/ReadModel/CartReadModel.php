@@ -37,10 +37,13 @@ final class CartReadModel extends ReadModelConnection
             ->update(['status' => $status]);
     }
 
-    protected function deleteSubmittedCart(string $cartOwner): void
+    protected function deleteSubmittedCart(string $cartOwner, string $cartId): void
     {
         // todo set closed status reason
-        $this->query()->where('customer_id', $cartOwner)->delete();
+        $this->query()
+            ->where('id', $cartId)
+            ->where('customer_id', $cartOwner)
+            ->delete();
     }
 
     protected function up(): callable

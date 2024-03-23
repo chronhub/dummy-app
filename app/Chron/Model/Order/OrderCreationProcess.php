@@ -10,14 +10,12 @@ use App\Chron\Model\Cart\CartOwner;
 use App\Chron\Model\Cart\CartStatus;
 use App\Chron\Model\Cart\Repository\CartList;
 use App\Chron\Model\Cart\Service\ReadCartItems;
-use App\Chron\Model\Inventory\SkuId;
-use App\Chron\Model\Inventory\UnitPrice;
+use App\Chron\Model\Order\Factory\OrderItemsFactory;
 use App\Chron\Model\Order\Repository\OrderList;
-use Illuminate\Support\Collection;
 use RuntimeException;
-use stdClass;
 
 use function sprintf;
+use function usleep;
 
 final readonly class OrderCreationProcess
 {
@@ -30,19 +28,33 @@ final readonly class OrderCreationProcess
 
     public function newOrder(CartId $cartId, CartOwner $cartOwner): void
     {
-        // fetch the cart and ensure it can be ordered
+        $this->checkoutCart($cartId, $cartOwner);
+
+        usleep(5000); //fixMe: this is a workaround to
+
+        $this->createOrder($cartId, $cartOwner);
+    }
+
+    private function checkoutCart(CartId $cartId, CartOwner $cartOwner): void
+    {
         $cart = $this->carts->get($cartId);
+
         $this->ensureCartCanBeOrdered($cartOwner, $cart);
 
-        // checkout the cart
         $cart->checkout();
+
         $this->carts->save($cart);
+    }
 
-        // create the order
-        $orderId = OrderId::fromString($cartId->toString());
-        $orderItems = $this->makeOrderItems($this->getCartItems($cartId, $cartOwner), $orderId);
+    private function createOrder(CartId $cartId, CartOwner $cartOwner): void
+    {
+        $orderId = OrderId::fromString($cartId->toString()); //fixMe OrderId is the same as CartId by now
 
-        $order = Order::create($orderId, OrderOwner::fromString($cartOwner->toString()), $orderItems);
+        $orderItems = $this->convertCartItemsToOrderItems($cartId, $cartOwner);
+
+        $orderOwner = OrderOwner::fromString($cartOwner->toString());
+
+        $order = Order::create($orderId, $orderOwner, $cartId, $orderItems);
 
         $this->orders->save($order);
     }
@@ -72,7 +84,7 @@ final readonly class OrderCreationProcess
         }
     }
 
-    private function getCartItems(CartId $cartId, CartOwner $cartOwner): Collection
+    private function convertCartItemsToOrderItems(CartId $cartId, CartOwner $cartOwner): ItemCollection
     {
         $cartItems = $this->readCartItems->get($cartId->toString(), $cartOwner->toString());
 
@@ -80,24 +92,6 @@ final readonly class OrderCreationProcess
             throw new RuntimeException('No cart items found');
         }
 
-        return $cartItems;
-    }
-
-    private function makeOrderItems(Collection $cartItems, OrderId $orderId): ItemCollection
-    {
-        $items = new ItemCollection($orderId);
-
-        $cartItems->each(function (stdClass $cartItem) use ($items) {
-            $orderItem = OrderItem::fromValues(
-                OrderItemId::fromString($cartItem->id),
-                SkuId::fromString($cartItem->sku_id),
-                UnitPrice::create($cartItem->price),
-                Quantity::create($cartItem->quantity)
-            );
-
-            $items->put($orderItem);
-        });
-
-        return $items;
+        return OrderItemsFactory::make($cartItems, OrderId::fromString($cartId->toString()));
     }
 }
