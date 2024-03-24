@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console;
 
+use App\Chron\Model\Cart\Event\CartSubmitted;
 use App\Chron\Model\Inventory\Event\InventoryItemAdded;
 use App\Chron\Model\Inventory\Event\InventoryItemReleased;
 use App\Chron\Model\Inventory\Event\InventoryItemReserved;
@@ -36,8 +37,8 @@ class ReadReservationCommand extends Command
         $start = microtime(true);
 
         $projection
-            ->initialize(fn (): array => ['initial_stock' => 0, 'sold_stock' => 0, 'order_quantity' => 0, 'inventory_reserved' => 0])
-            ->subscribeToStream('inventory', 'order')
+            ->initialize(fn (): array => ['initial_stock' => 0, 'sold_stock' => 0, 'order_quantity' => 0, 'inventory_reserved' => 0, 'cart_submitted' => 0])
+            ->subscribeToStream('inventory', 'cart', 'order')
             //->filter($this->projectorManager->queryScope()->fromIncludedPosition())
             ->filter($this->queryFilter())
             ->when($this->reactors())
@@ -55,6 +56,7 @@ class ReadReservationCommand extends Command
                 $queryState['sold_stock'],
                 $queryState['order_quantity'],
                 $queryState['inventory_reserved'],
+                $queryState['cart_submitted'],
             ],
         ]);
 
@@ -81,8 +83,13 @@ class ReadReservationCommand extends Command
                 ?->incrementState('order_quantity', $scope->event()->orderItems()->calculateQuantity()->value);
 
             $scope
+                ->ack(CartSubmitted::class)
+                ?->incrementState('cart_submitted');
+
+            $scope
                 ->ack(OrderPaid::class)
-                ?->incrementState('sold_stock', $scope->event()->orderQuantity()->value);
+                ?->incrementState('sold_stock', $scope->event()->orderQuantity()->value)
+                ?->updateState('cart_submitted', -1, true);
 
         };
     }
@@ -113,6 +120,11 @@ class ReadReservationCommand extends Command
                         $query
                             ->whereJsonContains(self::FIELD, OrderCreated::class)
                             ->orWhereJsonContains(self::FIELD, OrderPaid::class);
+                    }
+
+                    if ($this->streamName === 'cart') {
+                        $query
+                            ->whereJsonContains(self::FIELD, CartSubmitted::class);
                     }
 
                     $query->orderBy('position');
