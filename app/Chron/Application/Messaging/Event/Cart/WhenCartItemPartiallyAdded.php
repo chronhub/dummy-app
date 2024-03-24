@@ -15,7 +15,7 @@ final readonly class WhenCartItemPartiallyAdded
     }
 
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: CartItemPartiallyAdded::class,
     )]
     public function updateCartCache(CartItemPartiallyAdded $event): void

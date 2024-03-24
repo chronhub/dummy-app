@@ -15,7 +15,7 @@ use App\Chron\Model\Order\Repository\OrderList;
 use Storm\Message\Attribute\AsCommandHandler;
 
 #[AsCommandHandler(
-    reporter: 'reporter.command.default',
+    reporter: 'reporter.command.async.default',
     handles: OwnerRequestsOrderCancellation::class,
 )]
 final readonly class CustomerRequestsOrderCancellationHandler

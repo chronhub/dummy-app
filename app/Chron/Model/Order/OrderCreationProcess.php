@@ -13,6 +13,7 @@ use App\Chron\Model\Cart\Service\ReadCartItems;
 use App\Chron\Model\Order\Factory\OrderItemsFactory;
 use App\Chron\Model\Order\Repository\OrderList;
 use RuntimeException;
+use Throwable;
 
 use function sprintf;
 use function usleep;
@@ -37,13 +38,31 @@ final readonly class OrderCreationProcess
 
     private function checkoutCart(CartId $cartId, CartOwner $cartOwner): void
     {
-        $cart = $this->carts->get($cartId);
+        $retryCount = 0;
+        $maxRetries = 20;
 
-        $this->ensureCartCanBeOrdered($cartOwner, $cart);
+        $exception = null;
 
-        $cart->checkout();
+        while ($retryCount < $maxRetries) {
+            $cart = $this->carts->get($cartId);
 
-        $this->carts->save($cart);
+            $this->ensureCartCanBeOrdered($cartOwner, $cart);
+
+            try {
+                $cart->checkout();
+
+                $this->carts->save($cart);
+
+                break;
+            } catch (Throwable $exception) {
+                $retryCount++;
+                usleep(1000);
+            }
+        }
+
+        if ($retryCount === $maxRetries) {
+            throw new RuntimeException('order creation process fail to checkout', 0, $exception);
+        }
     }
 
     private function createOrder(CartId $cartId, CartOwner $cartOwner): void

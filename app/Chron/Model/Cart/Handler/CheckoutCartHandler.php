@@ -9,7 +9,7 @@ use App\Chron\Model\Order\OrderCreationProcess;
 use Storm\Message\Attribute\AsCommandHandler;
 
 #[AsCommandHandler(
-    reporter: 'reporter.command.default',
+    reporter: 'reporter.command.async.default',
     handles: CheckoutCart::class,
 )]
 final readonly class CheckoutCartHandler

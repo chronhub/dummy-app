@@ -8,6 +8,7 @@ use App\Chron\Model\Customer\Event\CustomerRegistered;
 use App\Chron\Model\Customer\Gender;
 use Illuminate\Database\Schema\Blueprint;
 use Storm\Projector\Support\ReadModel\InteractWithStack;
+use Storm\Projector\Support\ReadModel\ReadModelConnection;
 
 final class CustomerReadModel extends ReadModelConnection
 {

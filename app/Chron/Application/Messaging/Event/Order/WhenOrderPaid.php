@@ -15,7 +15,7 @@ final readonly class WhenOrderPaid
     }
 
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: OrderPaid::class,
     )]
     public function openCart(OrderPaid $event): void

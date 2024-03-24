@@ -6,6 +6,7 @@ namespace App\Chron\Projection\ReadModel;
 
 use App\Chron\Model\Inventory\Event\InventoryItemAdded;
 use Illuminate\Database\Schema\Blueprint;
+use Storm\Projector\Support\ReadModel\ReadModelConnection;
 
 use function abs;
 

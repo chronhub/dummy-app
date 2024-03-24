@@ -7,6 +7,7 @@ namespace App\Chron\Projection\ReadModel;
 use App\Chron\Model\Product\Event\ProductCreated;
 use App\Chron\Model\Product\ProductStatus;
 use Illuminate\Database\Schema\Blueprint;
+use Storm\Projector\Support\ReadModel\ReadModelConnection;
 
 final class ProductReadModel extends ReadModelConnection
 {

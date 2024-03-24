@@ -13,7 +13,7 @@ use App\Chron\Model\Customer\Service\UniqueCustomerEmail;
 use Storm\Message\Attribute\AsCommandHandler;
 
 #[AsCommandHandler(
-    reporter: 'reporter.command.default',
+    reporter: 'reporter.command.async.default',
     handles: ChangeCustomerEmail::class,
 )]
 final readonly class ChangeCustomerEmailHandler

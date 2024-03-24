@@ -7,6 +7,7 @@ namespace App\Chron\Projection\ReadModel;
 use App\Chron\Model\Cart\CartStatus;
 use App\Chron\Model\Cart\Event\CartOpened;
 use Illuminate\Database\Schema\Blueprint;
+use Storm\Projector\Support\ReadModel\ReadModelConnection;
 
 final class CartReadModel extends ReadModelConnection
 {

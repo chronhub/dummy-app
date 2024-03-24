@@ -62,14 +62,14 @@ final class ReadModelProcess extends Command implements SignalableCommandInterfa
     private function monitorProcesses(): void
     {
         while ($this->shouldRun) {
+            sleep(10);
+
             $this->processes->each(function (Process $process) {
                 if (! $process->isRunning()) {
                     $this->shouldRun = false;
                     $this->line(sprintf('Processing %s is terminated', $process->getCommandLine()));
                 }
             });
-
-            sleep(30);
         }
 
         $this->stopProcesses();
@@ -89,7 +89,13 @@ final class ReadModelProcess extends Command implements SignalableCommandInterfa
 
     private function stopProcesses(): void
     {
-        $this->processes->each(fn (Process $process) => $process->stop());
+        $this->processes->each(function(Process $process) {
+            if($process->isRunning()){
+                $process->signal(SIGTERM);
+            }
+
+            $process->stop();
+        });
     }
 
     public function getSubscribedSignals(): array
@@ -102,5 +108,7 @@ final class ReadModelProcess extends Command implements SignalableCommandInterfa
         $this->info('Stopping processes...');
 
         $this->shouldRun = false;
+
+        return self::SUCCESS;
     }
 }

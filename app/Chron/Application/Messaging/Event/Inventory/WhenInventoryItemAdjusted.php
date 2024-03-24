@@ -10,7 +10,7 @@ use Storm\Message\Attribute\AsEventHandler;
 final readonly class WhenInventoryItemAdjusted
 {
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: InventoryItemAdjusted::class,
         priority: 0
     )]

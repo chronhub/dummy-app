@@ -9,7 +9,7 @@ use App\Chron\Model\Order\OrderPaymentProcess;
 use Storm\Message\Attribute\AsCommandHandler;
 
 #[AsCommandHandler(
-    reporter: 'reporter.command.default',
+    reporter: 'reporter.command.async.default',
     handles: PayOrder::class,
 )]
 final readonly class PayOrderHandler

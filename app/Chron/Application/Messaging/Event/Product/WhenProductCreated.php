@@ -15,7 +15,7 @@ final readonly class WhenProductCreated
     }
 
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: ProductCreated::class,
         priority: 1
     )]

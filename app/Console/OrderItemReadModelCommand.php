@@ -10,13 +10,14 @@ use Closure;
 use Storm\Contract\Projector\ProjectionQueryFilter;
 use Storm\Contract\Projector\ReadModel;
 use Storm\Contract\Projector\ReadModelScope;
+use Storm\Projector\Support\Console\ReadModelProjectionCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(
     name: 'order-item:read-model',
     description: 'Read model for order item'
 )]
-final class OrderItemReadModelCommand extends AbstractReadModelCommand
+final class OrderItemReadModelCommand extends ReadModelProjectionCommand
 {
     protected $signature = 'order-item:read-model';
 

@@ -94,7 +94,7 @@ final readonly class OrderPaymentProcess
                 $retryCount++;
             }
 
-            usleep(5000);
+            usleep(1000);
         }
 
         if ($retryCount === $maxRetries) {

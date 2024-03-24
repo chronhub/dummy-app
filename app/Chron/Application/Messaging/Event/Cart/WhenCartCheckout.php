@@ -15,7 +15,7 @@ final readonly class WhenCartCheckout
     }
 
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: CartSubmitted::class,
     )]
     public function updateCartCache(CartSubmitted $event): void

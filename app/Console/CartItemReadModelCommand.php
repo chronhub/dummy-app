@@ -15,13 +15,14 @@ use Closure;
 use Storm\Contract\Projector\ProjectionQueryFilter;
 use Storm\Contract\Projector\ReadModel;
 use Storm\Contract\Projector\ReadModelScope;
+use Storm\Projector\Support\Console\ReadModelProjectionCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(
     name: 'cart-item:read-model',
     description: 'Read model for cart item'
 )]
-final class CartItemReadModelCommand extends AbstractReadModelCommand
+final class CartItemReadModelCommand extends ReadModelProjectionCommand
 {
     protected $signature = 'cart-item:read-model';
 

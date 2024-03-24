@@ -15,7 +15,7 @@ final readonly class WhenCartCanceled
     }
 
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: CartCanceled::class,
     )]
     public function updateCartCache(CartCanceled $event): void

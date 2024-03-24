@@ -10,7 +10,7 @@ use Storm\Message\Attribute\AsEventHandler;
 final readonly class WhenOrderCreated
 {
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: OrderCreated::class,
     )]
     public function noOp(OrderCreated $event): void

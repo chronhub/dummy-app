@@ -10,7 +10,7 @@ use Storm\Message\Attribute\AsEventHandler;
 final readonly class WhenInventoryItemPartiallyReserved
 {
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: InventoryItemPartiallyReserved::class,
         priority: 0
     )]

@@ -15,7 +15,7 @@ final readonly class WhenCartItemAdded
     }
 
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: CartItemAdded::class,
         priority: 1
     )]

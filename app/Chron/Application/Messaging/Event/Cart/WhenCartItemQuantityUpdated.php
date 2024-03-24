@@ -15,7 +15,7 @@ final readonly class WhenCartItemQuantityUpdated
     }
 
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: CartItemQuantityUpdated::class,
     )]
     public function updateCartCache(CartItemQuantityUpdated $event): void

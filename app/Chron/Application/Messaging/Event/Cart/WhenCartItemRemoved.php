@@ -15,7 +15,7 @@ final readonly class WhenCartItemRemoved
     }
 
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: CartItemRemoved::class,
     )]
     public function updateCartCache(CartItemRemoved $event): void

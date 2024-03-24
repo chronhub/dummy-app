@@ -14,7 +14,7 @@ final readonly class WhenInventoryItemReserved
     }
 
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: InventoryItemReserved::class,
         priority: 0
     )]

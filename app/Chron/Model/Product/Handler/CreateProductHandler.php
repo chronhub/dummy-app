@@ -11,7 +11,7 @@ use App\Chron\Model\Product\Repository\ProductList;
 use Storm\Message\Attribute\AsCommandHandler;
 
 #[AsCommandHandler(
-    reporter: 'reporter.command.default',
+    reporter: 'reporter.command.async.default',
     handles: CreateProduct::class,
 )]
 final readonly class CreateProductHandler

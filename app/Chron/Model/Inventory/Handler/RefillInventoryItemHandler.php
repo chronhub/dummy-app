@@ -11,7 +11,7 @@ use App\Chron\Model\Inventory\Repository\InventoryList;
 use Storm\Message\Attribute\AsCommandHandler;
 
 #[AsCommandHandler(
-    reporter: 'reporter.command.default',
+    reporter: 'reporter.command.async.default',
     handles: RefillInventoryItem::class,
 )]
 final readonly class RefillInventoryItemHandler

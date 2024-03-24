@@ -11,7 +11,7 @@ final readonly class WhenInventoryItemRefilled
 {
     // todo catalog the sku as in-stock and read model
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: InventoryItemRefilled::class,
     )]
     public function noOp(InventoryItemRefilled $event): void

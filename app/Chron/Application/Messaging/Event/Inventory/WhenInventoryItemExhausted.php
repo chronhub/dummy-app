@@ -8,7 +8,7 @@ use App\Chron\Model\Inventory\Event\InventoryItemExhausted;
 use Storm\Message\Attribute\AsEventHandler;
 
 #[AsEventHandler(
-    reporter: 'reporter.event.default',
+    reporter: 'reporter.event.sync.default',
     handles: InventoryItemExhausted::class,
 )]
 final readonly class WhenInventoryItemExhausted

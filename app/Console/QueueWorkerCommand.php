@@ -18,7 +18,7 @@ class QueueWorkerCommand extends Command implements SignalableCommandInterface
 {
     private int $count = 5;
 
-    private int $timeout = 10;
+    private int $timeout = 5;
 
     private bool $shouldRun = true;
 
@@ -111,5 +111,7 @@ class QueueWorkerCommand extends Command implements SignalableCommandInterface
     public function handleSignal(int $signal)
     {
         $this->shouldRun = false;
+
+        return self::SUCCESS;
     }
 }

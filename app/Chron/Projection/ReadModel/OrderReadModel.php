@@ -8,6 +8,7 @@ use App\Chron\Model\Order\Event\OrderCreated;
 use App\Chron\Model\Order\Event\OrderPaid;
 use App\Chron\Model\Order\OrderStatus;
 use Illuminate\Database\Schema\Blueprint;
+use Storm\Projector\Support\ReadModel\ReadModelConnection;
 
 final class OrderReadModel extends ReadModelConnection
 {

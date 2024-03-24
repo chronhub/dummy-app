@@ -6,6 +6,7 @@ namespace App\Chron\Projection\ReadModel;
 
 use App\Chron\Model\Order\Event\OrderCreated;
 use Illuminate\Database\Schema\Blueprint;
+use Storm\Projector\Support\ReadModel\ReadModelConnection;
 
 final class OrderItemReadModel extends ReadModelConnection
 {

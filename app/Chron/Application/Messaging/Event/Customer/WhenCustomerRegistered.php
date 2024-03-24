@@ -18,7 +18,7 @@ final readonly class WhenCustomerRegistered
     }
 
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: CustomerRegistered::class,
         priority: 1
     )]
@@ -28,7 +28,7 @@ final readonly class WhenCustomerRegistered
     }
 
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: CustomerRegistered::class,
         priority: 2
     )]
@@ -42,7 +42,7 @@ final readonly class WhenCustomerRegistered
     }
 
     #[AsEventHandler(
-        reporter: 'reporter.event.default',
+        reporter: 'reporter.event.sync.default',
         handles: CustomerRegistered::class,
         priority: 4
     )]

@@ -8,6 +8,7 @@ use App\Chron\Model\Cart\Event\CartItemAdded;
 use App\Chron\Model\Cart\Event\CartItemPartiallyAdded;
 use App\Chron\Model\Cart\Event\CartItemQuantityUpdated;
 use Illuminate\Database\Schema\Blueprint;
+use Storm\Projector\Support\ReadModel\ReadModelConnection;
 
 final class CartItemReadModel extends ReadModelConnection
 {

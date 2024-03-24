@@ -14,13 +14,14 @@ use Closure;
 use Storm\Contract\Projector\ProjectionQueryFilter;
 use Storm\Contract\Projector\ReadModel;
 use Storm\Contract\Projector\ReadModelScope;
+use Storm\Projector\Support\Console\ReadModelProjectionCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(
     name: 'inventory:read-model',
     description: 'Read model for inventory'
 )]
-final class InventoryReadModelCommand extends AbstractReadModelCommand
+final class InventoryReadModelCommand extends ReadModelProjectionCommand
 {
     protected $signature = 'inventory:read-model';
 

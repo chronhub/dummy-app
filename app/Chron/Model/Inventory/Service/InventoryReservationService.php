@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Model\Inventory\Service;
 
+use App\Chron\Model\DomainException;
 use App\Chron\Model\Inventory\Exception\InventoryItemNotFound;
 use App\Chron\Model\Inventory\Inventory;
 use App\Chron\Model\Inventory\InventoryReleaseReason;
@@ -32,7 +33,7 @@ final readonly class InventoryReservationService
         $availableQuantity = $inventory->determineAvailableQuantity($quantityRequested);
 
         if ($availableQuantity === false || $availableQuantity->value === 0) {
-            throw new LogicException('Available quantity should not be false or zero.');
+            throw new DomainException('Available quantity should not be false or zero.');
         }
 
         $inventory->reserve($quantityRequested);
