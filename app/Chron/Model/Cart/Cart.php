@@ -199,6 +199,10 @@ final class Cart implements AggregateRoot
      */
     public function checkout(): void
     {
+        // todo
+        // checkout from handler, not order process
+        // assert all items are reserved
+
         if ($this->status !== CartStatus::OPENED) {
             throw new InvalidCartOperation('Cart is not opened');
         }

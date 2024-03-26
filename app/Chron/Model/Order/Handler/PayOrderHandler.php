@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Model\Order\Handler;
 
 use App\Chron\Application\Messaging\Command\Order\PayOrder;
-use App\Chron\Model\Order\OrderPaymentProcess;
+use App\Http\OrderPaymentProcess;
 use Storm\Message\Attribute\AsCommandHandler;
 
 #[AsCommandHandler(

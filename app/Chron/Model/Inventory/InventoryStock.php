@@ -15,7 +15,9 @@ final readonly class InventoryStock
         public Stock $stock,
         public Quantity $reserved
     ) {
-        $this->guardAgainstInvalidValues();
+        if ($this->stock->value < $this->reserved->value) {
+            throw new InvalidInventoryValue('Inventory stock must be greater than or equal to reservation');
+        }
     }
 
     public static function create(Stock $stock, Quantity $reserved): self
@@ -74,20 +76,5 @@ final readonly class InventoryStock
         $availableStock = $this->stock->value - $this->reserved->value;
 
         return Stock::create($availableStock);
-    }
-
-    private function guardAgainstInvalidValues(): void
-    {
-        if ($this->stock->value < 0) {
-            throw new InvalidInventoryValue('Inventory stock must be greater than or equal to 0');
-        }
-
-        if ($this->reserved->value < 0) {
-            throw new InvalidInventoryValue('Inventory reservation must be greater or equal to 0');
-        }
-
-        if ($this->stock->value < $this->reserved->value) {
-            throw new InvalidInventoryValue('Inventory stock must be greater than or equal to reservation');
-        }
     }
 }

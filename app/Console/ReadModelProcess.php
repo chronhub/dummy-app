@@ -89,8 +89,8 @@ final class ReadModelProcess extends Command implements SignalableCommandInterfa
 
     private function stopProcesses(): void
     {
-        $this->processes->each(function(Process $process) {
-            if($process->isRunning()){
+        $this->processes->each(function (Process $process) {
+            if ($process->isRunning()) {
                 $process->signal(SIGTERM);
             }
 

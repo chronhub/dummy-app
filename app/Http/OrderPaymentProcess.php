@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Chron\Model\Order;
+namespace App\Http;
 
-use App\Chron\Application\Messaging\Command\Inventory\AdjustInventoryItem;
 use App\Chron\Application\Messaging\Command\Order\PayOrder;
 use App\Chron\Infrastructure\Service\PaymentGateway;
 use App\Chron\Model\Inventory\PositiveQuantity;
@@ -12,9 +11,13 @@ use App\Chron\Model\Inventory\Repository\InventoryList;
 use App\Chron\Model\Order\Exception\InvalidOrderOperation;
 use App\Chron\Model\Order\Exception\OrderException;
 use App\Chron\Model\Order\Exception\OrderNotFound;
+use App\Chron\Model\Order\Order;
+use App\Chron\Model\Order\OrderId;
+use App\Chron\Model\Order\OrderItem;
+use App\Chron\Model\Order\OrderOwner;
+use App\Chron\Model\Order\OrderStatus;
 use App\Chron\Model\Order\Repository\OrderList;
 use RuntimeException;
-use Storm\Support\Facade\Report;
 use Throwable;
 
 use function sprintf;

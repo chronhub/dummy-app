@@ -9,10 +9,8 @@ use App\Chron\Model\Inventory\Exception\InventoryItemNotFound;
 use App\Chron\Model\Inventory\Inventory;
 use App\Chron\Model\Inventory\InventoryReleaseReason;
 use App\Chron\Model\Inventory\PositiveQuantity;
-use App\Chron\Model\Inventory\Quantity;
 use App\Chron\Model\Inventory\Repository\InventoryList;
 use App\Chron\Model\Inventory\SkuId;
-use LogicException;
 
 final readonly class InventoryReservationService
 {

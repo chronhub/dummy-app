@@ -10,8 +10,8 @@ use App\Chron\Model\Order\OrderItem;
 use App\Chron\Model\Product\Event\ProductCreated;
 use App\Chron\Model\Product\ProductStatus;
 use Illuminate\Database\Schema\Blueprint;
-
 use Storm\Projector\Support\ReadModel\ReadModelConnection;
+
 use function abs;
 
 final class CatalogReadModel extends ReadModelConnection
