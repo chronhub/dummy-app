@@ -33,7 +33,7 @@ CREATE TABLE stream_event
     type varchar NOT NULL,
     id uuid NOT NULL,
     version bigint NOT NULL,
-    metadata jsonb NOT NULL,
+    header jsonb NOT NULL,
     content jsonb NOT NULL,
     created_at timestamptz NOT NULL DEFAULT now()
 );
@@ -116,13 +116,13 @@ BEGIN
     END IF;
 
     -- Allow create stream name only
-    IF NEW.type IS NOT NULL AND NEW.id IS NOT NULL AND NEW.version IS NOT NULL AND NEW.metadata IS NOT NULL AND NEW.content IS NOT NULL THEN
+    IF NEW.type IS NOT NULL AND NEW.id IS NOT NULL AND NEW.version IS NOT NULL AND NEW.header IS NOT NULL AND NEW.content IS NOT NULL THEN
         -- Get the next position using the NextPosition() function
         SELECT NextPosition() INTO next_position;
 
         -- Insert record into the base table
-        EXECUTE format('INSERT INTO %I (position, stream_name, type, id, version, metadata, content) VALUES ($1, $2, $3, $4, $5, $6, $7)', stream_name)
-            USING next_position, NEW.stream_name, NEW.type, NEW.id, NEW.version, NEW.metadata, NEW.content;
+        EXECUTE format('INSERT INTO %I (position, stream_name, type, id, version, header, content) VALUES ($1, $2, $3, $4, $5, $6, $7)', stream_name)
+            USING next_position, NEW.stream_name, NEW.type, NEW.id, NEW.version, NEW.header, NEW.content;
 
     END IF;
 

@@ -23,6 +23,8 @@ return [
     ],
 
     'message_handlers' => [
+        \App\Chron\SayHelloHandler::class,
+
         // command handlers
         \App\Chron\Model\Customer\Handler\RegisterCustomerHandler::class,
         \App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler::class,
@@ -97,6 +99,7 @@ return [
 
     'chroniclers' => [
         \Storm\Chronicler\Connection\PgsqlTransactionalChronicler::class,
+        \Storm\Chronicler\Http\ChroniclerApi::class,
     ],
 
     'stream_subscribers' => [

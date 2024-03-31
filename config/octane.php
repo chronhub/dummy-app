@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\OctaneStorm;
 use Laravel\Octane\Contracts\OperationTerminated;
 use Laravel\Octane\Events\RequestHandled;
 use Laravel\Octane\Events\RequestReceived;
@@ -131,6 +132,7 @@ return [
 
     'warm' => [
         ...Octane::defaultServicesToWarm(),
+        ...OctaneStorm::warm(),
     ],
 
     'flush' => [

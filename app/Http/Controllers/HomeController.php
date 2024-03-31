@@ -9,6 +9,7 @@ use App\Chron\Projection\Provider\InventoryProvider;
 use App\Chron\Projection\Provider\OrderProvider;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
+use Storm\Support\Facade\Report;
 
 final class HomeController
 {

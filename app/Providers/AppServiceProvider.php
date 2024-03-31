@@ -10,6 +10,7 @@ use App\Console\CartItemReadModelCommand;
 use App\Console\CartReadModelCommand;
 use App\Console\CatalogReadModelCommand;
 use App\Console\CustomerReadModelCommand;
+use App\Console\Emit\OrderEmitterCommand;
 use App\Console\InventoryReadModelCommand;
 use App\Console\OrderItemReadModelCommand;
 use App\Console\OrderReadModelCommand;
@@ -20,6 +21,9 @@ use App\Console\ReadReservationCommand;
 use App\Console\ResetProjectionCommand;
 use Illuminate\Support\ServiceProvider;
 use Storm\Annotation\Kernel;
+use Storm\Chronicler\ChroniclerApiServiceProvider;
+use Storm\Chronicler\Http\Controllers\Stream\RequestStreamExists;
+use Storm\Contract\Chronicler\Chronicler;
 use Storm\Support\Providers\StormServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -30,12 +34,18 @@ class AppServiceProvider extends ServiceProvider
         $kernel = $this->app[Kernel::class];
 
         $kernel->boot();
+
+        //        $this->app
+        //            ->when(RequestStreamExists::class)
+        //            ->needs(Chronicler::class)
+        //            ->give('chronicler.api.standard');
     }
 
     public function register(): void
     {
         $this->app->register(StormServiceProvider::class);
         $this->app->register(ShopServiceProvider::class);
+        $this->app->register(ChroniclerApiServiceProvider::class);
 
         $this->commands([
             // App
@@ -56,6 +66,9 @@ class AppServiceProvider extends ServiceProvider
             CartItemReadModelCommand::class,
             OrderReadModelCommand::class,
             OrderItemReadModelCommand::class,
+
+            //
+            OrderEmitterCommand::class,
         ]);
     }
 }

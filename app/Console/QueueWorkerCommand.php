@@ -35,6 +35,14 @@ class QueueWorkerCommand extends Command implements SignalableCommandInterface
     {
         pcntl_async_signals(true);
 
+        $this->count = (int) $this->argument('num');
+
+        if ($this->count < 1) {
+            $this->error('Number of workers must be greater than 0');
+
+            return self::FAILURE;
+        }
+
         $this->makeWorkers($this->count);
 
         try {

@@ -25,6 +25,8 @@ class ReadReservationCommand extends Command
 {
     protected $signature = 'read:reservation';
 
+    protected bool $stop = false;
+
     public function __construct(private readonly ProjectorManagerInterface $projectorManager)
     {
         parent::__construct();
@@ -42,6 +44,7 @@ class ReadReservationCommand extends Command
             //->filter($this->projectorManager->queryScope()->fromIncludedPosition())
             ->filter($this->queryFilter())
             ->when($this->reactors())
+            ->keepState()
             ->run(false);
 
         $end = microtime(true) - $start;
@@ -98,7 +101,7 @@ class ReadReservationCommand extends Command
     {
         return new class() implements ProjectionQueryFilter, StreamNameAwareQueryFilter
         {
-            private const string FIELD = 'metadata->__event_type';
+            private const string FIELD = 'header->__event_type';
 
             private int $streamPosition;
 
