@@ -104,7 +104,7 @@ class QueueWorkerCommand extends Command implements SignalableCommandInterface
 
     private function makeWorker(): Process
     {
-        $process = new Process(['php', 'artisan', $this->worker, '--max-jobs=1000']);
+        $process = new Process(['php', 'artisan', $this->worker, '--max-jobs=250']);
 
         $process->start();
 

@@ -99,7 +99,6 @@ return [
 
     'chroniclers' => [
         \Storm\Chronicler\Connection\PgsqlTransactionalChronicler::class,
-        \Storm\Chronicler\Http\ChroniclerApi::class,
     ],
 
     'stream_subscribers' => [
