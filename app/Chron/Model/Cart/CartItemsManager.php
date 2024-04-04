@@ -23,19 +23,11 @@ final class CartItemsManager
     ) {
     }
 
-    public function addItem(CartItem $cartItem): ?CartItem
+    public function addItem(CartItem $cartItem): CartItem
     {
-        $reserved = $this->reservation->reserveItem($cartItem->sku->toString(), $cartItem->quantity->value);
+        $this->upsertCartItem($cartItem);
 
-        if ($reserved === 0) {
-            return null;
-        }
-
-        $adjust = $cartItem->withAdjustedQuantity(CartItemQuantity::fromInteger($reserved));
-
-        $this->upsertCartItem($adjust);
-
-        return $adjust;
+        return $cartItem;
     }
 
     public function adjustItem(CartItem $cartItem): CartItem

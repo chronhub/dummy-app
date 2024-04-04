@@ -12,6 +12,7 @@ use App\Chron\Model\Inventory\Event\InventoryItemPartiallyReserved;
 use App\Chron\Model\Inventory\Event\InventoryItemRefilled;
 use App\Chron\Model\Inventory\Event\InventoryItemReleased;
 use App\Chron\Model\Inventory\Event\InventoryItemReserved;
+use App\Chron\Model\Inventory\Exception\InsufficientQuantityForReservation;
 use App\Chron\Model\Inventory\Exception\InventoryOutOfStock;
 use RuntimeException;
 use Storm\Aggregate\AggregateBehaviorTrait;
@@ -111,13 +112,19 @@ final class Inventory implements AggregateRoot
 
         $availableQuantity = $availableQuantity->toPositiveQuantity();
 
+        if ($requested->value > $availableQuantity->value) {
+            throw InsufficientQuantityForReservation::withSkuId($this->skuId()->toString(), $requested->value, $availableQuantity->value);
+        }
+
         $inventoryStock = $this->inventoryStock->addReservation($availableQuantity);
 
-        if ($requested->value > $availableQuantity->value) {
-            $this->recordItemPartiallyReserved($inventoryStock, $availableQuantity, $requested);
-        } else {
-            $this->recordItemReserved($inventoryStock, $availableQuantity, $requested);
-        }
+        //        if ($requested->value > $availableQuantity->value) {
+        //            $this->recordItemPartiallyReserved($inventoryStock, $availableQuantity, $requested);
+        //        } else {
+        //            $this->recordItemReserved($inventoryStock, $availableQuantity, $requested);
+        //        }
+
+        $this->recordItemReserved($inventoryStock, $availableQuantity, $requested);
 
         $this->handleOutOfStock($inventoryStock);
     }

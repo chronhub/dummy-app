@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Service;
 
-use App\Chron\Application\Messaging\Command\Cart\AddCartItem;
 use App\Chron\Application\Messaging\Command\Cart\CancelCart;
 use App\Chron\Application\Messaging\Command\Cart\CheckoutCart;
 use App\Chron\Application\Messaging\Command\Cart\OpenCart;
 use App\Chron\Application\Messaging\Command\Cart\RemoveCartItem;
+use App\Chron\Application\Messaging\Command\Cart\StartAddCartItem;
 use App\Chron\Application\Messaging\Command\Cart\UpdateCartItemQuantity;
 use stdClass;
 use Storm\Support\Facade\Report;
@@ -34,7 +34,7 @@ final readonly class CartApplicationService
     {
         $product = $this->shopApplicationService->queryProductFromCatalog($sku);
 
-        $command = AddCartItem::toCart($cartId, $customerId, $sku, $product->current_price, $quantity);
+        $command = StartAddCartItem::toCart($cartId, $customerId, $sku, $product->current_price, $quantity);
 
         $this->dispatchCommand($command);
     }

@@ -29,7 +29,9 @@ final readonly class AddCartItemApi
                 return $this->addProductToCart($cart, $product);
             }
 
-            return $this->updateProductQuantity($cart, $product);
+            return new JsonResponse(['message' => 'todo update'], 500);
+
+            //return $this->updateProductQuantity($cart, $product);
         } catch (Throwable $exception) {
             report($exception);
 

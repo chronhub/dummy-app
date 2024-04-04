@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\Chron\Application\Console\Shop\MigrateShopCommand;
 use App\Chron\Application\Console\Shop\SeedShopCommand;
+use App\Chron\Process\CustomerRegistration\CustomerRegistrationProcess;
 use App\Console\CartItemReadModelCommand;
 use App\Console\CartReadModelCommand;
 use App\Console\CatalogReadModelCommand;
@@ -38,7 +39,19 @@ class AppServiceProvider extends ServiceProvider
         $this->app->register(StormServiceProvider::class);
         $this->app->register(ShopServiceProvider::class);
 
-        $this->commands([
+        $this->registerSagas();
+
+        $this->registerCommands();
+    }
+
+    protected function registerSagas(): void
+    {
+        $this->app->bind(CustomerRegistrationProcess::class);
+    }
+
+    protected function registerCommands(): void
+    {
+        $commands = [
             // App
 
             QueueWorkerCommand::class,
@@ -60,6 +73,8 @@ class AppServiceProvider extends ServiceProvider
 
             //
             OrderEmitterCommand::class,
-        ]);
+        ];
+
+        $this->commands($commands);
     }
 }

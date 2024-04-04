@@ -8,6 +8,8 @@ use App\Chron\Model\Cart\Event\CartItemAdded;
 use App\Http\Controllers\Action\Cart\CacheCart;
 use Storm\Message\Attribute\AsEventHandler;
 
+use function sprintf;
+
 final readonly class WhenCartItemAdded
 {
     public function __construct(private CacheCart $cacheCart)
@@ -21,6 +23,10 @@ final readonly class WhenCartItemAdded
     )]
     public function updateCartCache(CartItemAdded $event): void
     {
-        $this->cacheCart->update($event->cartId()->toString());
+        logger(sprintf(
+            'Cart item added to cart %s for customer %s',
+            $event->cartId()->toString(),
+            $event->cartOwner()->toString())
+        );
     }
 }

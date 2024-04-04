@@ -6,7 +6,7 @@ namespace App\Chron\Application\Service;
 
 use App\Chron\Application\Factory\CustomerFactory;
 use App\Chron\Application\Messaging\Command\Customer\ChangeCustomerEmail;
-use App\Chron\Application\Messaging\Command\Customer\RegisterCustomer;
+use App\Chron\Application\Messaging\Command\Customer\StartCustomerRegistration;
 use App\Chron\Application\Messaging\Query\QueryRandomCustomer;
 use DomainException;
 use stdClass;
@@ -22,7 +22,7 @@ final readonly class CustomerApplicationService
         $data = CustomerFactory::makeMany($limit);
 
         foreach ($data as $customerData) {
-            $command = RegisterCustomer::withData(...$customerData);
+            $command = StartCustomerRegistration::withData(...$customerData);
 
             Report::relay($command);
         }
@@ -30,7 +30,7 @@ final readonly class CustomerApplicationService
 
     public function registerCustomer(array $data): void
     {
-        $command = RegisterCustomer::withData(...$data);
+        $command = StartCustomerRegistration::withData(...$data);
 
         Report::relay($command);
     }

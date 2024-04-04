@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Chron\Model\Customer\Handler\StartCustomerRegistrationHandler;
+
 return [
     'reporters' => [
         \Storm\Reporter\ReportCommand::class,
@@ -26,12 +28,14 @@ return [
         \App\Chron\SayHelloHandler::class,
 
         // command handlers
+        StartCustomerRegistrationHandler::class,
         \App\Chron\Model\Customer\Handler\RegisterCustomerHandler::class,
         \App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler::class,
 
         // cart
         \App\Chron\Model\Cart\Handler\OpenCartHandler::class,
         \App\Chron\Model\Cart\Handler\AddCartItemHandler::class,
+        \App\Chron\Process\CartReservation\AddCartItemProcess::class,
         \App\Chron\Model\Cart\Handler\RemoveCartItemHandler::class,
         \App\Chron\Model\Cart\Handler\UpdateCartItemHandler::class,
         \App\Chron\Model\Cart\Handler\CancelCartHandler::class,

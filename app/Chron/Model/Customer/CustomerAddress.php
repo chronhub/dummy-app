@@ -42,6 +42,19 @@ final readonly class CustomerAddress
         ];
     }
 
+    /**
+     * @return array{string, string, string, string}
+     */
+    public function toStrings(): array
+    {
+        return [
+            $this->street,
+            $this->city,
+            $this->postalCode,
+            $this->country,
+        ];
+    }
+
     public function sameValueAs(self $other): bool
     {
         return $this->street === $other->street
