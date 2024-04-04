@@ -6,13 +6,13 @@ namespace App\Chron\Process\CustomerRegistration;
 
 use App\Chron\Application\Service\AuthApplicationService;
 use App\Chron\Model\Customer\Event\CustomerRegistered;
-use App\Chron\Saga\ProcessStep;
+use App\Chron\Saga\SagaStep;
 use Storm\Contract\Message\Messaging;
 use Throwable;
 
 use function sprintf;
 
-final readonly class CreateAuthUserStep implements ProcessStep
+final readonly class CreateAuthUserStep implements SagaStep
 {
     public function __construct(private AuthApplicationService $authApplicationService)
     {
@@ -38,7 +38,7 @@ final readonly class CreateAuthUserStep implements ProcessStep
         logger(sprintf('Create auth user for new registered customer %s', $event->aggregateId()->toString()));
     }
 
-    public function compensate(?Throwable $exception): void
+    public function compensate(Messaging $event, ?Throwable $exception): void
     {
 
     }

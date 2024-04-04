@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Chron\Process\CustomerRegistration;
 
-use App\Chron\Saga\ProcessManager;
+use App\Chron\Saga\SagaManager;
 use Illuminate\Contracts\Foundation\Application;
 use Storm\Contract\Message\Messaging;
 
-final readonly class CustomerRegistrationProcess
+final readonly class CustomerRegistrationSaga
 {
-    private ProcessManager $sagaManager;
+    private SagaManager $sagaManager;
 
     public function __construct(private Application $app)
     {
-        $this->sagaManager = new ProcessManager();
+        $this->sagaManager = new SagaManager();
 
         foreach ($this->getSteps() as $step) {
             $this->sagaManager->addStep($step);

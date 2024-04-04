@@ -6,15 +6,30 @@ namespace App\Chron\Saga;
 
 use Exception;
 use Illuminate\Support\Collection;
+use Storm\Contract\Message\Messaging;
 use Throwable;
 
-class ProcessManager
+class SagaManager implements Saga
 {
+    /**
+     * @var Collection<SagaStep>
+     */
     private Collection $steps;
 
+    /**
+     * @var Collection<SagaStep>
+     */
     private Collection $completedSteps;
 
+    /**
+     * @var Collection<SagaStep>
+     */
     private Collection $failedSteps;
+
+    /**
+     * @var array<Exception>
+     */
+    private array $compensatedExceptions = [];
 
     public function __construct()
     {
@@ -25,14 +40,14 @@ class ProcessManager
 
     public function handle($event): void
     {
-        $this->steps->each(function (ProcessStep $step) use ($event) {
+        $this->steps->each(function (SagaStep $step) use ($event) {
             if ($step->shouldHandle($event)) {
                 try {
                     $step->handle($event);
                     $this->completedSteps->push($step);
                 } catch (Exception $e) {
                     $this->failedSteps->push($step);
-                    $this->compensate($e);
+                    $this->compensate($event, $e);
 
                     throw new ProcessManagerException($e->getMessage());
                 }
@@ -40,25 +55,27 @@ class ProcessManager
         });
     }
 
-    public function addStep(ProcessStep $step): void
+    public function addStep(SagaStep $step): void
     {
         $this->steps->push($step);
     }
 
-    private function compensate(Throwable $exception): void
+    private function compensate(Messaging $event, Throwable $exception): void
     {
         while ($this->completedSteps->isNotEmpty()) {
-            /** @var ProcessStep $step */
+            /** @var SagaStep $step */
             $step = $this->completedSteps->pop();
 
             try {
-                $step->compensate($exception);
+                $step->compensate($event, $exception);
             } catch (Exception $e) {
                 $this->failedSteps->push($step);
-                $this->compensate($exception);
-
-                throw new ProcessManagerException($e->getMessage(), $e->getCode(), $e);
+                $this->compensatedExceptions[] = $e;
             }
+        }
+
+        if (! $this->compensatedExceptions == []) {
+            throw new ProcessManagerException('Failed to compensate for the following exceptions');
         }
     }
 }

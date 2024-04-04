@@ -16,12 +16,12 @@ final readonly class ConnectionSagaRepository implements SagaRepository
 
     }
 
-    public function save(SagaValue $saga): void
+    public function save($saga): void
     {
         // TODO: Implement save() method.
     }
 
-    public function find(string $sagaId): ?SagaValue
+    public function find(string $sagaId)
     {
         // TODO: Implement find() method.
     }

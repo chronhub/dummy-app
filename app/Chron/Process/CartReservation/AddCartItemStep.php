@@ -6,12 +6,12 @@ namespace App\Chron\Process\CartReservation;
 
 use App\Chron\Application\Messaging\Command\Cart\AddCartItem;
 use App\Chron\Application\Messaging\Command\Cart\StartAddCartItem;
-use App\Chron\Saga\ProcessStep;
+use App\Chron\Saga\SagaStep;
 use Storm\Contract\Message\Messaging;
 use Storm\Support\Facade\Report;
 use Throwable;
 
-final class AddCartItemStep implements ProcessStep
+final class AddCartItemStep implements SagaStep
 {
     public function shouldHandle(Messaging $event): bool
     {
@@ -33,7 +33,7 @@ final class AddCartItemStep implements ProcessStep
         ));
     }
 
-    public function compensate(?Throwable $exception): void
+    public function compensate(Messaging $event, ?Throwable $exception): void
     {
         logger()->error('Item addition failed', [
             'exception' => $exception?->getMessage() ?? 'Unknown error',

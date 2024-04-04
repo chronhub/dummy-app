@@ -4,32 +4,31 @@ declare(strict_types=1);
 
 namespace App\Chron\Process\CustomerRegistration;
 
-use App\Chron\Model\Customer\Event\CustomerRegistered;
+use App\Chron\Application\Messaging\Command\Customer\RegisterCustomer;
 use App\Chron\Saga\ProcessManagerException;
-use App\Chron\Saga\ProcessStep;
+use App\Chron\Saga\SagaStep;
 use Storm\Contract\Message\Messaging;
+use Storm\Support\Facade\Report;
 use Throwable;
 
-use function sprintf;
-
-class RegisterCustomerStep implements ProcessStep
+final class RegisterCustomerStep implements SagaStep
 {
     public function shouldHandle(Messaging $event): bool
     {
-        return $event instanceof CustomerRegistered;
+        return $event instanceof RegisterCustomer;
     }
 
     public function handle(Messaging $event): void
     {
-        if (! $event instanceof CustomerRegistered) {
+        if (! $event instanceof RegisterCustomer) {
             throw new ProcessManagerException('Event is not an instance of RegisterCustomer');
         }
 
-        logger(sprintf('Start register new customer %s', $event->aggregateId()->toString()));
+        Report::relay($event);
     }
 
-    public function compensate(?Throwable $exception): void
+    public function compensate(Messaging $event, ?Throwable $exception): void
     {
-        logger('Exception occurred, compensating... with exception: '.$exception->getMessage());
+        logger('Error occurred with exception: '.$exception->getMessage());
     }
 }

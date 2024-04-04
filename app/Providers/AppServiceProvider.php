@@ -6,7 +6,7 @@ namespace App\Providers;
 
 use App\Chron\Application\Console\Shop\MigrateShopCommand;
 use App\Chron\Application\Console\Shop\SeedShopCommand;
-use App\Chron\Process\CustomerRegistration\CustomerRegistrationProcess;
+use App\Chron\Process\CustomerRegistration\CustomerRegistrationSaga;
 use App\Console\CartItemReadModelCommand;
 use App\Console\CartReadModelCommand;
 use App\Console\CatalogReadModelCommand;
@@ -46,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
 
     protected function registerSagas(): void
     {
-        $this->app->bind(CustomerRegistrationProcess::class);
+        $this->app->bind(CustomerRegistrationSaga::class);
     }
 
     protected function registerCommands(): void

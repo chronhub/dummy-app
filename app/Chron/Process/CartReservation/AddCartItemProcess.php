@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Chron\Process\CartReservation;
 
 use App\Chron\Application\Messaging\Command\Cart\StartAddCartItem;
-use App\Chron\Saga\ProcessManager;
+use App\Chron\Saga\SagaManager;
 use Illuminate\Contracts\Foundation\Application;
 use Storm\Contract\Message\Messaging;
 use Storm\Message\Attribute\AsCommandHandler;
@@ -17,11 +17,11 @@ use Storm\Message\Attribute\AsCommandHandler;
 )]
 final readonly class AddCartItemProcess
 {
-    private ProcessManager $sagaManager;
+    private SagaManager $sagaManager;
 
     public function __construct(private Application $app)
     {
-        $this->sagaManager = new ProcessManager();
+        $this->sagaManager = new SagaManager();
 
         foreach ($this->getSteps() as $step) {
             $this->sagaManager->addStep($step);

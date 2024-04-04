@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Chron\Model\Customer\Handler\StartCustomerRegistrationHandler;
-
 return [
     'reporters' => [
         \Storm\Reporter\ReportCommand::class,
@@ -28,7 +26,6 @@ return [
         \App\Chron\SayHelloHandler::class,
 
         // command handlers
-        StartCustomerRegistrationHandler::class,
         \App\Chron\Model\Customer\Handler\RegisterCustomerHandler::class,
         \App\Chron\Model\Customer\Handler\ChangeCustomerEmailHandler::class,
 

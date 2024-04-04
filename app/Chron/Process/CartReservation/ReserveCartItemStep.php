@@ -6,11 +6,11 @@ namespace App\Chron\Process\CartReservation;
 
 use App\Chron\Application\Messaging\Command\Cart\StartAddCartItem;
 use App\Chron\Model\Inventory\Service\InventoryReservationService;
-use App\Chron\Saga\ProcessStep;
+use App\Chron\Saga\SagaStep;
 use Storm\Contract\Message\Messaging;
 use Throwable;
 
-final readonly class ReserveCartItemStep implements ProcessStep
+final readonly class ReserveCartItemStep implements SagaStep
 {
     public function __construct(private InventoryReservationService $inventoryReservationService)
     {
@@ -38,7 +38,7 @@ final readonly class ReserveCartItemStep implements ProcessStep
         ]);
     }
 
-    public function compensate(?Throwable $exception): void
+    public function compensate(Messaging $event, ?Throwable $exception): void
     {
         logger()->error('Item reservation failed', [
             'exception' => $exception?->getMessage() ?? 'Unknown error',
