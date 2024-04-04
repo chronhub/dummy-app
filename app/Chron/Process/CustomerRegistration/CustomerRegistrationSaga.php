@@ -31,8 +31,8 @@ final readonly class CustomerRegistrationSaga
         return [
             $this->app[RegisterCustomerStep::class],
             $this->app[CreateAuthUserStep::class],
-            $this->app[CreateOpenCartStep::class],
-            $this->app[CreateSendEmailToNewCustomerStep::class],
+            $this->app[OpenCartStep::class],
+            $this->app[SendEmailToNewCustomerStep::class],
         ];
     }
 }

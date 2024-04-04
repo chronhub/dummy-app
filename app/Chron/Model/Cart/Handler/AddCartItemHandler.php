@@ -14,7 +14,7 @@ use App\Chron\Model\Cart\Repository\CartList;
 use Storm\Message\Attribute\AsCommandHandler;
 
 #[AsCommandHandler(
-    reporter: 'reporter.command.sync.default',
+    reporter: 'reporter.command.async.default',
     handles: AddCartItem::class,
 )]
 final readonly class AddCartItemHandler

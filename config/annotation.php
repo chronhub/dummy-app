@@ -32,7 +32,6 @@ return [
         // cart
         \App\Chron\Model\Cart\Handler\OpenCartHandler::class,
         \App\Chron\Model\Cart\Handler\AddCartItemHandler::class,
-        \App\Chron\Process\CartReservation\AddCartItemProcess::class,
         \App\Chron\Model\Cart\Handler\RemoveCartItemHandler::class,
         \App\Chron\Model\Cart\Handler\UpdateCartItemHandler::class,
         \App\Chron\Model\Cart\Handler\CancelCartHandler::class,

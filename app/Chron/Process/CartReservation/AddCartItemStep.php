@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Chron\Process\CartReservation;
 
 use App\Chron\Application\Messaging\Command\Cart\AddCartItem;
-use App\Chron\Application\Messaging\Command\Cart\StartAddCartItem;
 use App\Chron\Saga\SagaStep;
 use Storm\Contract\Message\Messaging;
 use Storm\Support\Facade\Report;
@@ -15,22 +14,16 @@ final class AddCartItemStep implements SagaStep
 {
     public function shouldHandle(Messaging $event): bool
     {
-        return $event instanceof StartAddCartItem;
+        return $event instanceof AddCartItem;
     }
 
     public function handle(Messaging $event): void
     {
-        if (! $event instanceof StartAddCartItem) {
+        if (! $event instanceof AddCartItem) {
             return;
         }
 
-        Report::relay(AddCartItem::toCart(
-            $event->toContent()['cart_id'],
-            $event->toContent()['cart_owner'],
-            $event->toContent()['cart_item_sku'],
-            $event->toContent()['cart_item_price'],
-            $event->toContent()['cart_item_quantity']
-        ));
+        Report::relay($event);
     }
 
     public function compensate(Messaging $event, ?Throwable $exception): void

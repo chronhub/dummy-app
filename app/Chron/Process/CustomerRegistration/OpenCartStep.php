@@ -13,7 +13,7 @@ use Throwable;
 
 use function sprintf;
 
-final readonly class CreateOpenCartStep implements SagaStep
+final readonly class OpenCartStep implements SagaStep
 {
     public function __construct(private CartApplicationService $cartApplicationService)
     {

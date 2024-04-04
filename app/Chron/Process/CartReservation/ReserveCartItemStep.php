@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Chron\Process\CartReservation;
 
-use App\Chron\Application\Messaging\Command\Cart\StartAddCartItem;
+use App\Chron\Application\Messaging\Command\Cart\AddCartItem;
 use App\Chron\Model\Inventory\Service\InventoryReservationService;
 use App\Chron\Saga\SagaStep;
 use Storm\Contract\Message\Messaging;
@@ -18,12 +18,12 @@ final readonly class ReserveCartItemStep implements SagaStep
 
     public function shouldHandle(Messaging $event): bool
     {
-        return $event instanceof StartAddCartItem;
+        return $event instanceof AddCartItem;
     }
 
     public function handle(Messaging $event): void
     {
-        if (! $event instanceof StartAddCartItem) {
+        if (! $event instanceof AddCartItem) {
             return;
         }
 

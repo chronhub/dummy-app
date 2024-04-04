@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Chron\Application\Service;
 
+use App\Chron\Application\Messaging\Command\Cart\AddCartItem;
 use App\Chron\Application\Messaging\Command\Cart\CancelCart;
 use App\Chron\Application\Messaging\Command\Cart\CheckoutCart;
 use App\Chron\Application\Messaging\Command\Cart\OpenCart;
 use App\Chron\Application\Messaging\Command\Cart\RemoveCartItem;
-use App\Chron\Application\Messaging\Command\Cart\StartAddCartItem;
 use App\Chron\Application\Messaging\Command\Cart\UpdateCartItemQuantity;
+use App\Chron\Process\CartReservation\AddCartItemSaga;
 use stdClass;
 use Storm\Support\Facade\Report;
 use Storm\Support\QueryPromiseTrait;
@@ -19,8 +20,10 @@ final readonly class CartApplicationService
 {
     use QueryPromiseTrait;
 
-    public function __construct(private ShopApplicationService $shopApplicationService)
-    {
+    public function __construct(
+        private ShopApplicationService $shopApplicationService,
+        private AddCartItemSaga $addCartItemSaga
+    ) {
     }
 
     public function openCart(string $customerId): void
@@ -34,9 +37,9 @@ final readonly class CartApplicationService
     {
         $product = $this->shopApplicationService->queryProductFromCatalog($sku);
 
-        $command = StartAddCartItem::toCart($cartId, $customerId, $sku, $product->current_price, $quantity);
+        $command = AddCartItem::toCart($cartId, $customerId, $sku, $product->current_price, $quantity);
 
-        $this->dispatchCommand($command);
+        $this->addCartItemSaga->handle($command);
     }
 
     public function removeProductFromCart(string $cartItemId, string $cartId, string $customerId, string $sku): void

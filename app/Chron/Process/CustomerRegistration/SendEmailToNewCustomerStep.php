@@ -12,7 +12,8 @@ use Throwable;
 
 use function sprintf;
 
-final readonly class CreateSendEmailToNewCustomerStep implements SagaStep
+// probably not part of saga
+final readonly class SendEmailToNewCustomerStep implements SagaStep
 {
     public function shouldHandle(Messaging $event): bool
     {
